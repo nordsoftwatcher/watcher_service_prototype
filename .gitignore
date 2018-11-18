@@ -1,0 +1,17 @@
+.idea
+.history/
+**.iml
+.DS_Store
+.vscode/
+
+**/deploy/db
+**/deploy/*.war
+logs
+target
+dist
+node_modules
+
+.settings
+.project
+.classpath
+.factorypath
