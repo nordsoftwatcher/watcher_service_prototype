@@ -1,0 +1,18 @@
+.accordionItem {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: #0F384D;
+  margin: 8px 0;
+}
+
+.open {
+  border-color: #ffffff;
+}
+
+.success {
+  background: rgba(6, 197, 117, 0.2);
+}
+
+.success.open {
+  border-color: var(--green);
+}

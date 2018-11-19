@@ -1,0 +1,20 @@
+.panel {
+  background: #2C566B;
+  border: 2px solid #2C566B;
+  border-radius: 4px 4px 6px 6px;
+  margin: 32px;
+}
+
+.header {
+  font-size: 12px;
+  color: var(--white);
+  padding: 8px 10px;
+  letter-spacing: .3px;
+}
+
+.body {
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 16px;
+  color: var(--white);
+}
