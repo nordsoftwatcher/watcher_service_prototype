@@ -99,6 +99,7 @@
                 <module>battery-monitoring-service</module>
                 <module>location-monitoring-service</module>
                 <module>heartrate-monitoring-service</module>
+                <module>route-service</module>
             </modules>
         </profile>
     </profiles>
