@@ -9,11 +9,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.nord.siwatch.backend.services.common.api.ApiBase;
 import ru.nord.siwatch.backend.services.route.api.dto.RouteDto;
+import ru.nord.siwatch.backend.services.route.api.model.CreateRouteInput;
 import ru.nord.siwatch.backend.services.route.entities.Route;
 import ru.nord.siwatch.backend.services.route.entities.RoutePoint;
 import ru.nord.siwatch.backend.services.route.mapping.RouteMapper;
 import ru.nord.siwatch.backend.services.route.repositories.RouteRepository;
+import ru.nord.siwatch.backend.services.route.services.RouteService;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,10 +35,14 @@ public class RouteApi extends ApiBase {
     @Autowired
     private RouteRepository routeRepository;
 
+    @Autowired
+    private RouteService routeService;
+
     @ApiOperation(value = "Создание маршрута")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RouteDto createRoute() {
-        return null;
+    public RouteDto createRoute(@Valid @RequestBody CreateRouteInput createRouteInput) {
+        Route route = routeService.createRoute(createRouteInput);
+        return routeMapper.toRouteDto(route);
     }
 
     @ApiOperation(value = "Получение информации о маршруте")

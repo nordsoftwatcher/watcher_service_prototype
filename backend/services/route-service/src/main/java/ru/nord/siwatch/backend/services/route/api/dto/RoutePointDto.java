@@ -6,6 +6,8 @@ import lombok.Setter;
 @Getter @Setter
 public class RoutePointDto {
 
+    private Long id;
+
     private Long order;
 
     private Double latitude;

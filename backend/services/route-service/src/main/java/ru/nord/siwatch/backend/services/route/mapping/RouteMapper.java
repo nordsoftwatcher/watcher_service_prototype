@@ -5,6 +5,8 @@ import org.mapstruct.Mapping;
 import ru.nord.siwatch.backend.services.route.api.dto.RouteDto;
 import ru.nord.siwatch.backend.services.route.api.dto.RoutePointDto;
 import ru.nord.siwatch.backend.services.route.api.dto.RoutePointInfoDto;
+import ru.nord.siwatch.backend.services.route.api.model.CreateRoutePointInfoInput;
+import ru.nord.siwatch.backend.services.route.api.model.CreateRoutePointInput;
 import ru.nord.siwatch.backend.services.route.entities.Route;
 import ru.nord.siwatch.backend.services.route.entities.RoutePoint;
 import ru.nord.siwatch.backend.services.route.entities.RoutePointInfo;
@@ -23,5 +25,9 @@ public interface RouteMapper {
 
     List<RoutePointDto> toRoutePointDtoList(List<RoutePoint> routePoints);
 
+    RoutePoint toRoutePoint(CreateRoutePointInput createRoutePointInput);
+
     RoutePointInfoDto map(RoutePointInfo value);
+
+    RoutePointInfo map(CreateRoutePointInfoInput createRoutePointInfoInput);
 }

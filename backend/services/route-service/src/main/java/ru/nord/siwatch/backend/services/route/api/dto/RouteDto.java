@@ -8,6 +8,8 @@ import java.util.List;
 @Getter @Setter
 public class RouteDto {
 
+    private Long id;
+
     private RouteStatus status;
 
     private List<RoutePointDto> routePoints;
