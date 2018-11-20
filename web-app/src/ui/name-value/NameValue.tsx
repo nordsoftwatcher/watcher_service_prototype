@@ -1,6 +1,8 @@
 import React from 'react';
 import styles from './NameValue.module.css';
 
+import cn from 'classnames';
+
 interface NameValueProps {
   name: React.ReactNode;
   value: React.ReactNode;
@@ -8,13 +10,17 @@ interface NameValueProps {
 }
 
 export const NameValue: React.StatelessComponent<NameValueProps> =
-({ name, value, vertical }) => (
-  <div className={styles.namevalue + ' ' + (vertical ? styles.vertical : '')}>
-    <div className={styles.name}>
-      {name}
+  ({ name, value, vertical }) => (
+    <div className={cn({
+      [styles.namevalue]: true,
+      [styles.vertical]: vertical
+    })}
+    >
+      <div className={styles.name}>
+        {name}
+      </div>
+      <div className={styles.value}>
+        {value}
+      </div>
     </div>
-    <div className={styles.value}>
-      {value}
-    </div>
-  </div>
-)
+  )

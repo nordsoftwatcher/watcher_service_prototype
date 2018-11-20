@@ -1,12 +1,13 @@
 .routeHeader {
   display: flex;
   align-items: center;
-}
-
-.routeTitle {
+  
   font-size: 18px;
   font-weight: bold;
   letter-spacing: .4px;
+}
+
+.routeTitle {
   margin-right: 8px;
 }
 
@@ -17,6 +18,8 @@
 
 .routeMap {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .routePlan {

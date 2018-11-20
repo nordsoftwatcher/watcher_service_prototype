@@ -3,11 +3,11 @@ import styles from './RouteInstance.module.css';
 
 import { IRoute } from '../../models/route';
 import { IRouteInstance } from '../../models/route-instance'
-import { IPerson } from '../../models/person';
 
 import { Panel, Accordion, Badge, Button } from '../../../ui'
 import { RoutePoint } from '../route-point/RoutePoint';
 import { RouteMap } from '../route-map/RouteMap';
+import { RouteTrack } from '../route-track/RouteTrack';
 
 export interface RouteInstanceProps {
   route: IRoute;
@@ -64,9 +64,11 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
             )}
         </div>
+        
         <div className={styles.routeContent}>
           <div className={styles.routeMap}>
-            <RouteMap route={route} routeInstance={routeInstance}></RouteMap>
+            <RouteMap route={route} routeInstance={routeInstance} />
+            <RouteTrack route={route} routeInstance={routeInstance} />
           </div>
           {this.state.showRoutingPlan && (
             <div style={{ width: planWidth }} className={styles.routePlan}>

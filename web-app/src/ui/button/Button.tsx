@@ -1,6 +1,8 @@
 import React from 'react';
 import styles from './Button.module.css';
 
+import cn from 'classnames';
+
 export interface ButtonProps {
   solid?: boolean;
   outline?: boolean;
@@ -11,17 +13,17 @@ export interface ButtonProps {
 
 export class Button extends React.Component<ButtonProps> {
 
-  getClassName() {
-    const result = [styles.button];
-    this.props.solid && result.push(styles.solid);
-    this.props.outline && result.push(styles.outline);
-    this.props.link && result.push(styles.link);
-    return result.join(' ');
-  }
-
   render() {
     return (
-      <button className={this.getClassName()} onClick={this.props.onClick}>
+      <button
+        className={cn({
+          [styles.button]: true,
+          [styles.solid]: this.props.solid,
+          [styles.outline]: this.props.outline,
+          [styles.link]: this.props.link,
+        })}
+        onClick={this.props.onClick}
+      >
         {this.props.children}
       </button>
     )

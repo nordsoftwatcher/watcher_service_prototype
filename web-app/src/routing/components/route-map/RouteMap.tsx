@@ -22,7 +22,7 @@ export class RouteMap extends React.Component<RouteMapProps> {
     const { route, routeInstance } = this.props;
 
     return (
-      <div className={styles.mapContainer}>
+      <div className={styles.root}>
         <Map center={routeInstance.currentPos} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'

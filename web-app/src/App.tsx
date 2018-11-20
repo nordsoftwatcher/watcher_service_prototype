@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import styles from './App.module.css';
+// import styles from './App.module.css';
+
+import './icons'
+
 import { RouteInstance } from './routing/components/route-instance/RouteInstance';
 import { IRouteInstance } from './routing/models/route-instance';
 import { IRoute } from './routing/models/route';

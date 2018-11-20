@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './AccordionItemTitle.module.css';
 
-import { FaChevronDown, FaChevronUp, FaRegCheckCircle } from 'react-icons/fa'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { AccordionItemContext } from './AccordionItem'
 
@@ -14,10 +14,10 @@ export default class AccordionItemTitle extends React.Component {
             <div className={styles.title}>
               {this.props.children}
               {' '}
-              {isSuccess && <FaRegCheckCircle color='#06C575' size='15px' className={styles.successIcon}/>}
+              {isSuccess && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.successIcon} size='lg' />}
             </div>
             <div className={styles.toggleIcon}>
-              {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+              {isOpen ? <FontAwesomeIcon icon='chevron-up' /> : <FontAwesomeIcon icon='chevron-down' />}
             </div>
           </div>
         )}

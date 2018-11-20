@@ -1,0 +1,57 @@
+.root {
+  margin-top: 16px;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.route {
+  height: 6px;
+  opacity: .2;
+  width: calc(100% - 24px);
+  margin: 0 12px;
+  background: var(--blue);
+
+  position: absolute;
+  top: 10px;
+}
+
+.routeInstance {
+  composes: route;
+  background: var(--green);
+  opacity: 1;
+  width: calc(40% - (24px * .4));
+}
+
+.checkpoints {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  position: absolute;
+}
+
+.checkpointTime {
+  font-size: 8px;
+  text-align: center;
+}
+
+.currentPos {
+  position: absolute;
+  left: calc(40% - 12px);
+}
+
+@value mainColor: var(--blue);
+@value successColor: var(--green);
+
+.root :global(.fa-stack) {
+  height: calc(1em + 2px);
+  width: calc(1em + 2px);
+  border: 1px solid #2A2B31;
+  border-radius: 50%;
+  font-size: 1.5em;
+}
+
+.root :global(.svg-inline--fa.fa-stack-1x) {
+  width: 1em;
+}
