@@ -1,5 +1,8 @@
 import React from 'react';
 import styles from './AccordionItem.module.css';
+
+import cn from 'classnames'
+
 import { AccordionContext } from './Accordion'
 
 export interface AccordionItemContext {
@@ -21,13 +24,6 @@ export interface AccordionItemProps {
 
 export default class AccordionItem extends React.Component<AccordionItemProps> {
 
-  getClassName(openId: string | undefined) {
-    const result = [styles.accordionItem];
-    openId === this.props.id && result.push(styles.open);
-    this.props.success && result.push(styles.success);
-    return result.join(' ')
-  }
-
   render() {
     const { id } = this.props;
     const isOpen = (openItemId: string | undefined) => openItemId === id;
@@ -40,7 +36,11 @@ export default class AccordionItem extends React.Component<AccordionItemProps> {
             toggle: () => toggle(id, !isOpen(openItemId)),
             isSuccess: !!this.props.success,
           }}>
-            <div className={this.getClassName(openItemId)}>
+            <div className={cn({
+              [styles.accordionItem]: true,
+              [styles.open]: openItemId === this.props.id,
+              [styles.success]: this.props.success,
+            })}>
               {this.props.children}
             </div>
           </AccordionItemContext.Provider>

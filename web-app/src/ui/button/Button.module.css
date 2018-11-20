@@ -21,4 +21,5 @@
 
 .link {
   color: var(--primary);
+  padding: 8px 8px;
 }
