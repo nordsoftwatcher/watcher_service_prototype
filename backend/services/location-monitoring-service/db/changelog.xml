@@ -25,18 +25,10 @@
             <column name="longitude" type="REAL" remarks="Значение показаний">
                 <constraints nullable="false" />
             </column>
-            <column name="altitude" type="REAL" remarks="Значение показаний">
-                <constraints nullable="false" />
-            </column>
-            <column name="speed" type="REAL" remarks="Значение показаний">
-                <constraints nullable="false" />
-            </column>
-            <column name="direction" type="REAL" remarks="Значение показаний">
-                <constraints nullable="false" />
-            </column>
-            <column name="accuracy" type="REAL" remarks="Значение показаний">
-                <constraints nullable="false" />
-            </column>
+            <column name="altitude" type="REAL" remarks="Значение показаний"/>
+            <column name="speed" type="REAL" remarks="Значение показаний"/>
+            <column name="direction" type="REAL" remarks="Значение показаний"/>
+            <column name="accuracy" type="REAL" remarks="Значение показаний"/>
         </createTable>
         <createIndex tableName="location_log" indexName="ix_location_device_id" unique="false">
             <column name="device_id" />

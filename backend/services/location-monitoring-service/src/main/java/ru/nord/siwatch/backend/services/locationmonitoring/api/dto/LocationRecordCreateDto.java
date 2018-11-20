@@ -18,18 +18,14 @@ public class LocationRecordCreateDto extends AbstractRecordCreateDto
     private Double longitude;
 
     // The altitude value.
-    @NotNull
     private Double altitude;
 
     // The device speed.
-    //@NotNull
     private Double speed;
 
     // The device direction with respect to the north.
-    //@NotNull
     private Double direction;
 
     // The accuracy in meters.
-    @NotNull
     private Double accuracy;
 }
