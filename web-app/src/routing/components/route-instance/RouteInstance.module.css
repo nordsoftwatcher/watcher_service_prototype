@@ -1,0 +1,24 @@
+.routeHeader {
+  display: flex;
+  align-items: center;
+}
+
+.routeTitle {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: .4px;
+  margin-right: 8px;
+}
+
+.routeContent {
+  display: flex;
+  height: 70vh;
+}
+
+.routeMap {
+  flex: 1;
+}
+
+.routePlan {
+  margin-left: 16px;
+}

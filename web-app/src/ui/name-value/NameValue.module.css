@@ -1,0 +1,35 @@
+
+.namevalue {
+  display: flex;
+  flex-direction: row;
+  margin-top: 4px;
+}
+
+.namevalue:first-child {
+  margin-top: 0px;
+}
+
+.namevalue .name {
+  width: 40%;
+  opacity: .5;
+}
+
+.namevalue .value {
+  width: 60%;
+  text-align: center;
+}
+
+.namevalue.vertical {
+  flex-direction: column;
+  margin-top: 0px;
+}
+
+.namevalue.vertical .name {
+  width: 100%;
+}
+
+.namevalue.vertical .value {
+  margin-top: 4px;
+  text-align: left;
+  width: 100%;
+}
