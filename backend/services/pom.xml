@@ -101,6 +101,7 @@
                 <module>heartrate-monitoring-service</module>
                 <module>route-service</module>
                 <module>memory-monitoring-service</module>
+                <module>network-monitoring-service</module>
             </modules>
         </profile>
     </profiles>
