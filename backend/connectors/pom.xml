@@ -60,6 +60,7 @@
                 <module>battery-monitoring-connector</module>
                 <module>heartrate-monitoring-connector</module>
                 <module>location-monitoring-connector</module>
+                <module>route-connector</module>
             </modules>
         </profile>
     </profiles>
