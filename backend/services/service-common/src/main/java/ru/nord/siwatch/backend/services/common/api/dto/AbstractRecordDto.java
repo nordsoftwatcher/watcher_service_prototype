@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter @Setter
-public abstract class AbstractRecordDto
+public abstract class AbstractRecordDto extends AbstractEntityDto
 {
     @ApiModelProperty(notes = "ID устройства", example = "TODO", position = 0)
     private String deviceId;
