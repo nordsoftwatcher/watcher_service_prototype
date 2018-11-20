@@ -14,4 +14,6 @@ public class Route {
 
     private List<RoutePoint> routePoints;
 
+    private List<RoutePoint> checkPoints;
+
 }
