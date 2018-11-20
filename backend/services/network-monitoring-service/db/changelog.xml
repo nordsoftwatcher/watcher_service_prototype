@@ -21,7 +21,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="network_record_log" type="BOOLEAN" remarks="Статус доступности сети">
+            <column name="available" type="BOOLEAN" remarks="Статус доступности сети">
                 <constraints nullable="false" />
             </column>
         </createTable>
