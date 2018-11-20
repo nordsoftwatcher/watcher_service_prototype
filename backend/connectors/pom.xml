@@ -61,6 +61,8 @@
                 <module>heartrate-monitoring-connector</module>
                 <module>location-monitoring-connector</module>
                 <module>route-connector</module>
+                <module>memory-monitoring-connector</module>
+                <module>network-monitoring-connector</module>
             </modules>
         </profile>
     </profiles>
