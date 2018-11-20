@@ -25,6 +25,10 @@
             <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>heartrate-monitoring-connector</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ru.nord.siwatch.backend</groupId>
+            <artifactId>route-connector</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

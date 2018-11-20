@@ -1,6 +1,7 @@
 package ru.nord.siwatch.backend.services.common.entities;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 
 @MappedSuperclass
+@Getter @Setter
 public abstract class AbstractRecord extends AbstractEntity
 {
     @Column(name = "device_id", nullable = false, length = 32)
