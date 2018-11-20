@@ -35,7 +35,7 @@ public class NetworkMonitoringApi extends ApiBase {
     private NetworkRecordRepository networkRecordRepository;
 
     @ApiOperation(value = "Создание записи в журнале")
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NetworkRecordDto> add(@RequestBody NetworkRecordCreateDto createDto) {
         ensureValid(createDto);
 

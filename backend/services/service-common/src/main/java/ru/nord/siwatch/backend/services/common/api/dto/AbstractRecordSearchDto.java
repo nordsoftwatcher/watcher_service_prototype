@@ -12,16 +12,16 @@ import java.time.LocalDateTime;
 @Getter @Setter
 public abstract class AbstractRecordSearchDto
 {
-    @ApiModelProperty(notes = "ID устройства", example = "TODO", position = 0)
+    @ApiModelProperty(notes = "ID устройства", example = "TEST_DEVICE", position = 0)
     @NotBlank
     private String deviceId;
 
-    @ApiModelProperty(notes = "Время начала", example = "TODO", position = 10)
+    @ApiModelProperty(notes = "Время начала", example = "2018-11-20T15:00:00", position = 10)
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime fromTime;
 
-    @ApiModelProperty(notes = "Время окончания", example = "TODO", position = 20)
+    @ApiModelProperty(notes = "Время окончания", example = "2018-11-20T16:00:00", position = 20)
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime toTime;

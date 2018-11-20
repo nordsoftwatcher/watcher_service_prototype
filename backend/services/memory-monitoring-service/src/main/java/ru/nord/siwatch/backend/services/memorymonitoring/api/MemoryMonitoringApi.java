@@ -35,7 +35,7 @@ public class MemoryMonitoringApi extends ApiBase {
     private MemoryRecordMapper memoryRecordMapper;
 
     @ApiOperation(value = "Создание записи в журнале")
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MemoryRecordDto> add(@RequestBody MemoryRecordCreateDto createDto) {
         ensureValid(createDto);
 
