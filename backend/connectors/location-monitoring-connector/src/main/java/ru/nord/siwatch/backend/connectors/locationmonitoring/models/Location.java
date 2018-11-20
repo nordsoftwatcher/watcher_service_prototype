@@ -9,8 +9,8 @@ public class Location
 
     private double latitude;
     private double longitude;
-    private double altitude;
-    private double speed;
-    private double direction;
-    private double accuracy;
+    private Double altitude;
+    private Double speed;
+    private Double direction;
+    private Double accuracy;
 }

@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.nord.siwatch.backend.connectors.heartratemonitoring.models.HeartRateInfo;
 
-import java.net.URI;
-
 @Component
 public class HeartRateMonitoringConnector
 {
@@ -18,6 +16,6 @@ public class HeartRateMonitoringConnector
     }
 
     public void save(HeartRateInfo info) {
-        restTemplate.put("/", info);
+        restTemplate.postForObject("/hrmon/", info, String.class);
     }
 }

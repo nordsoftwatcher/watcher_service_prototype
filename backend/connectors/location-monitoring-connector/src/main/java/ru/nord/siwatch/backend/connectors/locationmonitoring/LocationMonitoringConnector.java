@@ -3,14 +3,15 @@ package ru.nord.siwatch.backend.connectors.locationmonitoring;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import ru.nord.backend.infrastructure.utils.MapBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.LocationInfo;
-
-import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -25,19 +26,22 @@ public class LocationMonitoringConnector
     }
 
     public void save(LocationInfo info) {
-        restTemplate.put("/", info);
+        restTemplate.postForObject("/locmon/", info, String.class);
     }
 
     public List<Location> find(String deviceId, LocalDateTime fromTime, LocalDateTime toTime) {
         List<Location> location;
         try {
-            location =
-                restTemplate.getForObject(
-                    "/",  List.class,
-                    MapBuilder.put("deviceId", (Object) deviceId).put("fromTime", fromTime).put("toTime", toTime).build());
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("deviceId", deviceId);
+            params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
+            params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/locmon/").queryParams(params);
+            location = restTemplate.getForObject(builder.build().toString(),  List.class, params);
         }
         catch (RestClientException ex) {
-            log.error("", ex);
+            log.error(ex.getMessage(), ex);
             throw ex;
         }
         return location;

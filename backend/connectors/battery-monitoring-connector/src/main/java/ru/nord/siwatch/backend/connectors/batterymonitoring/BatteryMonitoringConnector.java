@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.nord.siwatch.backend.connectors.batterymonitoring.models.BatteryLevelInfo;
 
-import java.net.URI;
-
 @Component
 public class BatteryMonitoringConnector
 {
@@ -18,6 +16,6 @@ public class BatteryMonitoringConnector
     }
 
     public void save(BatteryLevelInfo info) {
-        restTemplate.put("/", info);
+        restTemplate.postForObject("/battmon/", info, String.class);
     }
 }
