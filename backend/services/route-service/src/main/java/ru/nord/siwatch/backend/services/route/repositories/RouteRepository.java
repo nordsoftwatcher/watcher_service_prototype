@@ -9,6 +9,7 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
 
     @Query("SELECT DISTINCT route FROM Route as route " +
         "LEFT JOIN FETCH route.routePoints " +
+        "LEFT JOIN FETCH route.checkPoints " +
         "WHERE route.id = :routeId")
     Route getRouteWithPoints(@Param("routeId") Long routeId);
 }

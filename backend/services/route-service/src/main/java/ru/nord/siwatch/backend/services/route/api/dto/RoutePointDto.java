@@ -2,11 +2,10 @@ package ru.nord.siwatch.backend.services.route.api.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.nord.siwatch.backend.services.common.api.dto.AbstractEntityDto;
 
 @Getter @Setter
-public class RoutePointDto {
-
-    private Long id;
+public class RoutePointDto extends AbstractEntityDto {
 
     private Long order;
 
@@ -14,7 +13,4 @@ public class RoutePointDto {
 
     private Double longitude;
 
-    private Double altitude;
-
-    private RoutePointInfoDto pointInfo;
 }

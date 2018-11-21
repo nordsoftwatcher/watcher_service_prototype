@@ -25,10 +25,4 @@ public class RoutePoint extends AbstractEntity {
     @Column(name = "longitude", nullable = false)
     private Double longitude;
 
-    @Column(name = "altitude", nullable = false)
-    private Double altitude;
-
-    @Embedded
-    private RoutePointInfo pointInfo;
-
 }

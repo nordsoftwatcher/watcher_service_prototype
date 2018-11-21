@@ -34,18 +34,34 @@
             <column name="longitude" type="REAL" remarks="Долгота">
                 <constraints nullable="false"/>
             </column>
-            <column name="altitude" type="REAL" remarks="Высота над уровнем моря">
+        </createTable>
+
+        <createTable tableName="check_point" remarks="Контрольная точка маршрута">
+            <column autoIncrement="true" name="id" type="BIGINT" remarks="Идентификатор">
+                <constraints primaryKey="true" primaryKeyName="pk_check_point"/>
+            </column>
+            <column name="route_id" type="BIGINT" remarks="Id маршрута">
+                <constraints nullable="false" references="route(id)"
+                             foreignKeyName="fk_check_point_route"/>
+            </column>
+
+            <column name="point_order" type="BIGINT" remarks="Порядок">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="REAL" remarks="Широта">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="REAL" remarks="Долгота">
                 <constraints nullable="false"/>
             </column>
 
             <column name="name" type="VARCHAR(255)" remarks="Название пункта"/>
-            <column name="arrival_time" type="TIME" remarks="Время прибытия"/>
-            <column name="departure_time" type="TIME" remarks="Время отправления"/>
+            <column name="arrival_time" type="TIMESTAMP" remarks="Время прибытия"/>
+            <column name="departure_time" type="TIMESTAMP" remarks="Время отправления"/>
             <column name="plan_time" type="INTEGER" remarks="План"/>
             <column name="fact_time" type="INTEGER" remarks="Факт"/>
             <column name="address" type="VARCHAR(2000)" remarks="Адрес"/>
             <column name="description" type="VARCHAR(10000)" remarks="Описание"/>
-            <column name="passed" type="BOOLEAN" remarks="Пройден ли пункт"/>
         </createTable>
 
     </changeSet>
