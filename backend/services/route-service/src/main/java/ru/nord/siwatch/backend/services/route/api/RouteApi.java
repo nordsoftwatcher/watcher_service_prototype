@@ -37,12 +37,11 @@ public class RouteApi extends ApiBase {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public RouteDto createRoute(@Valid @RequestBody CreateRouteInput createRouteInput) {
         Route route = routeService.createRoute(createRouteInput);
-        return routeMapper.toRouteDto(route);
+        return routeMapper.toRouteDto(routeRepository.getRouteWithPoints(route.getId()));
     }
 
     @ApiOperation(value = "Получение информации о маршруте")
-    @GetMapping()
-    @RequestMapping(value = "/{routeId}")
+    @GetMapping( "/{routeId}")
     public RouteDto getRoute(@PathVariable Long routeId) {
         Route route = routeRepository.getRouteWithPoints(routeId);
         if (route != null) {

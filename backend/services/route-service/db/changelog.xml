@@ -11,6 +11,9 @@
             <column autoIncrement="true" name="id" type="BIGINT" remarks="Идентификатор">
                 <constraints primaryKey="true" primaryKeyName="pk_route"/>
             </column>
+            <column name="supervisor_id" type="BIGINT" remarks="ID супервайзера">
+                <constraints nullable="false" />
+            </column>
             <column name="status" type="VARCHAR(255)" remarks="Статус">
                 <constraints nullable="false"/>
             </column>
@@ -55,6 +58,9 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="radius" type="INTEGER" remarks="Радиус">
+                <constraints nullable="false"/>
+            </column>
             <column name="name" type="VARCHAR(255)" remarks="Название пункта"/>
             <column name="arrival_time" type="TIMESTAMP" remarks="Время прибытия"/>
             <column name="departure_time" type="TIMESTAMP" remarks="Время отправления"/>

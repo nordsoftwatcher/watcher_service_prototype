@@ -21,6 +21,9 @@ public class Route extends AbstractEntity {
     @OrderBy("order ASC")
     private Set<CheckPoint> checkPoints;
 
+    @Column(name = "supervisor_id", nullable = false)
+    private Long supervisorId;
+
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private RouteStatus status;

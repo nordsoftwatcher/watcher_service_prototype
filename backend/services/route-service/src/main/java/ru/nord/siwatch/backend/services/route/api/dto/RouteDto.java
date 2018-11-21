@@ -11,6 +11,8 @@ public class RouteDto extends AbstractEntityDto {
 
     private RouteStatus status;
 
+    private Long supervisorId;
+
     private List<RoutePointDto> routePoints;
 
     private List<CheckPointDto> checkPoints;

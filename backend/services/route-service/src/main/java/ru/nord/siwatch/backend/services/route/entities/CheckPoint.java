@@ -5,6 +5,7 @@ import lombok.Setter;
 import ru.nord.siwatch.backend.services.common.entities.AbstractEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import java.util.Date;
 
 @Entity
@@ -16,6 +17,10 @@ public class CheckPoint extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", referencedColumnName = "id", nullable = false)
     private Route route;
+
+    @Column(name = "radius", nullable = false)
+    @Min(value = 1, message = "Min radius size is 1")
+    private Integer radius;
 
     @Column(name = "point_order", nullable = false)
     private Long order;

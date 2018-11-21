@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @Getter @Setter
 public class CreateCheckPointInput {
 
+    @NotNull(message = "Radius can't be null")
+    private Integer radius;
+
     @NotNull(message = "Order can't be null")
     private Long order;
 
