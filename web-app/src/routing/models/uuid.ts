@@ -1,1 +1,1 @@
-export type UUID = string;
+export type UUID = number | undefined;
