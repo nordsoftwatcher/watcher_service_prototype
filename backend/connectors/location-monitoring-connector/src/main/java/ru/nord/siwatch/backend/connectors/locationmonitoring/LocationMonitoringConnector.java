@@ -5,7 +5,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
@@ -16,12 +15,10 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class LocationMonitoringConnector
-{
+public class LocationMonitoringConnector {
     private final RestTemplate restTemplate;
 
-    public LocationMonitoringConnector(RestTemplateBuilder restTemplateBuilder, LocationMonitoringConnectorSettings settings)
-    {
+    public LocationMonitoringConnector(RestTemplateBuilder restTemplateBuilder, LocationMonitoringConnectorSettings settings) {
         this.restTemplate = restTemplateBuilder.rootUri(settings.getServiceUrl().toString()).build();
     }
 
@@ -30,20 +27,12 @@ public class LocationMonitoringConnector
     }
 
     public List<Location> find(String deviceId, LocalDateTime fromTime, LocalDateTime toTime) {
-        List<Location> location;
-        try {
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("deviceId", deviceId);
-            params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
-            params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("deviceId", deviceId);
+        params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
+        params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/locmon/").queryParams(params);
-            location = restTemplate.getForObject(builder.build().toString(),  List.class, params);
-        }
-        catch (RestClientException ex) {
-            log.error(ex.getMessage(), ex);
-            throw ex;
-        }
-        return location;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/locmon/").queryParams(params);
+        return restTemplate.getForObject(builder.build().toString(), List.class, params);
     }
 }

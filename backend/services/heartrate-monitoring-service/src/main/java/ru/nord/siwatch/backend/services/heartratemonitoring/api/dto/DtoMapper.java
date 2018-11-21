@@ -9,7 +9,6 @@ public interface DtoMapper
 {
     HeartRateRecord createRecord(HeartRateRecordCreateDto dto);
 
-    @Mapping(target = "deviceId", ignore = true)
     HeartRateRecordDto getBriefHeartRateRecordDto(HeartRateRecord record);
 
     HeartRateRecordDto getFullHeartRateRecordDto(HeartRateRecord record);
