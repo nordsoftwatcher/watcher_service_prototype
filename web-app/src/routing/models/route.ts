@@ -1,14 +1,18 @@
+import { Coordinates } from './coordinates';
+import { UUID } from './uuid';
+
 export interface IRoute {
-  id: string;
+  id: UUID;
   name: string;
-  points: IRoutePoint[];
-  track: [number, number][];
+  track: Coordinates[];
+  checkpoints: ICheckpoint[];
 }
 
-export interface IRoutePoint {
-  id: string;
+export interface ICheckpoint {
+  id: UUID;
   name: string;
   address: string;
   description: string;
-  coord: [number, number];
+  coords: Coordinates;
+  planTime?: string;
 }

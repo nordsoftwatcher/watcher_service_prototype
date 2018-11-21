@@ -1,14 +1,24 @@
-import { IPerson } from "./person";
+import { Coordinates } from './coordinates';
+import { UUID } from './uuid';
 
 export interface IRouteInstance {
-  passedPoints: IRouteInstacePoint[];
-  currentPos: [number, number];
-  track: [number, number][];
-  person: IPerson;
+  id: UUID;
+  personId: UUID;
+  chekpoints: ICompletedCheckpoint[];
+  track: ITrackCoordiantes[];
+  currentPos: Coordinates;
 }
 
-export interface IRouteInstacePoint {
-  pointId: string;
+export interface ICompletedCheckpoint {
+  pointId: UUID;
+  factTime: string;
   arrival: string;
   departure: string;
+}
+
+export interface ITrackCoordiantes {
+  coords: Coordinates;
+  attributes: {
+    distanceFromRoute: number;
+  };
 }

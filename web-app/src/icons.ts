@@ -1,4 +1,4 @@
-import { library } from '@fortawesome/fontawesome-svg-core'
+import { library } from '@fortawesome/fontawesome-svg-core';
 
 import {
   faDotCircle,
@@ -7,11 +7,11 @@ import {
   faChevronDown,
   faChevronUp,
   faCircle,
-} from '@fortawesome/free-solid-svg-icons'
+} from '@fortawesome/free-solid-svg-icons';
 
 import {
-  faCheckCircle as faRegCheckCircle
-} from '@fortawesome/free-regular-svg-icons'
+  faCheckCircle as faRegCheckCircle,
+} from '@fortawesome/free-regular-svg-icons';
 
 library.add(
   faDotCircle,
@@ -20,8 +20,8 @@ library.add(
   faChevronDown,
   faChevronUp,
   faCircle,
-)
+);
 
 library.add(
   faRegCheckCircle,
-)
+);

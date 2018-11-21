@@ -17,6 +17,6 @@ export class Panel extends React.Component<PanelProps> {
           {this.props.children}
         </div>
       </div>
-    )
+    );
   }
 }
