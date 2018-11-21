@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 // import styles from './App.module.css';
 
-import './icons'
+import './icons';
 
 import { RouteInstance } from './routing/components/route-instance/RouteInstance';
-import { IRouteInstance } from './routing/models/route-instance';
+import { IRouteInstance, ITrackCoordiantes } from './routing/models/route-instance';
 import { IRoute } from './routing/models/route';
 import { IPerson } from './routing/models/person';
 import { LatLngTuple } from 'leaflet';
@@ -12,41 +12,41 @@ import { LatLngTuple } from 'leaflet';
 const route: IRoute = {
   id: '1',
   name: 'Маршрут №1234',
-  points: [
+  checkpoints: [
     {
       id: '1',
       name: 'Пункт назначения №1',
-      coord: [57.9911, 40.1803],
+      coords: [57.9911, 40.1803],
       address: 'ул. Красного текстильщика, дом 34, корпус 3',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales. Maecenas interdum elementum consectetur...',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales',
     },
     {
       id: '2',
       name: 'Пункт назначения №2',
-      coord: [57.9973, 40.1974],
+      coords: [57.9973, 40.1974],
       address: 'ул. Красного текстильщика, дом 34, корпус 3',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales. Maecenas interdum elementum consectetur...',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales',
     },
     {
       id: '3',
       name: 'Пункт назначения №3',
-      coord: [57.9819, 40.2389],
+      coords: [57.9819, 40.2389],
       address: 'ул. Красного текстильщика, дом 34, корпус 3',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales. Maecenas interdum elementum consectetur...',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales',
     },
     {
       id: '4',
       name: 'Пункт назначения №4',
-      coord: [57.9763, 40.2579],
+      coords: [57.9763, 40.2579],
       address: 'ул. Красного текстильщика, дом 34, корпус 3',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales. Maecenas interdum elementum consectetur...',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales',
     },
     {
       id: '5',
       name: 'Пункт назначения №5',
-      coord: [57.9802, 40.2733],
+      coords: [57.9802, 40.2733],
       address: 'ул. Красного текстильщика, дом 34, корпус 3',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales. Maecenas interdum elementum consectetur...',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis mauris at dapibus sodales',
     },
   ],
   track: [
@@ -84,29 +84,33 @@ const route: IRoute = {
     [40.270439, 57.978414],
     [40.271421, 57.978813],
     [40.273427, 57.980212],
-  ].map(([y, x]) => [x, y] as LatLngTuple)
-}
+  ].map(([y, x]) => [x, y] as LatLngTuple),
+};
 
 const person: IPerson = {
+  id: '1',
   lastName: 'Иванов',
   firstName: 'Иван',
   middleName: 'Иванович',
-}
+};
 
 const routeInstance: IRouteInstance = {
-  person,
+  id: '1',
+  personId: '1',
   currentPos: [57.9891, 40.2288],
-  passedPoints: [
+  chekpoints: [
     {
       pointId: '1',
+      factTime: '00:00',
       arrival: '09:13',
       departure: '10:02',
     },
     {
       pointId: '2',
+      factTime: '00:00',
       arrival: '10:42',
       departure: '10:58',
-    }
+    },
   ],
   track: [
     [40.180113, 57.990973],
@@ -126,13 +130,20 @@ const routeInstance: IRouteInstance = {
     [40.210669, 57.995841],
     [40.221527, 57.992884],
     [40.228693, 57.989358],
-  ].map(([y, x]) => [x, y] as LatLngTuple)
-}
+  ]
+    .map(([y, x]) => [x, y] as LatLngTuple)
+    .map((coords): ITrackCoordiantes => ({
+      coords,
+      attributes: {
+        distanceFromRoute: 0,
+      },
+    })),
+};
 
 class App extends Component {
   render() {
     return (
-      <RouteInstance route={route} routeInstance={routeInstance} />
+      <RouteInstance route={route} routeInstance={routeInstance} person={person} />
     );
   }
 }

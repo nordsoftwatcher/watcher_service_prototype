@@ -8,20 +8,20 @@ export interface AccordionContext {
 
 export const AccordionContext = React.createContext<AccordionContext>({
   openItemId: undefined,
-  toggle: () => { },
-})
+  toggle: () => { /* noop */ },
+});
 
 export default class Accordion extends React.Component<{}, AccordionContext> {
 
   state = {
     openItemId: undefined,
     toggle: this.toggle.bind(this),
-  }
+  };
 
   toggle(id: string, isOpen: boolean) {
     this.setState({
-      openItemId: isOpen ? id : undefined
-    })
+      openItemId: isOpen ? id : undefined,
+    });
   }
 
   render() {
@@ -31,6 +31,6 @@ export default class Accordion extends React.Component<{}, AccordionContext> {
           {this.props.children}
         </AccordionContext.Provider>
       </div>
-    )
+    );
   }
 }

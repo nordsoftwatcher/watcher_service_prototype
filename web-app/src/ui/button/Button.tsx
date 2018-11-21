@@ -26,6 +26,6 @@ export class Button extends React.Component<ButtonProps> {
       >
         {this.props.children}
       </button>
-    )
+    );
   }
 }

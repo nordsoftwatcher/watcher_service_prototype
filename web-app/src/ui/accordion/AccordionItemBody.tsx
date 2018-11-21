@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './AccordionItemBody.module.css'
+import styles from './AccordionItemBody.module.css';
 import { AccordionItemContext } from './AccordionItem';
 
 export interface AccordionBodyRenderProps {
@@ -20,6 +20,6 @@ export default class AccordionItemBody extends React.Component<AccordionBodyProp
           </div>
         )}
       </AccordionItemContext.Consumer>
-    )
+    );
   }
 }

@@ -5,4 +5,4 @@ export const Badge: React.StatelessComponent = (props) => (
   <div className={styles.badge}>
     {props.children}
   </div>
-)
+);

@@ -1,10 +1,10 @@
-import React from 'react'
-import styles from './RouteTrack.module.css'
+import React from 'react';
+import styles from './RouteTrack.module.css';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { IRoute, IRoutePoint } from '../../models/route';
-import { IRouteInstance, IRouteInstacePoint } from '../../models/route-instance';
+import { IRoute, ICheckpoint } from '../../models/route';
+import { IRouteInstance, ICompletedCheckpoint } from '../../models/route-instance';
 
 export interface RouteTrackProps {
   route: IRoute;
@@ -13,19 +13,13 @@ export interface RouteTrackProps {
 
 export class RouteTrack extends React.Component<RouteTrackProps> {
 
-  private findPointInstance = (pointId: string) => {
-    if (this.props.routeInstance) {
-      return this.props.routeInstance.passedPoints.find(x => x.pointId === pointId);
-    }
-  }
-
   render() {
     return (
       <div className={styles.root}>
-        <div className={styles.route}></div>
-        <div className={styles.routeInstance}></div>
+        <div className={styles.route} />
+        <div className={styles.routeInstance} />
         <div className={styles.checkpoints}>
-          {this.props.route.points.map(point => (
+          {this.props.route.checkpoints.map(point => (
             <RouteCheckpoint key={point.id} point={point} pointInstance={this.findPointInstance(point.id)} />
           ))}
         </div>
@@ -33,13 +27,19 @@ export class RouteTrack extends React.Component<RouteTrackProps> {
           <CurrentPosition />
         </div>
       </div>
-    )
+    );
+  }
+
+  private findPointInstance = (pointId: string) => {
+    if (this.props.routeInstance) {
+      return this.props.routeInstance.chekpoints.find(x => x.pointId === pointId);
+    }
   }
 }
 
 interface RouteCheckpointProps {
-  point: IRoutePoint;
-  pointInstance: IRouteInstacePoint | undefined;
+  point: ICheckpoint;
+  pointInstance: ICompletedCheckpoint | undefined;
 }
 
 const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
@@ -52,7 +52,7 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
             {pointInstance.arrival}
           </div>
         </div>
-      )
+      );
     } else {
       return (
         <div>
@@ -61,27 +61,27 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
             00:00
           </div>
         </div>
-      )
+      );
     }
-  }
+  };
 
 const SuccessCheckpoint = () => (
   <div className='fa-stack'>
     <FontAwesomeIcon className='fa-stack-1x' icon='circle' />
     <FontAwesomeIcon className='fa-stack-1x' icon='check-circle' color={styles.successColor} />
   </div>
-)
+);
 
 const FutureCheckpoint = () => (
   <div className='fa-stack'>
     <FontAwesomeIcon className='fa-stack-1x' icon='circle' color='#2A2B31' />
     <FontAwesomeIcon className='fa-stack-1x' icon='dot-circle' color={styles.mainColor} />
   </div>
-)
+);
 
 const CurrentPosition = () => (
   <div className='fa-stack'>
     <FontAwesomeIcon className='fa-stack-1x' icon='circle' />
     <FontAwesomeIcon className='fa-stack-1x' icon='user-circle' color={styles.successColor} />
   </div>
-)
+);

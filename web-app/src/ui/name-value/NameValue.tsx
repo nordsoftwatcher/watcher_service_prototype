@@ -11,10 +11,11 @@ interface NameValueProps {
 
 export const NameValue: React.StatelessComponent<NameValueProps> =
   ({ name, value, vertical }) => (
-    <div className={cn({
-      [styles.namevalue]: true,
-      [styles.vertical]: vertical
-    })}
+    <div
+      className={cn({
+        [styles.namevalue]: true,
+        [styles.vertical]: vertical,
+      })}
     >
       <div className={styles.name}>
         {name}
@@ -23,4 +24,4 @@ export const NameValue: React.StatelessComponent<NameValueProps> =
         {value}
       </div>
     </div>
-  )
+  );

@@ -1,9 +1,9 @@
 import React from 'react';
 import styles from './AccordionItemTitle.module.css';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { AccordionItemContext } from './AccordionItem'
+import { AccordionItemContext } from './AccordionItem';
 
 export default class AccordionItemTitle extends React.Component {
   render() {
@@ -22,6 +22,6 @@ export default class AccordionItemTitle extends React.Component {
           </div>
         )}
       </AccordionItemContext.Consumer>
-    )
+    );
   }
 }
