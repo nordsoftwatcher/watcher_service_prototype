@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class HeartRateInfo {
+public class HeartRate {
+    private Long id;
     private String deviceId;
     private LocalDateTime deviceTime;
     private float rate;

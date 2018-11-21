@@ -2,8 +2,7 @@ package ru.nord.siwatch.backend.connectors.locationmonitoring.models;
 
 import java.time.LocalDateTime;
 
-public class Location
-{
+public class Location {
     private LocalDateTime deviceTime;
     private LocalDateTime recordTime;
 
