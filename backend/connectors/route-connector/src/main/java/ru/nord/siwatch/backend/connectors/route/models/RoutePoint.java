@@ -14,8 +14,4 @@ public class RoutePoint {
 
     private Double longitude;
 
-    private Double altitude;
-
-    private RoutePointInfo pointInfo;
-
 }

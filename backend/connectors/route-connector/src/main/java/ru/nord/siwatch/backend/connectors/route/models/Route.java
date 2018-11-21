@@ -10,10 +10,12 @@ public class Route {
 
     private Long id;
 
+    private Long supervisorId;
+
     private String status;
 
     private List<RoutePoint> routePoints;
 
-    private List<RoutePoint> checkPoints;
+    private List<CheckPoint> checkPoints;
 
 }
