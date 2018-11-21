@@ -14,7 +14,8 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "jsx-no-multiline-js": false,
-    "arrow-parens": false
+    "arrow-parens": false,
+    "member-ordering": false
   },
   "rulesDirectory": []
 }
