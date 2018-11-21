@@ -2,12 +2,20 @@ package ru.nord.siwatch.backend.services.route.api.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-
+import ru.nord.siwatch.backend.services.common.api.dto.AbstractEntityDto;
 import java.util.Date;
 
 @Getter
 @Setter
-public class RoutePointInfoDto {
+public class CheckPointDto extends AbstractEntityDto {
+
+    private Integer radius;
+
+    private Long order;
+
+    private Double latitude;
+
+    private Double longitude;
 
     private String name;
 
@@ -23,5 +31,4 @@ public class RoutePointInfoDto {
 
     private String description;
 
-    private Boolean passed;
 }

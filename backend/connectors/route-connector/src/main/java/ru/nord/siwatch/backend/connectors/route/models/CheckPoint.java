@@ -1,22 +1,30 @@
-package ru.nord.siwatch.backend.services.route.api.model;
+package ru.nord.siwatch.backend.connectors.route.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.util.Date;
 
 @Getter @Setter
-public class CreateRoutePointInfoInput {
+public class CheckPoint {
+
+    private Integer radius;
+
+    private Long order;
+
+    private Double latitude;
+
+    private Double longitude;
 
     private String name;
 
-    @JsonFormat(pattern="HH:mm")
     private Date arrivalTime;
 
-    @JsonFormat(pattern="HH:mm")
     private Date departureTime;
 
     private Integer planTime;
+
+    private Integer factTime;
 
     private String address;
 

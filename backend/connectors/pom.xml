@@ -63,6 +63,7 @@
                 <module>route-connector</module>
                 <module>memory-monitoring-connector</module>
                 <module>network-monitoring-connector</module>
+                <module>supervisor-connector</module>
             </modules>
         </profile>
     </profiles>

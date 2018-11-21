@@ -102,6 +102,7 @@
                 <module>route-service</module>
                 <module>memory-monitoring-service</module>
                 <module>network-monitoring-service</module>
+                <module>supervisor-service</module>
             </modules>
         </profile>
     </profiles>

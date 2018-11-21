@@ -1,0 +1,28 @@
+{
+  "supervisorId" : 1,
+  "checkPoints" : [
+    {
+      "radius" : 1,
+      "order" : 1,
+      "latitude" : 57.53305,
+      "longitude" : 39.871343,
+      "name" : "First checkoint",
+      "address" : "First checkpoint address",
+      "description" : "Dummy description",
+      "arrivalTime" : "2018-11-20T15:00:00",
+      "departureTime" : "2018-11-20T15:20:00"
+    }
+  ],
+  "points" : [
+    {
+      "order" : 1,
+      "latitude" : 57.63305,
+      "longitude" : 39.971343
+    },
+    {
+      "order" : 2,
+      "latitude" : 57.53305,
+      "longitude" : 39.871343
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import lombok.Setter;
 import ru.nord.siwatch.backend.services.common.entities.AbstractEntity;
 import ru.nord.siwatch.backend.services.route.enums.RouteStatus;
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "route")
@@ -15,7 +15,14 @@ public class Route extends AbstractEntity {
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("order ASC")
-    private List<RoutePoint> routePoints;
+    private Set<RoutePoint> routePoints;
+
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("order ASC")
+    private Set<CheckPoint> checkPoints;
+
+    @Column(name = "supervisor_id", nullable = false)
+    private Long supervisorId;
 
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
