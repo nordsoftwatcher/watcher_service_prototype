@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using SiWatchApp.Models;
 
 namespace SiWatchApp.Queue
 {

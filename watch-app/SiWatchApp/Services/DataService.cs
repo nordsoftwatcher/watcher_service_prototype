@@ -20,6 +20,8 @@ namespace SiWatchApp.Services
     {
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(DataService));
 
+        private static readonly MediaTypeHeaderValue JSON = MediaTypeHeaderValue.Parse("application/json");
+
         private readonly Settings _settings;
         private readonly JsonSerializerSettings _jsonSerializerSettings;
 
@@ -28,30 +30,74 @@ namespace SiWatchApp.Services
             _settings = settings;
             _jsonSerializerSettings = new JsonSerializerSettings {
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    Converters = { new StringEnumConverter() }
+                    Converters = { new StringEnumConverter() },
+                    NullValueHandling = NullValueHandling.Ignore
             };
         }
 
-        public async Task Send(DataPacket packet)
+        private async Task<DataPacket> TrySend(DataPacket packet)
         {
-            var httpClient = new HttpClient { BaseAddress = new Uri(_settings.ApiUrl) };
-            try {
-                var json = JsonConvert.SerializeObject(packet, Formatting.None, _jsonSerializerSettings);
-                HttpContent content = new StringContent(json);
-                content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+            using (var httpClient = new HttpClient { BaseAddress = new Uri(_settings.ApiUrl) }) {
+                HttpResponseMessage response;
+                try {
+                    var jsonOut = JsonConvert.SerializeObject(packet, Formatting.None, _jsonSerializerSettings);
+                    HttpContent content = new StringContent(jsonOut);
+                    content.Headers.ContentType = JSON;
+                    response = await httpClient.PutAsync("sync", content);
+                }
+                catch (Exception ex) {
+                    LOGGER.Error("Failed sending data:", ex);
+                    throw;
+                }
 
-                var response = await httpClient.PutAsync("data", content);
-                if (!response.IsSuccessStatusCode)
-                {
-                    LOGGER.Warn("Unexpected HTTP status", response.StatusCode);
-                    throw new ApplicationException($"Unexpected HTTP status ${response.StatusCode} while sending data");
+                if (response.IsSuccessStatusCode) {
+                    if (response.Content?.Headers?.ContentType != null && response.Content.Headers.ContentType.Equals(JSON)) {
+                        try {
+                            string jsonIn = await response.Content.ReadAsStringAsync();
+                            if (!String.IsNullOrEmpty(jsonIn)) {
+                                var reply = JsonConvert.DeserializeObject<DataPacket>(jsonIn, _jsonSerializerSettings);
+                                return reply;
+                            }
+                        }
+                        catch (Exception ex) {
+                            LOGGER.Warn("Failed reading incoming data:", ex);
+                        }
+                    }
+                }
+                else {
+                    LOGGER.Warn($"Unexpected HTTP status ${(int)response.StatusCode}");
+                    //throw new ApplicationException($"Unexpected HTTP status ${(int)response.StatusCode}");
+                }
+                return null;
+            }
+        }
+        
+        public async Task<DataPacket> Send(DataPacket packet)
+        {
+            packet.DeviceId = _settings.DeviceId;
+
+            var attempts = _settings.SendRetryCount + 1;
+            Exception lastException = null;
+
+            while (attempts-- > 0) {
+                try {
+                    return await TrySend(packet);
+                }
+                catch (HttpRequestException ex) {
+                    lastException = ex;
+                    LOGGER.Warn("Failed sending packet. Will retry after delay");
+                    await Task.Delay(_settings.SendRetryDelay);
+                }
+                catch (Exception ex) {
+                    lastException = ex;
+                    break;
                 }
             }
-            catch (Exception ex)
-            {
-                LOGGER.Error("Failed sending data:", ex);
-                throw;
+            if (lastException != null) {
+                throw lastException;
             }
+
+            return null;
         }
     }
 }
