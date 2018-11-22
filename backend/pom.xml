@@ -91,5 +91,13 @@
                 <module>services</module>
             </modules>
         </profile>
+        <profile>
+            <id>facade</id>
+            <modules>
+                <module>infrastructure</module>
+                <module>connectors</module>
+                <module>facade</module>
+            </modules>
+        </profile>
     </profiles>
 </project>

@@ -9,24 +9,19 @@ import org.springframework.web.bind.annotation.*;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
 import ru.nord.siwatch.backend.connectors.supervisor.model.Supervisor;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.RouteDto;
+import ru.nord.siwatch.backend.facade.operator.api.v1.model.CreateRouteInput;
 import ru.nord.siwatch.backend.facade.operator.mapping.OperatorMapper;
-import ru.nord.siwatch.backend.facade.operator.services.DeviceLocationService;
 import ru.nord.siwatch.backend.facade.operator.services.RouteService;
 import ru.nord.siwatch.backend.facade.operator.services.SupervisorService;
+import javax.validation.Valid;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
-@Api(description = "OperatorApi")
+@Api(description = "OperatorRouteApi")
 @RestController
-@RequestMapping(value = ApiBase.PATH + OperatorApi.PATH)
+@RequestMapping(value = ApiBase.PATH + OperatorRouteApi.PATH)
 @Slf4j
-public class OperatorApi extends ApiBase {
+public class OperatorRouteApi extends ApiBase {
 
-    public static final String PATH = "operator";
-
-    @Autowired
-    private DeviceLocationService deviceLocationService;
+    public static final String PATH = "operator/route";
 
     @Autowired
     private RouteService routeService;
@@ -37,20 +32,18 @@ public class OperatorApi extends ApiBase {
     @Autowired
     private OperatorMapper operatorMapper;
 
-    @ApiOperation(value = "Получение данных местоположения устройства")
-    @GetMapping(value = "/device/{deviceId}/location", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getDeviceLocation(@PathVariable String deviceId, LocalDateTime since, LocalDateTime until) {
-        return deviceLocationService.queryDeviceLocation(deviceId, since, until);
-    }
-
-    @ApiOperation(value = "Получение данных сердечного ритма с устройства")
-    @GetMapping(value = "/device/{deviceId}/hr", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map getDeviceHeartRate(@PathVariable String deviceId, LocalDateTime since, LocalDateTime until) {
-        return null;
+    @ApiOperation(value = "Создание маршрута")
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Route createRoute(@Valid @RequestBody CreateRouteInput createRouteInput) {
+        Supervisor supervisor = supervisorService.getSupervisorById(createRouteInput.getSupervisorId());
+        if (supervisor == null) {
+            throw new RuntimeException("Supervisor with id " + createRouteInput.getSupervisorId() + " doesn't exist");
+        }
+        return routeService.createRoute(createRouteInput);
     }
 
     @ApiOperation(value = "Получение маршрута по идентификатору")
-    @GetMapping(value = "/route/{routeId}")
+    @GetMapping(value = "/{routeId}")
     public RouteDto getRoute(@PathVariable Long routeId) {
         Route route = routeService.getRouteById(routeId);
         if (route != null) {
@@ -66,5 +59,4 @@ public class OperatorApi extends ApiBase {
             throw new RuntimeException("Route with id " + routeId + " hasn't been found");
         }
     }
-
 }

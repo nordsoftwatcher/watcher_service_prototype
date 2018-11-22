@@ -8,6 +8,8 @@ import java.util.Date;
 @Getter @Setter
 public class CheckPoint {
 
+    private Long id;
+
     private Integer radius;
 
     private Long order;

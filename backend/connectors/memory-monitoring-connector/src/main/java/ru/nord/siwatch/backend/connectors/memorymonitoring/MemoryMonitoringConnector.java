@@ -12,6 +12,7 @@ import ru.nord.siwatch.backend.connectors.memorymonitoring.models.MemoryInfo;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -31,11 +32,16 @@ public class MemoryMonitoringConnector {
     public List<Memory> find(String deviceId, LocalDateTime fromTime, LocalDateTime toTime) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("deviceId", deviceId);
-        params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
-        params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+        if (fromTime != null) {
+            params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
+        }
+        if (toTime != null) {
+            params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+        }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/memory_mon/").queryParams(params);
-        return restTemplate.getForObject(builder.build().toString(), List.class, params);
+        Memory[] memories = restTemplate.getForObject(builder.build().toString(), Memory[].class, params);
+        return Arrays.asList(memories);
     }
 
 }

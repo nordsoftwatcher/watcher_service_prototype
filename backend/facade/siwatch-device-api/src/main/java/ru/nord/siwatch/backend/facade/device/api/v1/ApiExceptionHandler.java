@@ -16,6 +16,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -141,6 +142,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler
     {
         final Fault error = new Fault("E000", "Произошла внутренняя ошибка", ex.toString());
         log.error(error.toString(), ex);
+        if (ex instanceof HttpClientErrorException) {
+            log.error("ERROR REQUEST BODY " + ((HttpClientErrorException) ex).getResponseBodyAsString());
+        }
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

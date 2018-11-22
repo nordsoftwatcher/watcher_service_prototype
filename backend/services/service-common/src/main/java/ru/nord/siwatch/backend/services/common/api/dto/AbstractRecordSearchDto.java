@@ -6,23 +6,21 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Getter @Setter
-public abstract class AbstractRecordSearchDto
-{
+@Getter
+@Setter
+public abstract class AbstractRecordSearchDto {
+
     @ApiModelProperty(notes = "ID устройства", example = "TEST_DEVICE", position = 0)
     @NotBlank
     private String deviceId;
 
     @ApiModelProperty(notes = "Время начала", example = "2018-11-20T15:00:00", position = 10)
-    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime fromTime;
 
     @ApiModelProperty(notes = "Время окончания", example = "2018-11-20T16:00:00", position = 20)
-    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime toTime;
 }

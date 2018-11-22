@@ -3,6 +3,10 @@
 **.iml
 .DS_Store
 .vscode/
+.vs/
+_ReSharper.Caches/
+bin/
+obj/
 
 **/deploy/db
 **/deploy/*.war

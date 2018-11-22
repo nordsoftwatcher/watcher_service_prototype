@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest package="ru.nord.siwatch.SiWatchApp" version="1.0.0" api-version="5" xmlns="http://tizen.org/ns/packages">
+    <profile name="wearable" />
+    <ui-application appid="ru.nord.siwatch.SiWatchApp" exec="SiWatchApp.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
+        <label>SiWatchApp</label>
+        <icon>SiWatchApp.png</icon>
+        <metadata key="http://tizen.org/metadata/prefer_dotnet_aot" value="true" />
+        <metadata key="deviceId" value="DEVICE-0" />
+        <metadata key="apiUrl" value="http://10.0.2.2:8081/api/v1/device/" />
+        <background-category value="background-network" />
+        <background-category value="location" />
+        <background-category value="sensor" />
+        <splash-screens />
+    </ui-application>
+    <shortcut-list />
+    <privileges>
+        <privilege>http://tizen.org/privilege/location</privilege>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://tizen.org/privilege/network.get</privilege>
+        <privilege>http://tizen.org/privilege/healthinfo</privilege>
+        <privilege>http://tizen.org/privilege/systemmonitor</privilege>
+    </privileges>
+    <provides-appdefined-privileges />
+    <feature name="http://tizen.org/feature/battery">true</feature>
+    <feature name="http://tizen.org/feature/location">true</feature>
+    <feature name="http://tizen.org/feature/sensor.heart_rate_monitor">true</feature>
+</manifest>

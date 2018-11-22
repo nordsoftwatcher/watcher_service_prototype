@@ -11,6 +11,7 @@ import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.LocationInfo;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -29,10 +30,15 @@ public class LocationMonitoringConnector {
     public List<Location> find(String deviceId, LocalDateTime fromTime, LocalDateTime toTime) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("deviceId", deviceId);
-        params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
-        params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+        if (fromTime != null) {
+            params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
+        }
+        if (toTime != null) {
+            params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+        }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/locmon/").queryParams(params);
-        return restTemplate.getForObject(builder.build().toString(), List.class, params);
+        Location[] locations = restTemplate.getForObject(builder.build().toString(), Location[].class, params);
+        return Arrays.asList(locations);
     }
 }

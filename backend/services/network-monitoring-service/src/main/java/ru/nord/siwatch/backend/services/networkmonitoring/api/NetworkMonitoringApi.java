@@ -15,6 +15,7 @@ import ru.nord.siwatch.backend.services.networkmonitoring.api.dto.NetworkRecordS
 import ru.nord.siwatch.backend.services.networkmonitoring.entities.NetworkRecord;
 import ru.nord.siwatch.backend.services.networkmonitoring.mapping.NetworkRecordMapper;
 import ru.nord.siwatch.backend.services.networkmonitoring.repositories.NetworkRecordRepository;
+import ru.nord.siwatch.backend.services.networkmonitoring.services.NetworkRecordService;
 
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -34,6 +35,9 @@ public class NetworkMonitoringApi extends ApiBase {
     @Autowired
     private NetworkRecordRepository networkRecordRepository;
 
+    @Autowired
+    private NetworkRecordService recordService;
+
     @ApiOperation(value = "Создание записи в журнале")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NetworkRecordDto> add(@RequestBody NetworkRecordCreateDto createDto) {
@@ -49,10 +53,11 @@ public class NetworkMonitoringApi extends ApiBase {
     public List<NetworkRecordDto> search(NetworkRecordSearchDto searchDto) {
         ensureValid(searchDto);
 
-        final List<NetworkRecord> records = networkRecordRepository.findAllByDeviceIdInInterval(
-            searchDto.getDeviceId(),
-            Date.from(searchDto.getFromTime().toInstant(ZoneOffset.UTC)),
-            Date.from(searchDto.getToTime().toInstant(ZoneOffset.UTC)));
+        final List<NetworkRecord> records = recordService.findRecords(
+                searchDto.getDeviceId(),
+                searchDto.getFromTime() != null ? Date.from(searchDto.getFromTime().toInstant(ZoneOffset.UTC)) : null,
+                searchDto.getToTime() != null ? Date.from(searchDto.getToTime().toInstant(ZoneOffset.UTC)) : null
+        );
 
         return networkRecordMapper.toNetworkRecordDtoList(records);
     }

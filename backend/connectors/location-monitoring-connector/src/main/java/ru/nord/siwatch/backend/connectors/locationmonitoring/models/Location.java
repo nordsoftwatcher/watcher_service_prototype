@@ -1,8 +1,15 @@
 package ru.nord.siwatch.backend.connectors.locationmonitoring.models;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter @Setter
 public class Location {
+
+    private Long id;
+
     private LocalDateTime deviceTime;
     private LocalDateTime recordTime;
 
