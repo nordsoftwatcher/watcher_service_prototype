@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Api(description = "OperatorApi")
+@Api(description = "OperatorDeviceApi")
 @RestController
-@RequestMapping(value = ApiBase.PATH + OperatorApi.PATH)
+@RequestMapping(value = ApiBase.PATH + OperatorDeviceApi.PATH)
 @Slf4j
-public class OperatorApi extends ApiBase {
+public class OperatorDeviceApi extends ApiBase {
 
-    public static final String PATH = "operator";
+    public static final String PATH = "operator/device";
 
     @Autowired
     private DeviceLocationService deviceLocationService;
@@ -45,7 +45,7 @@ public class OperatorApi extends ApiBase {
     private OperatorMapper operatorMapper;
 
     @ApiOperation(value = "Получение данных местоположения устройства")
-    @GetMapping(value = "/device/location")
+    @GetMapping(value = "/location")
     public List<LocationDto> getDeviceLocation(@Valid LocationRecordSearchDto recordSearchDto) {
         List<Location> locations = deviceLocationService.queryDeviceLocation(recordSearchDto.getDeviceId(), recordSearchDto.getFromTime(), recordSearchDto.getToTime());
         if (recordSearchDto.getRouteId() != null) {
@@ -67,27 +67,9 @@ public class OperatorApi extends ApiBase {
     }
 
     @ApiOperation(value = "Получение данных сердечного ритма с устройства")
-    @GetMapping(value = "/device/{deviceId}/hr", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{deviceId}/hr", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map getDeviceHeartRate(@PathVariable String deviceId, LocalDateTime since, LocalDateTime until) {
         return null;
-    }
-
-    @ApiOperation(value = "Получение маршрута по идентификатору")
-    @GetMapping(value = "/route/{routeId}")
-    public RouteDto getRoute(@PathVariable Long routeId) {
-        Route route = routeService.getRouteById(routeId);
-        if (route != null) {
-            Supervisor supervisor = supervisorService.getSupervisorById(route.getSupervisorId());
-            if (supervisor != null) {
-                RouteDto routeDto = operatorMapper.toRouteDto(route);
-                routeDto.setSupervisor(operatorMapper.toSupervisorDto(supervisor));
-                return routeDto;
-            } else {
-                throw new RuntimeException("Supervisor with id " + route.getSupervisorId() + " doesn't exist");
-            }
-        } else {
-            throw new RuntimeException("Route with id " + routeId + " hasn't been found");
-        }
     }
 
 }
