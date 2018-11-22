@@ -1,1 +1,1 @@
-export type Coordinates = [number, number] | { lat: number; lng: number; };
+export interface Coordinates { lat: number; lng: number; }

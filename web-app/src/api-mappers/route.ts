@@ -1,6 +1,6 @@
-import { RouteDto, CheckPointDto, RoutePointDto } from '../api/api';
-import { IRoute, ICheckpoint } from '../routing/models/route';
 import { Coordinates } from '../routing/models/coordinates';
+import { IRoute, ICheckpoint } from '../routing/models/route';
+import { RouteDto, CheckPoint, RoutePoint } from '../api/operator-api';
 
 export function mapRoute(dto: RouteDto): IRoute {
   return {
@@ -11,9 +11,9 @@ export function mapRoute(dto: RouteDto): IRoute {
   };
 }
 
-function mapCheckpoint(dto: CheckPointDto): ICheckpoint {
+function mapCheckpoint(dto: CheckPoint): ICheckpoint {
   return {
-    id: dto.id,
+    id: dto.order,
     address: dto.address!,
     description: dto.description!,
     name: dto.name!,
@@ -25,7 +25,7 @@ function mapCheckpoint(dto: CheckPointDto): ICheckpoint {
   };
 }
 
-function mapRoutePoint(dto: RoutePointDto): Coordinates {
+function mapRoutePoint(dto: RoutePoint): Coordinates {
   return {
     lat: dto.latitude!,
     lng: dto.longitude!,
