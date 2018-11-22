@@ -5,10 +5,9 @@ import lombok.Setter;
 
 import java.util.Date;
 
-@Getter @Setter
-public class CheckPoint {
-
-    private Long id;
+@Getter
+@Setter
+public class CheckPointInfo {
 
     private Integer radius;
 

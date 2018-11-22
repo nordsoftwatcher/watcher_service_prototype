@@ -5,6 +5,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
+import ru.nord.siwatch.backend.connectors.route.models.RouteInfo;
 
 @Component
 @Slf4j
@@ -14,6 +15,10 @@ public class RouteConnector {
 
     public RouteConnector(RestTemplateBuilder restTemplateBuilder, RouteConnectorSettings settings) {
         this.restTemplate = restTemplateBuilder.rootUri(settings.getServiceUrl().toString()).build();
+    }
+
+    public void save(RouteInfo routeInfo) {
+        restTemplate.postForObject("/routes/", routeInfo , String.class);
     }
 
     public Route getRoute(Long routeId) {
