@@ -6,15 +6,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
 import ru.nord.siwatch.backend.connectors.supervisor.model.Supervisor;
+import ru.nord.siwatch.backend.facade.operator.api.v1.dto.LocationRecordSearchDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.RouteDto;
 import ru.nord.siwatch.backend.facade.operator.mapping.OperatorMapper;
 import ru.nord.siwatch.backend.facade.operator.services.DeviceLocationService;
 import ru.nord.siwatch.backend.facade.operator.services.RouteService;
 import ru.nord.siwatch.backend.facade.operator.services.SupervisorService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Api(description = "OperatorApi")
@@ -38,9 +42,10 @@ public class OperatorApi extends ApiBase {
     private OperatorMapper operatorMapper;
 
     @ApiOperation(value = "Получение данных местоположения устройства")
-    @GetMapping(value = "/device/{deviceId}/location", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getDeviceLocation(@PathVariable String deviceId, LocalDateTime since, LocalDateTime until) {
-        return deviceLocationService.queryDeviceLocation(deviceId, since, until);
+    @GetMapping(value = "/device/location", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getDeviceLocation(@Valid LocationRecordSearchDto recordSearchDto) {
+        List<Location> locations = deviceLocationService.queryDeviceLocation(recordSearchDto.getDeviceId(), recordSearchDto.getFromTime(), recordSearchDto.getToTime());
+        return locations;
     }
 
     @ApiOperation(value = "Получение данных сердечного ритма с устройства")
