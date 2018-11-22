@@ -4,9 +4,10 @@ import styles from './RouteMap.module.css';
 // import 'leaflet/dist/leaflet.css'
 import { Map, Marker, TileLayer, Polyline, Tooltip } from 'react-leaflet';
 import { IRoute } from '../../models/route';
-import { IRouteInstance, ITrackCoordiantes } from '../../models/route-instance';
+import { IRouteInstance } from '../../models/route-instance';
 import { routePointIcon, passedPointIcon, currentPosIcon } from './icons';
 import { UUID } from '../../models/uuid';
+import { getDeviations } from '../../utils/deviations';
 
 interface RouteMapProps {
   route: IRoute;
@@ -15,60 +16,15 @@ interface RouteMapProps {
 
 export class RouteMap extends React.Component<RouteMapProps> {
 
-  deviationThreshold = 0.00025;
-
   getPointById(pointId: UUID) {
     return this.props.route.checkpoints.find(x => x.id === pointId);
-  }
-
-  getDeviations() {
-    const { routeInstance } = this.props;
-    if (!routeInstance) {
-      return [];
-    }
-
-    type Deviation = Array<{ point: ITrackCoordiantes; index: number }>;
-
-    const deviatePoints = routeInstance.track
-      .map((point, index) => ({ point, index }))
-      .filter(x => x.point.attributes.distanceFromRoute > this.deviationThreshold);
-
-    const deviateLines = deviatePoints.reduce((acc, currPoint) => {
-      const lastLine = acc[acc.length - 1];
-      if (!lastLine) {
-        acc.push([currPoint]);
-      } else {
-        const lastPoint = lastLine[lastLine.length - 1];
-        if (Math.abs(lastPoint.index - currPoint.index) === 1) {
-          lastLine.push(currPoint);
-        } else {
-          acc.push([currPoint]);
-        }
-      }
-      return acc;
-    }, [] as Deviation[]);
-
-    deviateLines.forEach(line => {
-      const first = line[0];
-      const beforeFirst = routeInstance.track[first.index - 1];
-      if (beforeFirst) {
-        line.unshift({ point: beforeFirst, index: first.index - 1 });
-      }
-      const last = line[line.length - 1];
-      const afterLast = routeInstance.track[last.index + 1];
-      if (afterLast) {
-        line.push({ point: afterLast, index: last.index + 1 });
-      }
-    });
-
-    return deviateLines;
   }
 
   render() {
     const { route, routeInstance } = this.props;
     const centerMap = routeInstance && routeInstance.currentPos || route.checkpoints[0].coords;
 
-    const deviations = this.getDeviations();
+    const deviations = getDeviations(routeInstance);
 
     return (
       <div className={styles.root}>
