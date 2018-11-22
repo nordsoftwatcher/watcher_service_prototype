@@ -17,5 +17,10 @@
     "arrow-parens": false,
     "member-ordering": false
   },
-  "rulesDirectory": []
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": [
+      "src/api/**/*.*"
+    ]
+  }
 }
