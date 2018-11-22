@@ -6,7 +6,7 @@ export interface IRouteInstance {
   personId: UUID;
   chekpoints: ICompletedCheckpoint[];
   track: ITrackCoordiantes[];
-  currentPos: Coordinates;
+  currentPos?: Coordinates;
 }
 
 export interface ICompletedCheckpoint {

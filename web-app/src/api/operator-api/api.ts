@@ -155,6 +155,74 @@ export interface CheckPoint {
 /**
  * 
  * @export
+ * @interface LocationDto
+ */
+export interface LocationDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    accuracy?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    altitude?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof LocationDto
+     */
+    deviceTime?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    direction?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    id?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    latitude?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    longitude?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof LocationDto
+     */
+    recordTime?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    routeDistance?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof LocationDto
+     */
+    speed?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface RouteDto
  */
 export interface RouteDto {
@@ -315,11 +383,12 @@ export const OperatorApiApiFetchParamCreator = function (configuration?: Configu
          * @summary Получение данных местоположения устройства
          * @param {string} [deviceId] 
          * @param {Date} [fromTime] 
+         * @param {number} [routeId] 
          * @param {Date} [toTime] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, toTime?: Date, options: any = {}): FetchArgs {
+        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options: any = {}): FetchArgs {
             const localVarPath = `/api/v1/operator/device/location`;
             const localVarUrlObj = url.parse(localVarPath, true);
             let baseOptions;
@@ -336,6 +405,10 @@ export const OperatorApiApiFetchParamCreator = function (configuration?: Configu
 
             if (fromTime !== undefined) {
                 localVarQueryParameter['fromTime'] = (fromTime as any).toISOString();
+            }
+
+            if (routeId !== undefined) {
+                localVarQueryParameter['routeId'] = routeId;
             }
 
             if (toTime !== undefined) {
@@ -420,12 +493,13 @@ export const OperatorApiApiFp = function(configuration?: Configuration) {
          * @summary Получение данных местоположения устройства
          * @param {string} [deviceId] 
          * @param {Date} [fromTime] 
+         * @param {number} [routeId] 
          * @param {Date} [toTime] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, toTime?: Date, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = OperatorApiApiFetchParamCreator(configuration).getDeviceLocationUsingGET(deviceId, fromTime, toTime, options);
+        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<LocationDto>> {
+            const localVarFetchArgs = OperatorApiApiFetchParamCreator(configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -481,12 +555,13 @@ export const OperatorApiApiFactory = function (configuration?: Configuration, fe
          * @summary Получение данных местоположения устройства
          * @param {string} [deviceId] 
          * @param {Date} [fromTime] 
+         * @param {number} [routeId] 
          * @param {Date} [toTime] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, toTime?: Date, options?: any) {
-            return OperatorApiApiFp(configuration).getDeviceLocationUsingGET(deviceId, fromTime, toTime, options)(fetch, basePath);
+        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any) {
+            return OperatorApiApiFp(configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options)(fetch, basePath);
         },
         /**
          * 
@@ -527,13 +602,14 @@ export class OperatorApiApi extends BaseAPI {
      * @summary Получение данных местоположения устройства
      * @param {string} [deviceId] 
      * @param {Date} [fromTime] 
+     * @param {number} [routeId] 
      * @param {Date} [toTime] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OperatorApiApi
      */
-    public getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, toTime?: Date, options?: any) {
-        return OperatorApiApiFp(this.configuration).getDeviceLocationUsingGET(deviceId, fromTime, toTime, options)(this.fetch, this.basePath);
+    public getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any) {
+        return OperatorApiApiFp(this.configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options)(this.fetch, this.basePath);
     }
 
     /**

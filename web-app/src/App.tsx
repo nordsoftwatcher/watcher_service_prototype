@@ -10,14 +10,6 @@ import { IPerson } from './routing/models/person';
 import { OperatorApiApi, RouteDto } from './api/operator-api';
 import { mapRoute } from './api-mappers/route';
 
-export interface DeviceLocationDto {
-  id: number;
-  deviceTime: string;
-  recordTime: string;
-  latitude: number;
-  longitude: number;
-}
-
 interface IAppState {
   route?: IRoute;
   routeInstance?: IRouteInstance;
@@ -26,17 +18,20 @@ interface IAppState {
 
 class App extends Component<{}, IAppState> {
 
+  static params = {
+    deviceId: 'TEST_DEVICE',
+    routeId: 1,
+  };
+
   private operatorApi: OperatorApiApi = new OperatorApiApi();
 
   constructor(props: {}) {
     super(props);
-    this.state = {
-      route: undefined,
-    };
+    this.state = {};
   }
 
   private async fetchRouteAndPerson() {
-    const { supervisor, ...route } = await this.operatorApi.getRouteUsingGET(1);
+    const { supervisor, ...route } = await this.operatorApi.getRouteUsingGET(App.params.routeId);
 
     this.setState({
       route: mapRoute(route),
@@ -63,15 +58,20 @@ class App extends Component<{}, IAppState> {
   }
 
   private async fetchDeviceLocation(route: RouteDto) {
-    const deviceLocation: DeviceLocationDto[] = await this.operatorApi.getDeviceLocationUsingGET('TEST_DEVICE');
+    const deviceLocation = await this.operatorApi.getDeviceLocationUsingGET(
+      App.params.deviceId,
+      undefined,
+      route.id,
+      undefined,
+    );
 
     const track = deviceLocation.map((loc): ITrackCoordiantes => ({
       coords: {
-        lat: loc.latitude,
-        lng: loc.longitude,
+        lat: loc.latitude!,
+        lng: loc.longitude!,
       },
       attributes: {
-        distanceFromRoute: 0,
+        distanceFromRoute: loc.routeDistance!,
       },
     }));
 
@@ -80,7 +80,7 @@ class App extends Component<{}, IAppState> {
     this.setState({
 
       routeInstance: {
-        currentPos: currentPos.coords,
+        currentPos: currentPos && currentPos.coords,
         chekpoints: [],
         id: undefined,
         personId: 1,
