@@ -11,4 +11,13 @@ public interface HeartRateRecordRepository extends JpaRepository<HeartRateRecord
 {
     @Query("SELECT r FROM HeartRateRecord r WHERE r.deviceId=?1 AND r.deviceTime>=?2 AND r.deviceTime<=?3 ORDER BY r.deviceTime DESC")
     List<HeartRateRecord> findAllByDeviceIdInInterval(String deviceId, Date from, Date to);
+
+    @Query("SELECT r FROM HeartRateRecord r WHERE r.deviceId=?1 AND r.deviceTime>=?2 ORDER BY r.deviceTime DESC")
+    List<HeartRateRecord> findAllByDeviceIdAndFromDate(String deviceId, Date from);
+
+    @Query("SELECT r FROM HeartRateRecord r WHERE r.deviceId=?1 AND r.deviceTime<=?2 ORDER BY r.deviceTime DESC")
+    List<HeartRateRecord> findAllByDeviceIdAndToDate(String deviceId, Date to);
+
+    @Query("SELECT r FROM HeartRateRecord r WHERE r.deviceId=?1 ORDER BY r.deviceTime DESC")
+    List<HeartRateRecord> findAllByDeviceId(String deviceId);
 }

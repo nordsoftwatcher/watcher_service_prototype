@@ -15,6 +15,7 @@ import ru.nord.siwatch.backend.services.memorymonitoring.api.dto.MemoryRecordSea
 import ru.nord.siwatch.backend.services.memorymonitoring.entities.MemoryRecord;
 import ru.nord.siwatch.backend.services.memorymonitoring.mapping.MemoryRecordMapper;
 import ru.nord.siwatch.backend.services.memorymonitoring.repositories.MemoryRecordRepository;
+import ru.nord.siwatch.backend.services.memorymonitoring.services.MemoryRecordService;
 
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -34,6 +35,9 @@ public class MemoryMonitoringApi extends ApiBase {
     @Autowired
     private MemoryRecordMapper memoryRecordMapper;
 
+    @Autowired
+    private MemoryRecordService recordService;
+
     @ApiOperation(value = "Создание записи в журнале")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MemoryRecordDto> add(@RequestBody MemoryRecordCreateDto createDto) {
@@ -49,10 +53,11 @@ public class MemoryMonitoringApi extends ApiBase {
     public List<MemoryRecordDto> search(MemoryRecordSearchDto searchDto) {
         ensureValid(searchDto);
 
-        final List<MemoryRecord> records = memoryRecordRepository.findAllByDeviceIdInInterval(
-            searchDto.getDeviceId(),
-            Date.from(searchDto.getFromTime().toInstant(ZoneOffset.UTC)),
-            Date.from(searchDto.getToTime().toInstant(ZoneOffset.UTC)));
+        final List<MemoryRecord> records = recordService.findRecords(
+                searchDto.getDeviceId(),
+                searchDto.getFromTime() != null ? Date.from(searchDto.getFromTime().toInstant(ZoneOffset.UTC)) : null,
+                searchDto.getToTime() != null ? Date.from(searchDto.getToTime().toInstant(ZoneOffset.UTC)) : null
+        );
 
         return memoryRecordMapper.toMemoryRecordDtoList(records);
     }

@@ -11,4 +11,14 @@ public interface LocationRecordRepository extends JpaRepository<LocationRecord, 
 {
     @Query("SELECT r FROM LocationRecord r WHERE r.deviceId=?1 AND r.deviceTime>=?2 AND r.deviceTime<=?3 ORDER BY r.deviceTime DESC")
     List<LocationRecord> findAllByDeviceIdInInterval(String deviceId, Date from, Date to);
+
+    @Query("SELECT r FROM LocationRecord r WHERE r.deviceId=?1 AND r.deviceTime>=?2 ORDER BY r.deviceTime DESC")
+    List<LocationRecord> findAllByDeviceIdAndFromDate(String deviceId, Date from);
+
+    @Query("SELECT r FROM LocationRecord r WHERE r.deviceId=?1 AND r.deviceTime<=?2 ORDER BY r.deviceTime DESC")
+    List<LocationRecord> findAllByDeviceIdAndToDate(String deviceId, Date to);
+
+    @Query("SELECT r FROM LocationRecord r WHERE r.deviceId=?1 ORDER BY r.deviceTime DESC")
+    List<LocationRecord> findAllByDeviceId(String deviceId);
+
 }

@@ -29,8 +29,12 @@ public class LocationMonitoringConnector {
     public List<Location> find(String deviceId, LocalDateTime fromTime, LocalDateTime toTime) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("deviceId", deviceId);
-        params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
-        params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+        if (fromTime != null) {
+            params.add("fromTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(fromTime));
+        }
+        if (toTime != null) {
+            params.add("toTime", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(toTime));
+        }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/locmon/").queryParams(params);
         return restTemplate.getForObject(builder.build().toString(), List.class, params);

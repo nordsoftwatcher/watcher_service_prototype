@@ -15,4 +15,12 @@ public interface NetworkRecordRepository extends JpaRepository<NetworkRecord, Lo
         "ORDER BY r.deviceTime DESC")
     List<NetworkRecord> findAllByDeviceIdInInterval(@Param("deviceId") String deviceId, @Param("from") Date from, @Param("to") Date to);
 
+    @Query("SELECT r FROM NetworkRecord r WHERE r.deviceId=?1 AND r.deviceTime>=?2 ORDER BY r.deviceTime DESC")
+    List<NetworkRecord> findAllByDeviceIdAndFromDate(String deviceId, Date from);
+
+    @Query("SELECT r FROM NetworkRecord r WHERE r.deviceId=?1 AND r.deviceTime<=?2 ORDER BY r.deviceTime DESC")
+    List<NetworkRecord> findAllByDeviceIdAndToDate(String deviceId, Date to);
+
+    @Query("SELECT r FROM NetworkRecord r WHERE r.deviceId=?1 ORDER BY r.deviceTime DESC")
+    List<NetworkRecord> findAllByDeviceId(String deviceId);
 }

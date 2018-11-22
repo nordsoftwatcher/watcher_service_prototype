@@ -12,4 +12,13 @@ public interface BatteryLevelRecordRepository extends JpaRepository<BatteryLevel
 {
     @Query("SELECT r FROM BatteryLevelRecord r WHERE r.deviceId=?1 AND r.deviceTime>=?2 AND r.deviceTime<=?3 ORDER BY r.deviceTime DESC")
     List<BatteryLevelRecord> findAllByDeviceIdInInterval(String deviceId, Date from, Date to);
+
+    @Query("SELECT r FROM BatteryLevelRecord r WHERE r.deviceId=?1 AND r.deviceTime>=?2 ORDER BY r.deviceTime DESC")
+    List<BatteryLevelRecord> findAllByDeviceIdAndFromDate(String deviceId, Date from);
+
+    @Query("SELECT r FROM BatteryLevelRecord r WHERE r.deviceId=?1 AND r.deviceTime<=?2 ORDER BY r.deviceTime DESC")
+    List<BatteryLevelRecord> findAllByDeviceIdAndToDate(String deviceId, Date to);
+
+    @Query("SELECT r FROM BatteryLevelRecord r WHERE r.deviceId=?1 ORDER BY r.deviceTime DESC")
+    List<BatteryLevelRecord> findAllByDeviceId(String deviceId);
 }
