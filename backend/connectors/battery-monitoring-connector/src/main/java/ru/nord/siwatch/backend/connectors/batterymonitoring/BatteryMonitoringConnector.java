@@ -11,6 +11,7 @@ import ru.nord.siwatch.backend.connectors.batterymonitoring.models.BatteryLevelI
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -38,6 +39,7 @@ public class BatteryMonitoringConnector
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/battmon/").queryParams(params);
-        return restTemplate.getForObject(builder.build().toString(), List.class, params);
+        BatteryLevel[] batteryLevels = restTemplate.getForObject(builder.build().toString(), BatteryLevel[].class, params);
+        return Arrays.asList(batteryLevels);
     }
 }

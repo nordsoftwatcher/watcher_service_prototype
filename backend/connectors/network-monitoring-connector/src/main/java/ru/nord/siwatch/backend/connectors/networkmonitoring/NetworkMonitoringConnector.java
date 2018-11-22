@@ -12,6 +12,7 @@ import ru.nord.siwatch.backend.connectors.networkmonitoring.models.NetworkInfo;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -39,7 +40,8 @@ public class NetworkMonitoringConnector {
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/network_mon/").queryParams(params);
-        return restTemplate.getForObject(builder.build().toString(), List.class, params);
+        Network[] networks = restTemplate.getForObject(builder.build().toString(), Network[].class, params);
+        return Arrays.asList(networks);
     }
 
 }

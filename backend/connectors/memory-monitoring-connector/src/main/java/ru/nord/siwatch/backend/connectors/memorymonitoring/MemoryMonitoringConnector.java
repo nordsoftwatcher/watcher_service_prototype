@@ -12,6 +12,7 @@ import ru.nord.siwatch.backend.connectors.memorymonitoring.models.MemoryInfo;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -39,7 +40,8 @@ public class MemoryMonitoringConnector {
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/memory_mon/").queryParams(params);
-        return restTemplate.getForObject(builder.build().toString(), List.class, params);
+        Memory[] memories = restTemplate.getForObject(builder.build().toString(), Memory[].class, params);
+        return Arrays.asList(memories);
     }
 
 }

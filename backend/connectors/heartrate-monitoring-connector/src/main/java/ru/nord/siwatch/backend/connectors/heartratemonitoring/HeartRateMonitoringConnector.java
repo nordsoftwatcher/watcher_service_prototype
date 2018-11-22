@@ -11,6 +11,7 @@ import ru.nord.siwatch.backend.connectors.heartratemonitoring.models.HeartRateIn
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -38,7 +39,8 @@ public class HeartRateMonitoringConnector
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/hrmon/").queryParams(params);
-        return restTemplate.getForObject(builder.build().toString(), List.class, params);
+        HeartRate[] heartRates = restTemplate.getForObject(builder.build().toString(), HeartRate[].class, params);
+        return Arrays.asList(heartRates);
     }
 
 }
