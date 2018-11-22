@@ -7,5 +7,5 @@ public interface RouteService {
 
     Route getRouteById(Long routeId);
 
-    void createRoute(CreateRouteInput createRouteInput);
+    Route createRoute(CreateRouteInput createRouteInput);
 }

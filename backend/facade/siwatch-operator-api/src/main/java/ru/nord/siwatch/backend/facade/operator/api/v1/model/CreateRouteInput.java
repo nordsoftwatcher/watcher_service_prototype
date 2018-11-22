@@ -16,7 +16,7 @@ public class CreateRouteInput {
 
     @Valid
     @NotEmpty(message = "Route has to contain at least one point")
-    private List<CreateRoutePointInput> points;
+    private List<CreateRoutePointInput> routePoints;
 
     @Valid
     @NotEmpty(message = "Route has to contain at least one check point")

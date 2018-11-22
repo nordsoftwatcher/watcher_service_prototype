@@ -40,8 +40,8 @@ public class RouteServiceImpl implements RouteService {
         route.setStatus(RouteStatus.NOT_STARTED);
         routeRepository.save(route);
         /** Points */
-        List<RoutePoint> points = new ArrayList<>(createRouteInput.getPoints().size());
-        for (CreateRoutePointInput createRoutePointInput : createRouteInput.getPoints()) {
+        List<RoutePoint> points = new ArrayList<>(createRouteInput.getRoutePoints().size());
+        for (CreateRoutePointInput createRoutePointInput : createRouteInput.getRoutePoints()) {
             RoutePoint point = routeMapper.toRoutePoint(createRoutePointInput);
             point.setRoute(route);
             points.add(point);

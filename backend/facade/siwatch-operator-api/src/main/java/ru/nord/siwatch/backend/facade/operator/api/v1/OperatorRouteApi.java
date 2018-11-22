@@ -34,12 +34,12 @@ public class OperatorRouteApi extends ApiBase {
 
     @ApiOperation(value = "Создание маршрута")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void createRoute(@Valid @RequestBody CreateRouteInput createRouteInput) {
+    public Route createRoute(@Valid @RequestBody CreateRouteInput createRouteInput) {
         Supervisor supervisor = supervisorService.getSupervisorById(createRouteInput.getSupervisorId());
         if (supervisor == null) {
             throw new RuntimeException("Supervisor with id " + createRouteInput.getSupervisorId() + " doesn't exist");
         }
-        routeService.createRoute(createRouteInput);
+        return routeService.createRoute(createRouteInput);
     }
 
     @ApiOperation(value = "Получение маршрута по идентификатору")

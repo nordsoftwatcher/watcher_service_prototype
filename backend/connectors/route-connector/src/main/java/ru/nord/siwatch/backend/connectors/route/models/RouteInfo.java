@@ -11,7 +11,7 @@ public class RouteInfo {
 
     private Long supervisorId;
 
-    private List<RoutePointInfo> points;
+    private List<RoutePointInfo> routePoints;
 
     private List<CheckPointInfo> checkPoints;
 }

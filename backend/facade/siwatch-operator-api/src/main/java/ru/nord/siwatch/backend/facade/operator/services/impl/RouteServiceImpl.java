@@ -24,8 +24,8 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public void createRoute(CreateRouteInput createRouteInput) {
+    public Route createRoute(CreateRouteInput createRouteInput) {
         RouteInfo routeInfo = operatorMapper.toRouteInfo(createRouteInput);
-        routeConnector.save(routeInfo);
+        return routeConnector.save(routeInfo);
     }
 }

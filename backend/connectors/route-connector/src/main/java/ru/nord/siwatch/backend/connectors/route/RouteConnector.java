@@ -17,8 +17,8 @@ public class RouteConnector {
         this.restTemplate = restTemplateBuilder.rootUri(settings.getServiceUrl().toString()).build();
     }
 
-    public void save(RouteInfo routeInfo) {
-        restTemplate.postForObject("/routes/", routeInfo , String.class);
+    public Route save(RouteInfo routeInfo) {
+        return restTemplate.postForObject("/routes/", routeInfo , Route.class);
     }
 
     public Route getRoute(Long routeId) {
