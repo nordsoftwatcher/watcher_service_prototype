@@ -1,14 +1,13 @@
-package ru.nord.siwatch.backend.connectors.locationmonitoring.models;
+package ru.nord.siwatch.backend.facade.operator.api.v1.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter @Setter
-public class Location {
-
-    private Long id;
+@Getter
+@Setter
+public class LocationDto extends AbstractDto {
 
     private LocalDateTime deviceTime;
     private LocalDateTime recordTime;
@@ -19,4 +18,7 @@ public class Location {
     private Double speed;
     private Double direction;
     private Double accuracy;
+
+    private Double routeDistance;
+
 }

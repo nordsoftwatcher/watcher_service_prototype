@@ -11,6 +11,7 @@ import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.LocationInfo;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -37,6 +38,7 @@ public class LocationMonitoringConnector {
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/locmon/").queryParams(params);
-        return restTemplate.getForObject(builder.build().toString(), List.class, params);
+        Location[] locations = restTemplate.getForObject(builder.build().toString(), Location[].class, params);
+        return Arrays.asList(locations);
     }
 }
