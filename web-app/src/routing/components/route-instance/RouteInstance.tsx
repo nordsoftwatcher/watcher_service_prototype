@@ -1,6 +1,8 @@
 import React from 'react';
 import styles from './RouteInstance.module.css';
 
+import Scrollbars from 'react-custom-scrollbars';
+
 import { IRoute } from '../../models/route';
 import { IRouteInstance } from '../../models/route-instance';
 
@@ -12,7 +14,7 @@ import { IPerson } from '../../models/person';
 
 export interface RouteInstanceProps {
   route: IRoute;
-  routeInstance: IRouteInstance;
+  routeInstance?: IRouteInstance;
   person: IPerson;
 }
 
@@ -42,7 +44,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
       <Panel label='SiWatch Widget'>
         <div className={styles.routeHeader}>
           <div className={styles.routeTitle}>
-            {route.name} - {person.lastName} {person.firstName} {person.middleName}
+            {route.name || 'Маршрут'} - {person.lastName} {person.firstName} {person.middleName}
           </div>
 
           <Badge>В пути</Badge>
@@ -76,16 +78,18 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
           </div>
           {this.state.showRoutingPlan && (
             <div style={{ width: planWidth }} className={styles.routePlan}>
-              <Accordion>
-                {route.checkpoints.map(point => (
-                  <RoutePoint
-                    point={point}
-                    pointInstance={routeInstance.chekpoints.find(p => p.pointId === point.id)}
-                    person={person}
-                    key={point.id}
-                  />
-                ))}
-              </Accordion>
+              <Scrollbars autoHide={true}>
+                <Accordion>
+                  {route.checkpoints.map(point => (
+                    <RoutePoint
+                      point={point}
+                      pointInstance={routeInstance && routeInstance.chekpoints.find(p => p.pointId === point.id)}
+                      person={person}
+                      key={point.id}
+                    />
+                  ))}
+                </Accordion>
+              </Scrollbars>
             </div>
           )}
         </div>

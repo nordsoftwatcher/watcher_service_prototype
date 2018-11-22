@@ -12,11 +12,14 @@
     "@types/leaflet": "^1.2.14",
     "@types/node": "10.12.9",
     "@types/react": "16.7.6",
+    "@types/react-custom-scrollbars": "^4.0.5",
     "@types/react-dom": "16.0.9",
     "@types/react-leaflet": "^1.1.6",
     "classnames": "^2.2.6",
     "leaflet": "^1.3.4",
+    "portable-fetch": "^3.0.0",
     "react": "^16.6.3",
+    "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.6.3",
     "react-leaflet": "^2.1.2",
     "react-scripts": "2.1.1",
@@ -27,7 +30,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "tslint ./src/**/*.{ts,tsx}"
+    "lint": "tslint ./src/**/*.{ts,tsx}",
+    "css-types": "tcm -p ./src/**/*.module.css -w"
   },
   "eslintConfig": {
     "extends": "react-app"

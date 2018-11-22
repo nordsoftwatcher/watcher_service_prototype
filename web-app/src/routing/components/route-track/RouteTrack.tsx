@@ -5,10 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance, ICompletedCheckpoint } from '../../models/route-instance';
+import { UUID } from '../../models/uuid';
 
 export interface RouteTrackProps {
   route: IRoute;
-  routeInstance: IRouteInstance;
+  routeInstance?: IRouteInstance;
 }
 
 export class RouteTrack extends React.Component<RouteTrackProps> {
@@ -30,7 +31,7 @@ export class RouteTrack extends React.Component<RouteTrackProps> {
     );
   }
 
-  private findPointInstance = (pointId: string) => {
+  private findPointInstance = (pointId: UUID) => {
     if (this.props.routeInstance) {
       return this.props.routeInstance.chekpoints.find(x => x.pointId === pointId);
     }

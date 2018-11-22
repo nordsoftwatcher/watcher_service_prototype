@@ -18,7 +18,7 @@ export const AccordionItemContext = React.createContext<AccordionItemContext>({
 });
 
 export interface AccordionItemProps {
-  id: string;
+  id: any;
   success?: boolean;
 }
 

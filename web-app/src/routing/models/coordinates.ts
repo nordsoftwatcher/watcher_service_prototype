@@ -1,1 +1,1 @@
-export type Coordinates = [number, number];
+export type Coordinates = [number, number] | { lat: number; lng: number; };
