@@ -37,6 +37,7 @@ public class RouteServiceImpl implements RouteService {
     public Route createRoute(CreateRouteInput createRouteInput) {
         Route route = new Route();
         route.setSupervisorId(createRouteInput.getSupervisorId());
+        route.setName(createRouteInput.getName());
         route.setStatus(RouteStatus.NOT_STARTED);
         routeRepository.save(route);
         /** Points */

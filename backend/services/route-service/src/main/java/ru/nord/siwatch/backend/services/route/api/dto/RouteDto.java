@@ -9,6 +9,8 @@ import java.util.List;
 @Getter @Setter
 public class RouteDto extends AbstractEntityDto {
 
+    private String name;
+
     private RouteStatus status;
 
     private Long supervisorId;

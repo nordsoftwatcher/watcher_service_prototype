@@ -1,5 +1,6 @@
 package ru.nord.siwatch.backend.facade.operator.services.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.nord.siwatch.backend.connectors.route.RouteConnector;
@@ -10,6 +11,7 @@ import ru.nord.siwatch.backend.facade.operator.mapping.OperatorMapper;
 import ru.nord.siwatch.backend.facade.operator.services.RouteService;
 
 @Service("routeService")
+@Slf4j
 public class RouteServiceImpl implements RouteService {
 
     @Autowired
