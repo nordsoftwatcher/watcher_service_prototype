@@ -44,6 +44,7 @@ public class OperatorLocationUtils {
             } else {
                 if (arrivalTime != null) {
                     departureTime = location.getDeviceTime();
+                    break;
                 }
             }
         }
