@@ -2,11 +2,9 @@ package ru.nord.siwatch.backend.facade.operator.mapping;
 
 import org.mapstruct.Mapper;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
-import ru.nord.siwatch.backend.connectors.route.models.CheckPointInfo;
-import ru.nord.siwatch.backend.connectors.route.models.Route;
-import ru.nord.siwatch.backend.connectors.route.models.RouteInfo;
-import ru.nord.siwatch.backend.connectors.route.models.RoutePointInfo;
+import ru.nord.siwatch.backend.connectors.route.models.*;
 import ru.nord.siwatch.backend.connectors.supervisor.model.Supervisor;
+import ru.nord.siwatch.backend.facade.operator.api.v1.dto.CheckPointResultDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.LocationDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.RouteDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.SupervisorDto;
@@ -36,5 +34,9 @@ public interface OperatorMapper {
     LocationDto toLocationDto(Location location);
 
     List<LocationDto> toLocationDtoList(List<Location> locations);
+
+    CheckPointResultDto toCheckPointResultDto(CheckPoint checkPoint);
+
+    List<CheckPointResultDto> toCheckPointResultDtoList(List<CheckPoint> checkPoints);
 
 }

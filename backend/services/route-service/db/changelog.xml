@@ -72,4 +72,20 @@
 
     </changeSet>
 
+    <changeSet id="change-checkpoint-radius-type" author="nord">
+        <modifyDataType catalogName="cat"
+                        columnName="radius"
+                        newDataType="REAL"
+                        schemaName="public"
+                        tableName="check_point"/>
+    </changeSet>
+
+    <changeSet id="change-route-add-name" author="nord">
+        <addColumn catalogName="cat"
+                   schemaName="public"
+                   tableName="route">
+            <column name="name" type="VARCHAR(255)" remarks="Название маршрута"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -7,20 +7,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
+import ru.nord.siwatch.backend.connectors.route.models.CheckPoint;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
-import ru.nord.siwatch.backend.connectors.supervisor.model.Supervisor;
+import ru.nord.siwatch.backend.facade.operator.api.v1.dto.ArrivalDepartureInfo;
+import ru.nord.siwatch.backend.facade.operator.api.v1.dto.CheckPointResultDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.LocationDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.LocationRecordSearchDto;
-import ru.nord.siwatch.backend.facade.operator.api.v1.dto.RouteDto;
+import ru.nord.siwatch.backend.facade.operator.api.v1.model.DeviceLocationOutput;
 import ru.nord.siwatch.backend.facade.operator.mapping.OperatorMapper;
 import ru.nord.siwatch.backend.facade.operator.services.DeviceLocationService;
 import ru.nord.siwatch.backend.facade.operator.services.RouteService;
 import ru.nord.siwatch.backend.facade.operator.services.SupervisorService;
-import ru.nord.siwatch.backend.facade.operator.utils.LocationUtils;
+import ru.nord.siwatch.backend.facade.operator.utils.OperatorLocationUtils;
 
 import javax.validation.Valid;
+import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -46,23 +51,41 @@ public class OperatorDeviceApi extends ApiBase {
 
     @ApiOperation(value = "Получение данных местоположения устройства")
     @GetMapping(value = "/location")
-    public List<LocationDto> getDeviceLocation(@Valid LocationRecordSearchDto recordSearchDto) {
+    public DeviceLocationOutput getDeviceLocation(@Valid LocationRecordSearchDto recordSearchDto) {
         List<Location> locations = deviceLocationService.queryDeviceLocation(recordSearchDto.getDeviceId(), recordSearchDto.getFromTime(), recordSearchDto.getToTime());
+        locations.sort(Comparator.comparing(Location::getDeviceTime));
+        /** Transform data */
         if (recordSearchDto.getRouteId() != null) {
             Route route = routeService.getRouteById(recordSearchDto.getRouteId());
             if (route != null) {
+                /** Transform locations */
                 List<LocationDto> result = new ArrayList<>(locations.size());
                 for (Location location : locations) {
                     LocationDto tempLocation = operatorMapper.toLocationDto(location);
-                    tempLocation.setRouteDistance(LocationUtils.distanceFromRoute(route, location));
+                    tempLocation.setRouteDistance(OperatorLocationUtils.distanceFromRoute(route, location));
                     result.add(tempLocation);
                 }
-                return result;
+                /** Transform checkpoints */
+                List<CheckPointResultDto> checkPoints = new ArrayList<>(route.getCheckPoints().size());
+                for (CheckPoint checkPoint : route.getCheckPoints()) {
+                    CheckPointResultDto checkPointResultDto = operatorMapper.toCheckPointResultDto(checkPoint);
+                    ArrivalDepartureInfo arrivalDepartureInfo = OperatorLocationUtils.getArrivalAndDepartureTime(
+                            checkPoint, locations);
+                    if (arrivalDepartureInfo != null) {
+                        checkPoints.add(checkPointResultDto);
+                        checkPointResultDto.setArrivalTime(arrivalDepartureInfo.getArrivalTime() != null ?
+                                Date.from(arrivalDepartureInfo.getArrivalTime().toInstant(ZoneOffset.UTC)) : null);
+                        checkPointResultDto.setDepartureTime(arrivalDepartureInfo.getDepartureTime() != null ?
+                                Date.from(arrivalDepartureInfo.getDepartureTime().toInstant(ZoneOffset.UTC)) : null);
+                        checkPointResultDto.setFactTime(OperatorLocationUtils.calcFactTime(arrivalDepartureInfo));
+                    }
+                }
+                return new DeviceLocationOutput(result, checkPoints);
             } else {
                 throw new RuntimeException("Route with id " + recordSearchDto.getRouteId() + " hasn't been found");
             }
         } else {
-            return operatorMapper.toLocationDtoList(locations);
+            return new DeviceLocationOutput(operatorMapper.toLocationDtoList(locations), null);
         }
     }
 

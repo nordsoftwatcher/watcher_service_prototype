@@ -7,24 +7,6 @@ using Tizen.Location;
 
 namespace SiWatchApp.Monitors
 {
-    public class LocationInfo : PositionInfo
-    {
-        public double Accuracy { get; set; }
-
-        public LocationInfo(Location location)
-        {
-            Latitude = location.Latitude;
-            Longitude = location.Longitude;
-            Altitude = location.Altitude;
-            Accuracy = location.Accuracy;
-        }
-
-        public override string ToString()
-        {
-            return $"LocationInfo{{Latitude={Latitude},Longitude={Longitude},Altitude={Altitude},Accuracy={Accuracy}}}";
-        }
-    }
-
     public class LocationMonitor : MonitorBase<LocationInfo>
     {
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(LocationMonitor));

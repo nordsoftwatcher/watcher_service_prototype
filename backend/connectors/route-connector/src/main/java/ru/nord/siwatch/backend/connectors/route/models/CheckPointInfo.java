@@ -9,7 +9,7 @@ import java.util.Date;
 @Setter
 public class CheckPointInfo {
 
-    private Integer radius;
+    private Double radius;
 
     private Long order;
 

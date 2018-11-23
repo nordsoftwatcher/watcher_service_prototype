@@ -14,9 +14,9 @@ using Tizen.System;
 
 namespace SiWatchApp.Services
 {
-    public class MonitoringCollector
+    public class MonitoringService
     {
-        private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(MonitoringCollector));
+        private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(MonitoringService));
 
         private readonly MonitoringPolicyService _monitoringPolicyService;
         private readonly MonitorFactory _monitorFactory;
@@ -24,7 +24,7 @@ namespace SiWatchApp.Services
         private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
         private readonly object _sync = new object();
 
-        public MonitoringCollector(MonitoringPolicyService monitoringPolicyService, MonitorFactory monitorFactory, IPriorityQueue queue)
+        public MonitoringService(MonitoringPolicyService monitoringPolicyService, MonitorFactory monitorFactory, IPriorityQueue queue)
         {
             _queue = queue;
             _monitoringPolicyService = monitoringPolicyService;
@@ -32,9 +32,9 @@ namespace SiWatchApp.Services
             _monitoringPolicyService.MonitoringPolicyChanged += HandleMonitoringPolicyChanged;
         }
 
-        private void HandleMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
+        private async void HandleMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
         {
-            Reconfigure(mp);
+            await Reconfigure(mp);
         }
 
         private void Dismiss()
@@ -66,35 +66,43 @@ namespace SiWatchApp.Services
             }
         }
 
-        private void Reconfigure(MonitoringPolicy mp)
+        private async Task Reconfigure(MonitoringPolicy mp)
         {
             lock (_sync) {
                 Dismiss();
+            }
 
-                foreach (MonitorConfig mc in mp.Monitors)
-                {
-                    var monitor = _monitorFactory.GetMonitor(mc.Type);
-                    try {
-                        if (!monitor.Start()) {
-                            LOGGER.Warn($"{monitor} is not supported");
-                            continue;
-                        }
-                    }
-                    catch (Exception ex) {
-                        LOGGER.Error($"{monitor} failed to start:", ex);
-                        continue;
-                    }
+            var monitors = new List<Tuple<MonitorConfig, IMonitor>>();
+            foreach (MonitorConfig mc in mp.Monitors) {
+                IMonitor monitor;
+                try {
+                    monitor = await _monitorFactory.GetMonitor(mc.Type);
+                }
+                catch (Exception ex) {
+                    LOGGER.Error($"{mc.Type} failed to start:", ex);
+                    continue;
+                }
 
-                    var sub = Observable.Interval(TimeSpan.FromSeconds(mc.PollInterval), TaskPoolScheduler.Default)
-                                        .Subscribe(async _ => await ProcessMonitorValue(monitor));
-                    _subscriptions.Add(sub);
+                monitors.Add(Tuple.Create(mc, monitor));
+            }
+
+            lock (_sync) {
+                if (_subscriptions.Count == 0) {
+                    monitors.ForEach(m => {
+                                         var sub = Observable
+                                                   .Interval(TimeSpan.FromSeconds(m.Item1.PollInterval),
+                                                             TaskPoolScheduler.Default)
+                                                   .Subscribe(async _ => await ProcessMonitorValue(m.Item2));
+                                         _subscriptions.Add(sub);
+                                     });
                 }
             }
         }
+    
         
-        public void Start()
+        public async void Start()
         {
-            Reconfigure(_monitoringPolicyService.CurrentMonitoringPolicy);
+            await Reconfigure(_monitoringPolicyService.CurrentMonitoringPolicy);
             LOGGER.Debug("Started");
         }
 

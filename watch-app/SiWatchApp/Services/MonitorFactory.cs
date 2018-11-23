@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SiWatchApp.Services;
+using SiWatchApp.Models;
+using SiWatchApp.Monitors;
 using SiWatchApp.Utils;
 using Xamarin.Forms.Internals;
 
-namespace SiWatchApp.Monitors
+namespace SiWatchApp.Services
 {
     public class MonitorFactory : IDisposable
     {
@@ -21,26 +22,15 @@ namespace SiWatchApp.Monitors
             _permissionManager = permissionManager;
         }
 
-        public async Task Init()
+        public async Task<IMonitor> GetMonitor(MonitorType type)
         {
-            HashSet<string> privileges = new HashSet<string>();
-            foreach (MonitorType mt in Enum.GetValues(typeof(MonitorType)).Cast<MonitorType>()) {
-                var monitor = GetMonitor(mt);
-                if (monitor.Privileges != null) {
-                    privileges.UnionWith(monitor.Privileges);
-                }
-            }
-            await _permissionManager.Demand(privileges);
-        }
-
-        public IMonitor GetMonitor(MonitorType type)
-        {
-            lock (_sync) {
+            bool check = false;
+            IMonitor monitor = null;
+            lock (_sync)
+            {
                 if (_monitors == null) {
                     throw new ObjectDisposedException("MonitorFactory is disposed");
                 }
-
-                IMonitor monitor = null;
                 if (_monitors.ContainsKey(type)) {
                     monitor = _monitors[type];
                 }
@@ -66,15 +56,22 @@ namespace SiWatchApp.Monitors
                     }
                     catch (Exception ex) {
                         LOGGER.Error($"Failed creating monitor of type '{type}':", ex.ToString());
-                        throw ex;
+                        throw;
                     }
 
                     if (monitor != null) {
                         _monitors.Add(type, monitor);
+                        check = true;
                     }
                 }
-                return monitor;
             }
+            if (check) {
+                await _permissionManager.Demand(monitor.Privileges);
+                if (!monitor.Start()) {
+                    throw new ApplicationException($"{monitor} is not supported");
+                }
+            }
+            return monitor;
         }
 
         public void Dispose()

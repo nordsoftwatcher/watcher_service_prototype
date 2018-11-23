@@ -11,6 +11,8 @@ import java.util.List;
 @Getter @Setter
 public class CreateRouteInput {
 
+    private String name;
+
     @NotNull(message = "Supervisor id can't be empty")
     private Long supervisorId;
 

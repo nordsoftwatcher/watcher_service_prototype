@@ -17,19 +17,22 @@ namespace SiWatchApp.Services
 
         private readonly object _sync = new object();
 
-        private readonly IPriorityQueue _queue;
         private readonly MonitoringPolicyService _policyService;
+        private readonly IPriorityQueue _inputQueue;
+        private readonly IPriorityQueue _outputQueue;
         private readonly DataService _dataService;
         private readonly Settings _settings;
         private IDisposable _subscription = null;
 
         public SyncService(
-                IPriorityQueue queue,
+                IPriorityQueue inputQueue,
+                IPriorityQueue outputQueue,
                 MonitoringPolicyService policyService,
                 DataService dataService,
                 Settings settings)
         {
-            _queue = queue;
+            _inputQueue = inputQueue;
+            _outputQueue = outputQueue;
             _dataService = dataService;
             _settings = settings;
 
@@ -57,7 +60,7 @@ namespace SiWatchApp.Services
 
             var count = size;
             while (count-- > 0) {
-                var record = await _queue.Get();
+                var record = await _outputQueue.Get();
                 if (record != null) {
                     if (record is MonitoringRecord monitoringRecord) {
                         monitoringRecords.Add(monitoringRecord);
@@ -74,36 +77,39 @@ namespace SiWatchApp.Services
             if (monitoringRecords.Count == 0 && eventRecords.Count == 0)
                 return null;
 
-            return new DataPacket() {
-                    DeviceId = _settings.DeviceId,
+            return new DataPacket {
                     Monitoring = monitoringRecords.Count == 0 ? null : monitoringRecords.GroupToDictionary(r => r.MonitorType, r => r.Value),
                     Events = eventRecords.Count == 0 ? null : eventRecords
             };
         }
 
-        private async void Flush(DataPacket packet)
+        private async void Sync(MonitoringPolicy policy)
         {
             try {
-                await _dataService.Send(packet);
-                LOGGER.Debug($"Packet sent");
+                var output = await PrepareDataPacket(policy.PacketSize);
+                if (output != null) {
+                    var input = await _dataService.Send(output);
+                    if (input != null && input.Events != null && input.Events.Count > 0) {
+                        input.Events.ForEach(async e => await _inputQueue.Put(e));
+                    }
+                    LOGGER.Debug($"Sync OK");
+                    Synced?.Invoke(this, EventArgs.Empty);
+                }
             }
             catch (Exception ex) {
+                LOGGER.Error("Sync error:", ex);
                 throw;
             }
         }
+
+        public event EventHandler Synced;
 
         private void Reconfigure(MonitoringPolicy mp)
         {
             lock (_sync)
             {
                 Dismiss();
-
-                _subscription = Observable.Interval(TimeSpan.FromSeconds(mp.FlushInterval), TaskPoolScheduler.Default)
-                                    .Select(_ => PrepareDataPacket(mp.PacketSize))
-                                    .Subscribe(async t => {
-                                                   var packet = await t;
-                                                   if(packet != null) Flush(packet);
-                                               });
+                _subscription = Observable.Interval(TimeSpan.FromSeconds(mp.FlushInterval), TaskPoolScheduler.Default).Subscribe(_ => Sync(mp));
             }
         }
 

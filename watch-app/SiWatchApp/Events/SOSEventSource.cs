@@ -2,34 +2,16 @@ using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using SiWatchApp.Models;
+using SiWatchApp.Monitors;
 using SiWatchApp.Queue;
+using SiWatchApp.Utils;
 
 namespace SiWatchApp.Events
 {
-    public class SOSInfo : PositionInfo
+    public class SOSEventSource : MessageEventSource
     {
-        public string Message { get; set; }
-    }
+        public override EventType EventType => EventType.SOS;
 
-    public class SOSEventSource : IEventSource
-    {
-        private readonly Subject<EventValue> _source;
-        
-        public SOSEventSource()
-        {
-            _source = new Subject<EventValue>();
-            Events = _source.AsObservable();
-        }
-
-        public void Signal(string message)
-        {
-            _source.OnNext(new EventValue(new SOSInfo() { Message = message }));
-        }
-
-        public IObservable<EventValue> Events { get; }
-
-        public EventType EventType => EventType.SOS;
-
-        public Priority Priority => Priority.Highest;
+        public override Priority Priority => Priority.Highest;
     }
 }

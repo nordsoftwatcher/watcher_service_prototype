@@ -1,3 +1,5 @@
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using SiWatchApp.Configuration;
 using Tizen.Applications;
@@ -13,13 +15,15 @@ namespace SiWatchApp.Services
             var metadata = Application.Current.ApplicationInfo.Metadata;
             _settings = new Settings {
                     DeviceId = metadata["deviceId"],
-                    ApiUrl = metadata["apiUrl"]
+                    ApiUrl = metadata["apiUrl"],
+                    SendRetryCount = 3,
+                    SendRetryDelay = TimeSpan.FromSeconds(3)
             };
         }
 
-        public async Task<Settings> GetSettings()
+        public Task<Settings> GetSettings()
         {
-            return _settings;
+            return Task.FromResult(_settings);
         }
     }
 }

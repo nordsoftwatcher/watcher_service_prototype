@@ -1,4 +1,4 @@
-package ru.nord.siwatch.backend.connectors.route.models;
+package ru.nord.siwatch.backend.facade.operator.api.v1.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,9 +6,7 @@ import lombok.Setter;
 import java.util.Date;
 
 @Getter @Setter
-public class CheckPoint {
-
-    private Long id;
+public class CheckPointResultDto extends AbstractDto {
 
     private Double radius;
 

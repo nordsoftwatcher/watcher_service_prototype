@@ -9,6 +9,8 @@ import java.util.List;
 @Setter
 public class RouteInfo {
 
+    private String name;
+
     private Long supervisorId;
 
     private List<RoutePointInfo> routePoints;
