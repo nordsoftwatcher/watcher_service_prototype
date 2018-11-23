@@ -320,6 +320,12 @@ export interface CreateRouteInput {
     checkPoints?: Array<CreateCheckPointInput>;
     /**
      * 
+     * @type {string}
+     * @memberof CreateRouteInput
+     */
+    name?: string;
+    /**
+     * 
      * @type {Array<CreateRoutePointInput>}
      * @memberof CreateRouteInput
      */
@@ -466,6 +472,12 @@ export interface Route {
     id?: number;
     /**
      * 
+     * @type {string}
+     * @memberof Route
+     */
+    name?: string;
+    /**
+     * 
      * @type {Array<RoutePoint>}
      * @memberof Route
      */
@@ -502,6 +514,12 @@ export interface RouteDto {
      * @memberof RouteDto
      */
     id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof RouteDto
+     */
+    name?: string;
     /**
      * 
      * @type {Array<RoutePoint>}
