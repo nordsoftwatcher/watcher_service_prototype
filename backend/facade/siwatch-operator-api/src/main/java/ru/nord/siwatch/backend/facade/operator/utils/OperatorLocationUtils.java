@@ -4,6 +4,7 @@ import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
+import ru.nord.siwatch.backend.connectors.route.models.CheckPoint;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
 import ru.nord.siwatch.backend.connectors.route.models.RoutePoint;
 
@@ -49,6 +50,13 @@ public class OperatorLocationUtils {
         }
 
         return null;
+    }
+
+    public static double distanceBetweenLocationAndCheckpoint(CheckPoint checkPoint, Location location) {
+        return sqrt(
+                pow(checkPoint.getLatitude() - location.getLatitude(), 2) +
+                pow(checkPoint.getLongitude() - location.getLongitude(), 2)
+        );
     }
 
     public static double distanceFromRoute(Route route, Location location) {
