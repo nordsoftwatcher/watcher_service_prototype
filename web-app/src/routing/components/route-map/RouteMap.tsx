@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './RouteMap.module.css';
+import colors from '../../../colors.module.css';
 
 // import 'leaflet/dist/leaflet.css'
 import { Map, Marker, TileLayer, Polyline, Tooltip } from 'react-leaflet';
@@ -29,7 +30,7 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
 
     this.state = {
       center: routeInstance && routeInstance.currentPos || route.checkpoints[0].coords,
-      zoom: 15,
+      zoom: 14,
     };
   }
 
@@ -51,7 +52,7 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
             maxZoom={19}
           />
 
-          <Polyline positions={route.track} color='#01BEE9' dashArray='1 7' />
+          <Polyline positions={route.track} color={colors.blue} dashArray='1 7' />
 
           {route.checkpoints.map(point => (
             <Marker position={point.coords} key={point.id} icon={routePointIcon}>
@@ -72,11 +73,11 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
             );
           })}
 
-          {routeInstance && <Polyline positions={routeInstance.track.map(x => x.coords)} color='#06C575' />}
+          {routeInstance && <Polyline positions={routeInstance.track.map(x => x.coords)} color={colors.green} />}
 
           {deviations && deviations.length > 0 && (
             deviations.map((line, i) => (
-              <Polyline color='#F10F45' positions={line.map(x => x.point.coords)} key={i} />
+              <Polyline color={colors.red} positions={line.map(x => x.point.coords)} key={i} />
             ))
           )}
 

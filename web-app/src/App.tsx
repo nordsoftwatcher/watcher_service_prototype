@@ -3,17 +3,23 @@ import React, { Component } from 'react';
 
 import './icons';
 
+import { DateTime } from 'luxon';
+
 import { RouteInstance } from './routing/components/route-instance/RouteInstance';
-import { IRouteInstance, ITrackCoordiantes } from './routing/models/route-instance';
+import { IRouteInstance } from './routing/models/route-instance';
 import { IRoute } from './routing/models/route';
 import { IPerson } from './routing/models/person';
-import { OperatorApiApi, RouteDto } from './api/operator-api';
+import { OperatorRouteApiApi, OperatorDeviceApiApi } from './api/operator-api';
 import { mapRoute } from './api-mappers/route';
+import { mapRouteInstance } from './api-mappers/route-instance';
+import { mapPerson } from './api-mappers/person';
+import { UUID } from './routing/models/uuid';
 
 interface IAppState {
   route?: IRoute;
   routeInstance?: IRouteInstance;
   person?: IPerson;
+  timestamp: Date;
 }
 
 class App extends Component<{}, IAppState> {
@@ -21,72 +27,56 @@ class App extends Component<{}, IAppState> {
   static params = {
     deviceId: 'TEST_DEVICE',
     routeId: 1,
+    startTimestamp: '2018-11-23T13:00:00Z',
+    refreshIntervalMs: 1000,
   };
 
-  private operatorApi: OperatorApiApi = new OperatorApiApi();
+  private routeApi = new OperatorRouteApiApi();
+  private deviceApi = new OperatorDeviceApiApi();
 
   constructor(props: {}) {
     super(props);
-    this.state = {};
+    this.state = {
+      timestamp: new Date(App.params.startTimestamp),
+    };
   }
 
   private async fetchRouteAndPerson() {
-    const { supervisor, ...route } = await this.operatorApi.getRouteUsingGET(App.params.routeId);
+    const { supervisor, ...route } = await this.routeApi.getRouteUsingGET(App.params.routeId);
 
     this.setState({
       route: mapRoute(route),
-      person: {
-        id: supervisor!.id!,
-        lastName: supervisor!.lastName!,
-        firstName: supervisor!.name!,
-        middleName: supervisor!.middleName!,
-      },
     });
 
     if (supervisor) {
       this.setState({
-        person: {
-          id: supervisor.id!,
-          lastName: supervisor.lastName!,
-          firstName: supervisor.name!,
-          middleName: supervisor.middleName!,
-        },
+        person: mapPerson(supervisor),
       });
     }
 
-    this.fetchDeviceLocation(route);
+    this.watchRouteInstance();
   }
 
-  private async fetchDeviceLocation(route: RouteDto) {
-    const deviceLocation = await this.operatorApi.getDeviceLocationUsingGET(
+  private async fetchRouteInstance(routeId: UUID, timestamp: Date) {
+    const deviceLocationInfo = await this.deviceApi.getDeviceLocationUsingGET(
       App.params.deviceId,
       undefined,
-      route.id,
-      undefined,
+      routeId,
+      timestamp,
     );
 
-    const track = deviceLocation.map((loc): ITrackCoordiantes => ({
-      coords: {
-        lat: loc.latitude!,
-        lng: loc.longitude!,
-      },
-      attributes: {
-        distanceFromRoute: loc.routeDistance!,
-      },
-    }));
-
-    const currentPos = track[track.length - 1];
-
     this.setState({
-
-      routeInstance: {
-        currentPos: currentPos && currentPos.coords,
-        chekpoints: [],
-        id: undefined,
-        personId: 1,
-        track,
-      },
+      routeInstance: mapRouteInstance(deviceLocationInfo),
+      timestamp: DateTime.fromJSDate(timestamp).plus({ minutes: 5 }).toJSDate(),
     });
+  }
+
+  watchRouteInstance() {
+    setInterval(async () => {
+      const { route, timestamp } = this.state;
+
+      this.fetchRouteInstance(route!.id, timestamp);
+    }, App.params.refreshIntervalMs);
   }
 
   componentDidMount() {

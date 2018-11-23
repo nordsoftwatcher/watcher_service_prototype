@@ -1,5 +1,5 @@
 .badge {
-  border: 1px solid #01BEE9;
+  border: 1px solid var(--blue);
   box-sizing: border-box;
   box-shadow: 0px 2px 6px rgba(50, 172, 199, 0.25);
   border-radius: 59px;
@@ -8,6 +8,6 @@
   font-size: 12px;
   text-align: center;
   letter-spacing: .3px;
-  color: #01BEE9;
+  color: var(--blue);
   padding: 5px 12px;
 }

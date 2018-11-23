@@ -6,7 +6,7 @@
 }
 
 .open {
-  border-color: #ffffff;
+  border-color: var(--white);
 }
 
 .success {

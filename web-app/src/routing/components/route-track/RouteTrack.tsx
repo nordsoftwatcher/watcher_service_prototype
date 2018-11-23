@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './RouteTrack.module.css';
+import colors from '../../../colors.module.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import turf from '@turf/turf';
@@ -9,6 +10,7 @@ import { IRouteInstance, ICompletedCheckpoint } from '../../models/route-instanc
 import { UUID } from '../../models/uuid';
 import { Coordinates } from '../../models/coordinates';
 import { getDeviations, Deviation } from '../../utils/deviations';
+import { formatTime } from '../../utils/date';
 
 export interface RouteTrackProps {
   route: IRoute;
@@ -65,7 +67,7 @@ export class RouteTrack extends React.Component<RouteTrackProps> {
 
     const posRatio = this.getDistanceRatio(routeInstance.currentPos);
     const style: React.CSSProperties = {
-      left: `${posRatio}%`,
+      left: `calc(${posRatio}% - 13px)`,
     };
 
     return (
@@ -159,16 +161,16 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
     if (pointInstance) {
       return (
         <>
-          <SuccessCheckpoint />
+          <SuccessCheckpointIcon />
           <div className={styles.checkpointTime}>
-            {pointInstance.arrival}
+            {formatTime(pointInstance.arrival)}
           </div>
         </>
       );
     } else {
       return (
         <>
-          <FutureCheckpoint />
+          <FutureCheckpointIcon />
           <div className={styles.checkpointTime}>
             00:00
           </div>
@@ -177,16 +179,16 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
     }
   };
 
-const SuccessCheckpoint = () => (
+const SuccessCheckpointIcon = () => (
   <div className='fa-stack'>
     <FontAwesomeIcon className='fa-stack-1x' icon='circle' />
     <FontAwesomeIcon className='fa-stack-1x' icon='check-circle' color={styles.successColor} />
   </div>
 );
 
-const FutureCheckpoint = () => (
+const FutureCheckpointIcon = () => (
   <div className='fa-stack'>
-    <FontAwesomeIcon className='fa-stack-1x' icon='circle' color='#2A2B31' />
+    <FontAwesomeIcon className='fa-stack-1x' icon='circle' color={colors.black} />
     <FontAwesomeIcon className='fa-stack-1x' icon='dot-circle' color={styles.mainColor} />
   </div>
 );

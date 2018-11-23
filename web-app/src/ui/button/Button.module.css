@@ -8,18 +8,18 @@
 }
 
 .solid {
-  background: var(--primary);
-  border-color: var(--primary);
+  background: var(--blue);
+  border-color: var(--blue);
   color: var(--black);
 }
 
 .outline {
   /* background: transparent; */
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--blue);
+  color: var(--blue);
 }
 
 .link {
-  color: var(--primary);
+  color: var(--blue);
   padding: 8px 8px;
 }

@@ -1,0 +1,6 @@
+@value blue: var(--blue);
+@value green: var(--green);
+@value red: var(--red);
+@value black: var(--black);
+@value white: var(--white);
+@value bg: var(--bg);
