@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+    <deployment>
+        <exclude-subsystems>
+            <subsystem name="jsf"/>
+        </exclude-subsystems>
+        <dependencies>
+            <!-- требуем wildfly-модуль с внешней конфигурацией -->
+            <!-- <module name="ru.nord.siwatch" export="true" /> -->
+        </dependencies>
+		<exclusions>
+			<module name="org.hibernate.validator" />
+			<module name="org.hibernate" />
+			<module name="javax.validation.api" />
+		</exclusions>
+    </deployment>
+</jboss-deployment-structure>

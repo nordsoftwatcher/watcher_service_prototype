@@ -103,6 +103,7 @@
                 <module>memory-monitoring-service</module>
                 <module>network-monitoring-service</module>
                 <module>supervisor-service</module>
+                <module>event-service</module>
             </modules>
         </profile>
     </profiles>
