@@ -10,7 +10,7 @@ public class CheckPoint {
 
     private Long id;
 
-    private Integer radius;
+    private Double radius;
 
     private Long order;
 

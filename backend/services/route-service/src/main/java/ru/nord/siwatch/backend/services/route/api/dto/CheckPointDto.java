@@ -9,7 +9,7 @@ import java.util.Date;
 @Setter
 public class CheckPointDto extends AbstractEntityDto {
 
-    private Integer radius;
+    private Double radius;
 
     private Long order;
 

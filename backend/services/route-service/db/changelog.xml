@@ -72,4 +72,12 @@
 
     </changeSet>
 
+    <changeSet id="change-checkpoint-radius-type" author="nord">
+        <modifyDataType catalogName="cat"
+                        columnName="radius"
+                        newDataType="REAL"
+                        schemaName="public"
+                        tableName="check_point"/>
+    </changeSet>
+
 </databaseChangeLog>

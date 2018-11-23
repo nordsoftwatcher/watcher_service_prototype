@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class CreateCheckPointInput {
 
     @NotNull(message = "Radius can't be null")
-    private Integer radius;
+    private Double radius;
 
     @NotNull(message = "Order can't be null")
     private Long order;
