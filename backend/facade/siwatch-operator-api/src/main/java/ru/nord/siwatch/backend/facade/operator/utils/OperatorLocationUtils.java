@@ -1,12 +1,12 @@
 package ru.nord.siwatch.backend.facade.operator.utils;
 
-import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
 import ru.nord.siwatch.backend.connectors.route.models.CheckPoint;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
 import ru.nord.siwatch.backend.connectors.route.models.RoutePoint;
+import ru.nord.siwatch.backend.facade.operator.api.v1.dto.ArrivalDepartureInfo;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -21,18 +21,18 @@ public class OperatorLocationUtils {
     private static final long SECOND = 1000;
     private static final long MINUTE = SECOND * 60;
 
-    public static Integer calcFactTime(Pair<LocalDateTime, LocalDateTime> arrivalDepartureInfo) {
-        if (arrivalDepartureInfo.getKey() == null || arrivalDepartureInfo.getValue() == null) {
+    public static Integer calcFactTime(ArrivalDepartureInfo arrivalDepartureInfo) {
+        if (arrivalDepartureInfo.getArrivalTime() == null || arrivalDepartureInfo.getDepartureTime() == null) {
             return null;
         }
-        Date arrivalTime = Date.from(arrivalDepartureInfo.getKey().toInstant(ZoneOffset.UTC));
-        Date departureTime = Date.from(arrivalDepartureInfo.getValue().toInstant(ZoneOffset.UTC));
+        Date arrivalTime = Date.from(arrivalDepartureInfo.getArrivalTime().toInstant(ZoneOffset.UTC));
+        Date departureTime = Date.from(arrivalDepartureInfo.getDepartureTime().toInstant(ZoneOffset.UTC));
 
         return toIntExact(abs(departureTime.getTime() - arrivalTime.getTime()) / MINUTE);
 
     }
 
-    public static Pair<LocalDateTime, LocalDateTime> getArrivalAndDepartureTime(CheckPoint checkPoint, List<Location> locations) {
+    public static ArrivalDepartureInfo getArrivalAndDepartureTime(CheckPoint checkPoint, List<Location> locations) {
         LocalDateTime arrivalTime = null;
         LocalDateTime departureTime = null;
         for (Location location : locations) {
@@ -48,7 +48,7 @@ public class OperatorLocationUtils {
             }
         }
         if (arrivalTime != null) {
-            return new Pair<>(arrivalTime, departureTime);
+            return new ArrivalDepartureInfo(arrivalTime, departureTime);
         }
 
         return null;

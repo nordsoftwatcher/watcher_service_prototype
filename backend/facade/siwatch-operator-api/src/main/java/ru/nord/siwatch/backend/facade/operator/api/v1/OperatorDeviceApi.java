@@ -2,7 +2,6 @@ package ru.nord.siwatch.backend.facade.operator.api.v1;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
 import ru.nord.siwatch.backend.connectors.route.models.CheckPoint;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
+import ru.nord.siwatch.backend.facade.operator.api.v1.dto.ArrivalDepartureInfo;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.CheckPointResultDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.LocationDto;
 import ru.nord.siwatch.backend.facade.operator.api.v1.dto.LocationRecordSearchDto;
@@ -69,14 +69,14 @@ public class OperatorDeviceApi extends ApiBase {
                 List<CheckPointResultDto> checkPoints = new ArrayList<>(route.getCheckPoints().size());
                 for (CheckPoint checkPoint : route.getCheckPoints()) {
                     CheckPointResultDto checkPointResultDto = operatorMapper.toCheckPointResultDto(checkPoint);
-                    Pair<LocalDateTime, LocalDateTime> arrivalDepartureInfo = OperatorLocationUtils.getArrivalAndDepartureTime(
+                    ArrivalDepartureInfo arrivalDepartureInfo = OperatorLocationUtils.getArrivalAndDepartureTime(
                             checkPoint, locations);
                     if (arrivalDepartureInfo != null) {
                         checkPoints.add(checkPointResultDto);
-                        checkPointResultDto.setArrivalTime(arrivalDepartureInfo.getKey() != null ?
-                                Date.from(arrivalDepartureInfo.getKey().toInstant(ZoneOffset.UTC)) : null);
-                        checkPointResultDto.setDepartureTime(arrivalDepartureInfo.getValue() != null ?
-                                Date.from(arrivalDepartureInfo.getValue().toInstant(ZoneOffset.UTC)) : null);
+                        checkPointResultDto.setArrivalTime(arrivalDepartureInfo.getArrivalTime() != null ?
+                                Date.from(arrivalDepartureInfo.getArrivalTime().toInstant(ZoneOffset.UTC)) : null);
+                        checkPointResultDto.setDepartureTime(arrivalDepartureInfo.getDepartureTime() != null ?
+                                Date.from(arrivalDepartureInfo.getDepartureTime().toInstant(ZoneOffset.UTC)) : null);
                         checkPointResultDto.setFactTime(OperatorLocationUtils.calcFactTime(arrivalDepartureInfo));
                     }
                 }
