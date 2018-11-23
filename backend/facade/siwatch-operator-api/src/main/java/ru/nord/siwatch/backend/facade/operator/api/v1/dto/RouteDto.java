@@ -10,6 +10,8 @@ import java.util.List;
 @Getter @Setter
 public class RouteDto extends AbstractDto {
 
+    private String name;
+
     private SupervisorDto supervisor;
 
     private String status;
