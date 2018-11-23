@@ -1,15 +1,55 @@
 package ru.nord.siwatch.backend.facade.operator.utils;
 
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import ru.nord.siwatch.backend.connectors.locationmonitoring.models.Location;
 import ru.nord.siwatch.backend.connectors.route.models.Route;
 import ru.nord.siwatch.backend.connectors.route.models.RoutePoint;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.List;
+
 import static java.lang.Math.*;
 
 @Slf4j
-public class LocationUtils {
+public class OperatorLocationUtils {
+
+    private static final long SECOND = 1000;
+    private static final long MINUTE = SECOND * 60;
+
+    public static Integer calcFactTime(Pair<LocalDateTime, LocalDateTime> arrivalDepartureInfo) {
+        if (arrivalDepartureInfo.getKey() == null || arrivalDepartureInfo.getValue() == null) {
+            return null;
+        }
+        Date arrivalTime = Date.from(arrivalDepartureInfo.getKey().toInstant(ZoneOffset.UTC));
+        Date departureTime = Date.from(arrivalDepartureInfo.getValue().toInstant(ZoneOffset.UTC));
+
+        return toIntExact(abs(departureTime.getTime() - arrivalTime.getTime()) / MINUTE);
+
+    }
+
+    public static Pair<LocalDateTime, LocalDateTime> getArrivalAndDepartureTime(CheckPoint checkPoint, List<Location> locations) {
+        LocalDateTime arrivalTime = null;
+        LocalDateTime departureTime = null;
+        for (Location location : locations) {
+            double distance = distanceBetweenLocationAndCheckpoint(checkPoint, location);
+            if (distance <= checkPoint.getRadius() && arrivalTime == null) {
+               arrivalTime = location.getDeviceTime();
+            } else {
+                if (arrivalTime != null) {
+                    departureTime = location.getDeviceTime();
+                }
+            }
+        }
+        if (arrivalTime != null) {
+            return new Pair<>(arrivalTime, departureTime);
+        }
+
+        return null;
+    }
 
     public static double distanceFromRoute(Route route, Location location) {
         if (CollectionUtils.isEmpty(route.getRoutePoints())) {
