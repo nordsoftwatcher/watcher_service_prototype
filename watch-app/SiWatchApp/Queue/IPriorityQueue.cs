@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using SiWatchApp.Models;
 
 namespace SiWatchApp.Queue
 {

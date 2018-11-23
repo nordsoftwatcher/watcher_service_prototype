@@ -8,7 +8,7 @@ namespace SiWatchApp
         public StartPage()
         {
             var titleLabel = new Label() {
-                    Text = "SiWatch Monitoring App",
+                    Text = "SiWatch",
                     HorizontalTextAlignment = TextAlignment.Center
             };
             var button = new Button() {

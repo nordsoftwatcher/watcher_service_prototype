@@ -24,13 +24,11 @@ export class RoutePoint extends React.Component<RoutePointProps> {
           {point.name}
         </AccordionItemTitle>
         <AccordionItemBody>
-          {state => {
-            if (state.isOpen) {
-              return <RoutePointFullInfo {...this.props} />;
-            } else {
-              return <RoutePointShortInfo {...this.props} />;
-            }
-          }}
+          {({ isOpen }) => (
+            isOpen
+              ? <RoutePointFullInfo {...this.props} />
+              : <RoutePointShortInfo {...this.props} />
+          )}
         </AccordionItemBody>
       </AccordionItem>
     );

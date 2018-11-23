@@ -1,33 +1,30 @@
 .root {
   margin-top: 16px;
   margin-bottom: 40px;
+  margin-left: 12px;
+  margin-right: 12px;
   position: relative;
 }
 
-.route {
+.bar {
   height: 6px;
-  opacity: .2;
-  width: calc(100% - 24px);
-  margin: 0 12px;
-  background: var(--blue);
-
   position: absolute;
   top: 10px;
 }
 
-.routeInstance {
-  composes: route;
-  background: var(--green);
-  opacity: 1;
-  width: calc(40% - (24px * .4));
+.route {
+  composes: bar;
+  background: var(--blue);
+  width: 100%;
+  opacity: .2;
 }
 
-.checkpoints {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+.routeInstance {
+  composes: bar;
+  background: var(--green);
+}
 
+.checkpoint {
   position: absolute;
 }
 
@@ -38,16 +35,21 @@
 
 .currentPos {
   position: absolute;
-  left: calc(40% - 12px);
+}
+
+.deviation {
+  composes: bar;
+  background: linear-gradient(to right, successColor, dangerColor, dangerColor , successColor);
 }
 
 @value mainColor: var(--blue);
 @value successColor: var(--green);
+@value dangerColor: var(--red);
 
 .root :global(.fa-stack) {
   height: calc(1em + 2px);
   width: calc(1em + 2px);
-  border: 1px solid #2A2B31;
+  border: 1px solid var(--black);
   border-radius: 50%;
   font-size: 1.5em;
 }

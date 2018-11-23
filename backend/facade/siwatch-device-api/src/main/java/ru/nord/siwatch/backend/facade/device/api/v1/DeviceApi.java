@@ -39,7 +39,7 @@ public class DeviceApi extends ApiBase
     }
 
     @ApiOperation(value = "Обработка данных с устройства")
-    @PutMapping(value = "data", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "sync", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity processData(@RequestBody Map<String, Object> data)
     {
         log.info("Got "+ Objects.toString(data));

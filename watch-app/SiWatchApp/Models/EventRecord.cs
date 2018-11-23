@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using SiWatchApp.Events;
 
 namespace SiWatchApp.Models
@@ -6,10 +7,11 @@ namespace SiWatchApp.Models
     {
         public EventType EventType { get; }
 
-        public EventRecord(EventType eventType, EventValue eventValue)
+        [JsonConstructor]
+        public EventRecord(EventType eventType, EventValue value)
         {
             EventType = eventType;
-            Value = eventValue;
+            Value = value;
         }
 
         public override string ToString()

@@ -3,13 +3,14 @@ import styles from './RouteInstance.module.css';
 
 import Scrollbars from 'react-custom-scrollbars';
 
-import { IRoute } from '../../models/route';
-import { IRouteInstance } from '../../models/route-instance';
-
 import { Panel, Accordion, Badge, Button } from '../../../ui';
+
 import { RoutePoint } from '../route-point/RoutePoint';
 import { RouteMap } from '../route-map/RouteMap';
 import { RouteTrack } from '../route-track/RouteTrack';
+
+import { IRoute } from '../../models/route';
+import { IRouteInstance } from '../../models/route-instance';
 import { IPerson } from '../../models/person';
 
 export interface RouteInstanceProps {
@@ -24,6 +25,8 @@ interface RouteInstanceState {
 
 export class RouteInstance extends React.Component<RouteInstanceProps, RouteInstanceState> {
 
+  private planWidth = '300px';
+
   state = {
     showRoutingPlan: true,
   };
@@ -34,11 +37,61 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
     });
   }
 
-  render() {
+  renderShowHideRoutingPlanControls() {
+    const { showRoutingPlan } = this.state;
+
+    const controlsStyle: React.CSSProperties = {
+      width: this.planWidth,
+      display: 'flex',
+      alignItems: 'center',
+    };
+
+    if (showRoutingPlan) {
+      return (
+        <div style={controlsStyle} className='ml-auto'>
+          План маршрута
+          <div className='ml-auto'>
+            <Button link={true} onClick={this.toggleRoutingPlan}>Свернуть</Button>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className='ml-auto'>
+          <Button outline={true} onClick={this.toggleRoutingPlan}>Показать план маршрута</Button>
+        </div>
+      );
+    }
+  }
+
+  renderRoutingPlan() {
     const { route, routeInstance, person } = this.props;
     const { showRoutingPlan } = this.state;
 
-    const planWidth = '300px';
+    if (!showRoutingPlan) {
+      return null;
+    }
+
+    return (
+      <div style={{ width: this.planWidth }} className={styles.routePlan}>
+        <Scrollbars autoHide={true}>
+          <Accordion>
+            {route.checkpoints.map(point => (
+              <RoutePoint
+                point={point}
+                pointInstance={routeInstance && routeInstance.chekpoints.find(p => p.pointId === point.id)}
+                person={person}
+                key={point.id}
+              />
+            ))}
+          </Accordion>
+        </Scrollbars>
+      </div>
+    );
+  }
+
+  render() {
+    const { route, routeInstance, person } = this.props;
 
     return (
       <Panel label='SiWatch Widget'>
@@ -49,26 +102,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
           <Badge>В пути</Badge>
 
-          {showRoutingPlan ? (
-            <div
-              style={{
-                width: planWidth,
-                display: 'flex',
-                alignItems: 'center',
-              }}
-              className='ml-auto'
-            >
-              План маршрута
-              <div className='ml-auto'>
-                <Button link={true} onClick={this.toggleRoutingPlan}>Свернуть</Button>
-              </div>
-            </div>
-          ) : (
-              <div className='ml-auto'>
-                <Button outline={true} onClick={this.toggleRoutingPlan}>Показать план маршрута</Button>
-              </div>
-
-            )}
+          {this.renderShowHideRoutingPlanControls()}
         </div>
 
         <div className={styles.routeContent}>
@@ -76,22 +110,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
             <RouteMap route={route} routeInstance={routeInstance} />
             <RouteTrack route={route} routeInstance={routeInstance} />
           </div>
-          {this.state.showRoutingPlan && (
-            <div style={{ width: planWidth }} className={styles.routePlan}>
-              <Scrollbars autoHide={true}>
-                <Accordion>
-                  {route.checkpoints.map(point => (
-                    <RoutePoint
-                      point={point}
-                      pointInstance={routeInstance && routeInstance.chekpoints.find(p => p.pointId === point.id)}
-                      person={person}
-                      key={point.id}
-                    />
-                  ))}
-                </Accordion>
-              </Scrollbars>
-            </div>
-          )}
+          {this.renderRoutingPlan()}
         </div>
       </Panel>
     );

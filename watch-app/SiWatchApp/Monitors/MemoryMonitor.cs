@@ -1,22 +1,11 @@
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
+using SiWatchApp.Models;
 using Tizen.System;
 
 namespace SiWatchApp.Monitors
 {
-    [Serializable]
-    public struct MemoryInfo
-    {
-        public int FreeSystemMemory { get; set; }
-        public ulong? FreeStorageMemory { get; set; }
-
-        public override string ToString()
-        {
-            return $"MemoryInfo{{FreeSystemMemory={FreeSystemMemory},FreeStorageMemory={FreeStorageMemory}}}";
-        }
-    }
-
     public class MemoryMonitor : MonitorBase<MemoryInfo>
     {
         private SystemMemoryUsage _systemMemoryUsage;

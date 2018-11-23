@@ -1,4 +1,4 @@
-namespace SiWatchApp.Queue
+namespace SiWatchApp.Models
 {
     public enum Priority
     {
