@@ -37,8 +37,10 @@ public class OperatorLocationUtils {
         LocalDateTime departureTime = null;
         for (Location location : locations) {
             double distance = distanceBetweenLocationAndCheckpoint(checkPoint, location);
-            if (distance <= checkPoint.getRadius() && arrivalTime == null) {
-               arrivalTime = location.getDeviceTime();
+            if (distance <= checkPoint.getRadius()) {
+                if (arrivalTime == null) {
+                    arrivalTime = location.getDeviceTime();
+                }
             } else {
                 if (arrivalTime != null) {
                     departureTime = location.getDeviceTime();
