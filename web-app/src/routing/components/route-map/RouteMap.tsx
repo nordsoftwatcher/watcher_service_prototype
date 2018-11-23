@@ -30,7 +30,7 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
 
     this.state = {
       center: routeInstance && routeInstance.currentPos || route.checkpoints[0].coords,
-      zoom: 15,
+      zoom: 14,
     };
   }
 

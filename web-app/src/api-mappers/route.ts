@@ -13,11 +13,11 @@ export function mapRoute(dto: RouteDto): IRoute {
 
 function mapCheckpoint(dto: CheckPoint): ICheckpoint {
   return {
-    id: dto.order,
+    id: dto.id,
     address: dto.address!,
     description: dto.description!,
     name: dto.name!,
-    planTime: String(dto.planTime),
+    planTime: dto.planTime,
     coords: {
       lat: dto.latitude!,
       lng: dto.longitude!,

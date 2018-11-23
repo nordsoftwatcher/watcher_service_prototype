@@ -119,6 +119,12 @@ export interface CheckPoint {
      * @type {number}
      * @memberof CheckPoint
      */
+    id?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPoint
+     */
     latitude?: number;
     /**
      * 
@@ -150,6 +156,226 @@ export interface CheckPoint {
      * @memberof CheckPoint
      */
     radius?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface CheckPointResultDto
+ */
+export interface CheckPointResultDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CheckPointResultDto
+     */
+    address?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CheckPointResultDto
+     */
+    arrivalTime?: Date;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CheckPointResultDto
+     */
+    departureTime?: Date;
+    /**
+     * 
+     * @type {string}
+     * @memberof CheckPointResultDto
+     */
+    description?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPointResultDto
+     */
+    factTime?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPointResultDto
+     */
+    id?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPointResultDto
+     */
+    latitude?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPointResultDto
+     */
+    longitude?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CheckPointResultDto
+     */
+    name?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPointResultDto
+     */
+    order?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPointResultDto
+     */
+    planTime?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CheckPointResultDto
+     */
+    radius?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface CreateCheckPointInput
+ */
+export interface CreateCheckPointInput {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateCheckPointInput
+     */
+    address?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateCheckPointInput
+     */
+    arrivalTime?: Date;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateCheckPointInput
+     */
+    departureTime?: Date;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateCheckPointInput
+     */
+    description?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateCheckPointInput
+     */
+    latitude: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateCheckPointInput
+     */
+    longitude: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateCheckPointInput
+     */
+    name?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateCheckPointInput
+     */
+    order: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateCheckPointInput
+     */
+    planTime?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateCheckPointInput
+     */
+    radius: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface CreateRouteInput
+ */
+export interface CreateRouteInput {
+    /**
+     * 
+     * @type {Array<CreateCheckPointInput>}
+     * @memberof CreateRouteInput
+     */
+    checkPoints?: Array<CreateCheckPointInput>;
+    /**
+     * 
+     * @type {Array<CreateRoutePointInput>}
+     * @memberof CreateRouteInput
+     */
+    routePoints?: Array<CreateRoutePointInput>;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateRouteInput
+     */
+    supervisorId: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface CreateRoutePointInput
+ */
+export interface CreateRoutePointInput {
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateRoutePointInput
+     */
+    latitude: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateRoutePointInput
+     */
+    longitude: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateRoutePointInput
+     */
+    order: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface DeviceLocationOutput
+ */
+export interface DeviceLocationOutput {
+    /**
+     * 
+     * @type {Array<CheckPointResultDto>}
+     * @memberof DeviceLocationOutput
+     */
+    checkpoints?: Array<CheckPointResultDto>;
+    /**
+     * 
+     * @type {Array<LocationDto>}
+     * @memberof DeviceLocationOutput
+     */
+    locations?: Array<LocationDto>;
 }
 
 /**
@@ -218,6 +444,44 @@ export interface LocationDto {
      * @memberof LocationDto
      */
     speed?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface Route
+ */
+export interface Route {
+    /**
+     * 
+     * @type {Array<CheckPoint>}
+     * @memberof Route
+     */
+    checkPoints?: Array<CheckPoint>;
+    /**
+     * 
+     * @type {number}
+     * @memberof Route
+     */
+    id?: number;
+    /**
+     * 
+     * @type {Array<RoutePoint>}
+     * @memberof Route
+     */
+    routePoints?: Array<RoutePoint>;
+    /**
+     * 
+     * @type {string}
+     * @memberof Route
+     */
+    status?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Route
+     */
+    supervisorId?: number;
 }
 
 /**
@@ -330,10 +594,10 @@ export interface SupervisorDto {
 
 
 /**
- * OperatorApiApi - fetch parameter creator
+ * OperatorDeviceApiApi - fetch parameter creator
  * @export
  */
-export const OperatorApiApiFetchParamCreator = function (configuration?: Configuration) {
+export const OperatorDeviceApiApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * 
@@ -425,6 +689,175 @@ export const OperatorApiApiFetchParamCreator = function (configuration?: Configu
                 options: localVarRequestOptions,
             };
         },
+    }
+};
+
+/**
+ * OperatorDeviceApiApi - functional programming interface
+ * @export
+ */
+export const OperatorDeviceApiApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Получение данных сердечного ритма с устройства
+         * @param {string} deviceId deviceId
+         * @param {Date} [since] since
+         * @param {Date} [until] until
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDeviceHeartRateUsingGET(deviceId: string, since?: Date, until?: Date, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+            const localVarFetchArgs = OperatorDeviceApiApiFetchParamCreator(configuration).getDeviceHeartRateUsingGET(deviceId, since, until, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary Получение данных местоположения устройства
+         * @param {string} [deviceId] 
+         * @param {Date} [fromTime] 
+         * @param {number} [routeId] 
+         * @param {Date} [toTime] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<DeviceLocationOutput> {
+            const localVarFetchArgs = OperatorDeviceApiApiFetchParamCreator(configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * OperatorDeviceApiApi - factory interface
+ * @export
+ */
+export const OperatorDeviceApiApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @summary Получение данных сердечного ритма с устройства
+         * @param {string} deviceId deviceId
+         * @param {Date} [since] since
+         * @param {Date} [until] until
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDeviceHeartRateUsingGET(deviceId: string, since?: Date, until?: Date, options?: any) {
+            return OperatorDeviceApiApiFp(configuration).getDeviceHeartRateUsingGET(deviceId, since, until, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @summary Получение данных местоположения устройства
+         * @param {string} [deviceId] 
+         * @param {Date} [fromTime] 
+         * @param {number} [routeId] 
+         * @param {Date} [toTime] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any) {
+            return OperatorDeviceApiApiFp(configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * OperatorDeviceApiApi - object-oriented interface
+ * @export
+ * @class OperatorDeviceApiApi
+ * @extends {BaseAPI}
+ */
+export class OperatorDeviceApiApi extends BaseAPI {
+    /**
+     * 
+     * @summary Получение данных сердечного ритма с устройства
+     * @param {string} deviceId deviceId
+     * @param {Date} [since] since
+     * @param {Date} [until] until
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OperatorDeviceApiApi
+     */
+    public getDeviceHeartRateUsingGET(deviceId: string, since?: Date, until?: Date, options?: any) {
+        return OperatorDeviceApiApiFp(this.configuration).getDeviceHeartRateUsingGET(deviceId, since, until, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary Получение данных местоположения устройства
+     * @param {string} [deviceId] 
+     * @param {Date} [fromTime] 
+     * @param {number} [routeId] 
+     * @param {Date} [toTime] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OperatorDeviceApiApi
+     */
+    public getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any) {
+        return OperatorDeviceApiApiFp(this.configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * OperatorRouteApiApi - fetch parameter creator
+ * @export
+ */
+export const OperatorRouteApiApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Создание маршрута
+         * @param {CreateRouteInput} createRouteInput createRouteInput
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createRouteUsingPOST(createRouteInput: CreateRouteInput, options: any = {}): FetchArgs {
+            // verify required parameter 'createRouteInput' is not null or undefined
+            if (createRouteInput === null || createRouteInput === undefined) {
+                throw new RequiredError('createRouteInput','Required parameter createRouteInput was null or undefined when calling createRouteUsingPOST.');
+            }
+            const localVarPath = `/api/v1/operator/route`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, baseOptions, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateRouteInput" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(createRouteInput || {}) : (createRouteInput || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary Получение маршрута по идентификатору
@@ -462,44 +895,20 @@ export const OperatorApiApiFetchParamCreator = function (configuration?: Configu
 };
 
 /**
- * OperatorApiApi - functional programming interface
+ * OperatorRouteApiApi - functional programming interface
  * @export
  */
-export const OperatorApiApiFp = function(configuration?: Configuration) {
+export const OperatorRouteApiApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary Получение данных сердечного ритма с устройства
-         * @param {string} deviceId deviceId
-         * @param {Date} [since] since
-         * @param {Date} [until] until
+         * @summary Создание маршрута
+         * @param {CreateRouteInput} createRouteInput createRouteInput
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getDeviceHeartRateUsingGET(deviceId: string, since?: Date, until?: Date, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = OperatorApiApiFetchParamCreator(configuration).getDeviceHeartRateUsingGET(deviceId, since, until, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary Получение данных местоположения устройства
-         * @param {string} [deviceId] 
-         * @param {Date} [fromTime] 
-         * @param {number} [routeId] 
-         * @param {Date} [toTime] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<LocationDto>> {
-            const localVarFetchArgs = OperatorApiApiFetchParamCreator(configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options);
+        createRouteUsingPOST(createRouteInput: CreateRouteInput, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Route> {
+            const localVarFetchArgs = OperatorRouteApiApiFetchParamCreator(configuration).createRouteUsingPOST(createRouteInput, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -518,7 +927,7 @@ export const OperatorApiApiFp = function(configuration?: Configuration) {
          * @throws {RequiredError}
          */
         getRouteUsingGET(routeId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<RouteDto> {
-            const localVarFetchArgs = OperatorApiApiFetchParamCreator(configuration).getRouteUsingGET(routeId, options);
+            const localVarFetchArgs = OperatorRouteApiApiFetchParamCreator(configuration).getRouteUsingGET(routeId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -533,35 +942,20 @@ export const OperatorApiApiFp = function(configuration?: Configuration) {
 };
 
 /**
- * OperatorApiApi - factory interface
+ * OperatorRouteApiApi - factory interface
  * @export
  */
-export const OperatorApiApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+export const OperatorRouteApiApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
          * 
-         * @summary Получение данных сердечного ритма с устройства
-         * @param {string} deviceId deviceId
-         * @param {Date} [since] since
-         * @param {Date} [until] until
+         * @summary Создание маршрута
+         * @param {CreateRouteInput} createRouteInput createRouteInput
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getDeviceHeartRateUsingGET(deviceId: string, since?: Date, until?: Date, options?: any) {
-            return OperatorApiApiFp(configuration).getDeviceHeartRateUsingGET(deviceId, since, until, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary Получение данных местоположения устройства
-         * @param {string} [deviceId] 
-         * @param {Date} [fromTime] 
-         * @param {number} [routeId] 
-         * @param {Date} [toTime] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any) {
-            return OperatorApiApiFp(configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options)(fetch, basePath);
+        createRouteUsingPOST(createRouteInput: CreateRouteInput, options?: any) {
+            return OperatorRouteApiApiFp(configuration).createRouteUsingPOST(createRouteInput, options)(fetch, basePath);
         },
         /**
          * 
@@ -571,45 +965,28 @@ export const OperatorApiApiFactory = function (configuration?: Configuration, fe
          * @throws {RequiredError}
          */
         getRouteUsingGET(routeId: number, options?: any) {
-            return OperatorApiApiFp(configuration).getRouteUsingGET(routeId, options)(fetch, basePath);
+            return OperatorRouteApiApiFp(configuration).getRouteUsingGET(routeId, options)(fetch, basePath);
         },
     };
 };
 
 /**
- * OperatorApiApi - object-oriented interface
+ * OperatorRouteApiApi - object-oriented interface
  * @export
- * @class OperatorApiApi
+ * @class OperatorRouteApiApi
  * @extends {BaseAPI}
  */
-export class OperatorApiApi extends BaseAPI {
+export class OperatorRouteApiApi extends BaseAPI {
     /**
      * 
-     * @summary Получение данных сердечного ритма с устройства
-     * @param {string} deviceId deviceId
-     * @param {Date} [since] since
-     * @param {Date} [until] until
+     * @summary Создание маршрута
+     * @param {CreateRouteInput} createRouteInput createRouteInput
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof OperatorApiApi
+     * @memberof OperatorRouteApiApi
      */
-    public getDeviceHeartRateUsingGET(deviceId: string, since?: Date, until?: Date, options?: any) {
-        return OperatorApiApiFp(this.configuration).getDeviceHeartRateUsingGET(deviceId, since, until, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary Получение данных местоположения устройства
-     * @param {string} [deviceId] 
-     * @param {Date} [fromTime] 
-     * @param {number} [routeId] 
-     * @param {Date} [toTime] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof OperatorApiApi
-     */
-    public getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any) {
-        return OperatorApiApiFp(this.configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options)(this.fetch, this.basePath);
+    public createRouteUsingPOST(createRouteInput: CreateRouteInput, options?: any) {
+        return OperatorRouteApiApiFp(this.configuration).createRouteUsingPOST(createRouteInput, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -618,10 +995,10 @@ export class OperatorApiApi extends BaseAPI {
      * @param {number} routeId routeId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof OperatorApiApi
+     * @memberof OperatorRouteApiApi
      */
     public getRouteUsingGET(routeId: number, options?: any) {
-        return OperatorApiApiFp(this.configuration).getRouteUsingGET(routeId, options)(this.fetch, this.basePath);
+        return OperatorRouteApiApiFp(this.configuration).getRouteUsingGET(routeId, options)(this.fetch, this.basePath);
     }
 
 }

@@ -6,6 +6,7 @@ import { ICheckpoint } from '../../models/route';
 import { AccordionItem, AccordionItemTitle, AccordionItemBody, Divider, NameValue } from '../../../ui';
 import { ICompletedCheckpoint } from '../../models/route-instance';
 import { IPerson } from '../../models/person';
+import { formatTime, formatMinutes } from '../../utils/date';
 
 interface RoutePointProps {
   point: ICheckpoint;
@@ -45,12 +46,12 @@ const RoutePointShortInfo: React.StatelessComponent<RoutePointInfoProps> =
   ({ point, pointInstance }) => (
     <div className={styles.row}>
       <div className={styles.col}>
-        <NameValue name='Прибытие' value={pointInstance && pointInstance.arrival || '-'} />
-        <NameValue name='Отправление' value={pointInstance && pointInstance.departure || '-'} />
+        <NameValue name='Прибытие' value={formatTime(pointInstance && pointInstance.arrival)} />
+        <NameValue name='Отправление' value={formatTime(pointInstance && pointInstance.departure)} />
       </div>
       <div className={styles.col}>
-        <NameValue name='План' value='-' />
-        <NameValue name='Факт' value='-' />
+        <NameValue name='План' value={formatMinutes(point.planTime)} />
+        <NameValue name='Факт' value={formatMinutes(pointInstance && pointInstance.factTime)} />
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { IRouteInstance, ICompletedCheckpoint } from '../../models/route-instanc
 import { UUID } from '../../models/uuid';
 import { Coordinates } from '../../models/coordinates';
 import { getDeviations, Deviation } from '../../utils/deviations';
+import { formatTime } from '../../utils/date';
 
 export interface RouteTrackProps {
   route: IRoute;
@@ -66,7 +67,7 @@ export class RouteTrack extends React.Component<RouteTrackProps> {
 
     const posRatio = this.getDistanceRatio(routeInstance.currentPos);
     const style: React.CSSProperties = {
-      left: `${posRatio}%`,
+      left: `calc(${posRatio}% - 13px)`,
     };
 
     return (
@@ -162,7 +163,7 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
         <>
           <SuccessCheckpointIcon />
           <div className={styles.checkpointTime}>
-            {pointInstance.arrival}
+            {formatTime(pointInstance.arrival)}
           </div>
         </>
       );
