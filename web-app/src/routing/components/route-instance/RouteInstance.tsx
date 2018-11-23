@@ -27,9 +27,13 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
   private planWidth = '300px';
 
-  state = {
-    showRoutingPlan: true,
-  };
+  constructor(props: RouteInstanceProps) {
+    super(props);
+
+    this.state = {
+      showRoutingPlan: true,
+    };
+  }
 
   toggleRoutingPlan = () => {
     this.setState({
@@ -37,7 +41,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
     });
   }
 
-  renderShowHideRoutingPlanControls() {
+  renderRoutingPlanHeader() {
     const { showRoutingPlan } = this.state;
 
     const controlsStyle: React.CSSProperties = {
@@ -102,7 +106,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
           <Badge>В пути</Badge>
 
-          {this.renderShowHideRoutingPlanControls()}
+          {this.renderRoutingPlanHeader()}
         </div>
 
         <div className={styles.routeContent}>

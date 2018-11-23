@@ -18,7 +18,9 @@ export interface ICompletedCheckpoint {
 
 export interface ITrackCoordiantes {
   coords: Coordinates;
-  attributes: {
-    distanceFromRoute: number;
-  };
+  attributes: ITrackCoordinatesMeta;
+}
+
+export interface ITrackCoordinatesMeta {
+  distanceFromRoute: number;
 }

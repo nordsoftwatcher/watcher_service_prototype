@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './RouteTrack.module.css';
+import colors from '../../../colors.module.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import turf from '@turf/turf';
@@ -159,7 +160,7 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
     if (pointInstance) {
       return (
         <>
-          <SuccessCheckpoint />
+          <SuccessCheckpointIcon />
           <div className={styles.checkpointTime}>
             {pointInstance.arrival}
           </div>
@@ -168,7 +169,7 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
     } else {
       return (
         <>
-          <FutureCheckpoint />
+          <FutureCheckpointIcon />
           <div className={styles.checkpointTime}>
             00:00
           </div>
@@ -177,16 +178,16 @@ const RouteCheckpoint: React.StatelessComponent<RouteCheckpointProps> =
     }
   };
 
-const SuccessCheckpoint = () => (
+const SuccessCheckpointIcon = () => (
   <div className='fa-stack'>
     <FontAwesomeIcon className='fa-stack-1x' icon='circle' />
     <FontAwesomeIcon className='fa-stack-1x' icon='check-circle' color={styles.successColor} />
   </div>
 );
 
-const FutureCheckpoint = () => (
+const FutureCheckpointIcon = () => (
   <div className='fa-stack'>
-    <FontAwesomeIcon className='fa-stack-1x' icon='circle' color='#2A2B31' />
+    <FontAwesomeIcon className='fa-stack-1x' icon='circle' color={colors.black} />
     <FontAwesomeIcon className='fa-stack-1x' icon='dot-circle' color={styles.mainColor} />
   </div>
 );
