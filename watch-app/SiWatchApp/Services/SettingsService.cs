@@ -16,6 +16,7 @@ namespace SiWatchApp.Services
             _settings = new Settings {
                     DeviceId = metadata["deviceId"],
                     ApiUrl = metadata["apiUrl"],
+                    FeedbackSync = Boolean.Parse(metadata["feedbackSync"]),
                     SendRetryCount = 3,
                     SendRetryDelay = TimeSpan.FromSeconds(3)
             };

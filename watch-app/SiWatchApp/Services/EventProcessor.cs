@@ -1,56 +1,64 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Net.Http;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using SiWatchApp.Events;
+using SiWatchApp.Logging;
 using SiWatchApp.Models;
 using SiWatchApp.Queue;
-using SiWatchApp.Utils;
 using Tizen.Wearable.CircularUI.Forms;
+using Xamarin.Forms;
 
 namespace SiWatchApp.Services
 {
-    public class EventProcessor : IDisposable
+    public class EventProcessor : IObserver<> IDisposable
     {
-        private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(EventListener));
+        private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(EventProcessor));
 
-        private readonly IPriorityQueue _queue;
-        private readonly DataService _dataService;
+        private readonly SyncService _syncService;
         private readonly IDisposable _subscription;
 
-        public EventProcessor(IList<IEventSource> eventSources, IPriorityQueue queue, DataService dataService)
+        public EventProcessor(
+                IList<IObservable<EventRecord>> events,
+                SyncService syncService,
+                IScheduler scheduler = null)
         {
-            _queue = queue;
-            _dataService = dataService;
-            _subscription = eventSources.Select(es => es.Events.Select(ev => new { EventSource = es, EventValue = ev }))
-                                        .Merge().Subscribe(e => HandleEvent(e.EventSource, e.EventValue));
+            _outputQueue = outputQueue;
+            _syncClient = syncClient;
+            _subscription = eventSources.Merge(scheduler ?? TaskPoolScheduler.Default).Subscribe(HandleEvent);
         }
 
-        private async void HandleEvent(IEventSource source, EventValue value)
+        private Priority GetQueuePriority(EventPriority eventPriority)
         {
-            EventRecord record = new EventRecord(source.EventType, value);
-            if (source.EventType == EventType.SOS) {
-                LOGGER.Info("Sending SOS");
+            switch (eventPriority) {
+                case EventPriority.Urgent:
+                    return Priority.Highest;
+                case EventPriority.High:
+                    return Priority.High;
+                case EventPriority.Normal:
+                    return Priority.Normal;
+                case EventPriority.Low:
+                    return Priority.Low;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(eventPriority));
+            }
+        }
+
+        private async void HandleEvent(EventRecord eventRecord)
+        {
+            if (eventRecord.Priority == EventPriority.Urgent) {
+                LOGGER.Info("Sending urgent event:", eventRecord);
                 try {
-                    await SendEvent(record);
-                    Toast.DisplayText("SOS sent!");
+                    await _syncClient.Send(new SyncPacket { Events = new List<EventRecord> { eventRecord } });
+                    Device.BeginInvokeOnMainThread(() => { Toast.DisplayText("Event sent!", 1000); });
                     return;
                 }
                 catch (Exception ex) {
-                    LOGGER.Error("Failed sending SOS. Will be sent on next flush:", ex);
+                    LOGGER.Error("Failed sending event. Will be sent on next flush:", ex);
                 }
             }
-            await _queue.Put(record, source.Priority);
-        }
-
-        private Task SendEvent(EventRecord ev)
-        {
-            return _dataService.Send(new DataPacket() { Events = new List<EventRecord>() { ev } });
+            await _outputQueue.Put(eventRecord, GetQueuePriority(eventRecord.Priority));
         }
 
         public void Dispose()

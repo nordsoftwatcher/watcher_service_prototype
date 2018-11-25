@@ -1,7 +1,7 @@
 using System;
 using Tizen;
 
-namespace SiWatchApp.Utils
+namespace SiWatchApp.Logging
 {
     public class Logger
     {
@@ -15,6 +15,9 @@ namespace SiWatchApp.Utils
 
         public void Debug(params Object[] args)
         {
+            if (LoggerFactory.LogLevel > LogLevel.Debug)
+                return;
+
             if(args == null || args.Length == 0)
                 return;
             String message = _prefix + String.Join(' ', args);
@@ -23,6 +26,9 @@ namespace SiWatchApp.Utils
 
         public void Info(params Object[] args)
         {
+            if (LoggerFactory.LogLevel > LogLevel.Info)
+                return;
+
             if (args == null || args.Length == 0)
                 return;
             String message = _prefix + String.Join(' ', args);
@@ -31,6 +37,9 @@ namespace SiWatchApp.Utils
 
         public void Warn(params Object[] args)
         {
+            if (LoggerFactory.LogLevel > LogLevel.Warn)
+                return;
+
             if (args == null || args.Length == 0)
                 return;
             String message = _prefix + String.Join(' ', args);
@@ -39,6 +48,9 @@ namespace SiWatchApp.Utils
 
         public void Error(params Object[] args)
         {
+            if (LoggerFactory.LogLevel > LogLevel.Error)
+                return;
+
             if (args == null || args.Length == 0)
                 return;
             String message = _prefix + String.Join(' ', args);

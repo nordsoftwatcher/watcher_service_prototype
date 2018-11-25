@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SiWatchApp.Models;
+using SiWatchApp.Logging;
 using SiWatchApp.Monitors;
-using SiWatchApp.Utils;
-using Xamarin.Forms.Internals;
+
 
 namespace SiWatchApp.Services
 {
@@ -15,19 +12,11 @@ namespace SiWatchApp.Services
 
         private readonly object _sync = new object();
         private Dictionary<MonitorType, IMonitor> _monitors = new Dictionary<MonitorType, IMonitor>();
-        private readonly PermissionManager _permissionManager;
-
-        public MonitorFactory(PermissionManager permissionManager)
+        
+        public IMonitor GetMonitor(MonitorType type)
         {
-            _permissionManager = permissionManager;
-        }
-
-        public async Task<IMonitor> GetMonitor(MonitorType type)
-        {
-            bool check = false;
             IMonitor monitor = null;
-            lock (_sync)
-            {
+            lock (_sync) {
                 if (_monitors == null) {
                     throw new ObjectDisposedException("MonitorFactory is disposed");
                 }
@@ -36,23 +25,7 @@ namespace SiWatchApp.Services
                 }
                 else {
                     try {
-                        switch (type) {
-                            case MonitorType.Battery:
-                                monitor = new BatteryLevelMonitor();
-                                break;
-                            case MonitorType.HeartRate:
-                                monitor = new HeartRateMonitor();
-                                break;
-                            case MonitorType.Location:
-                                monitor = new LocationMonitor();
-                                break;
-                            case MonitorType.Memory:
-                                monitor = new MemoryMonitor();
-                                break;
-                            case MonitorType.Network:
-                                monitor = new NetworkMonitor();
-                                break;
-                        }
+                        monitor = MonitorBuilder.CreateMonitor(type);
                     }
                     catch (Exception ex) {
                         LOGGER.Error($"Failed creating monitor of type '{type}':", ex.ToString());
@@ -60,15 +33,13 @@ namespace SiWatchApp.Services
                     }
 
                     if (monitor != null) {
+                        if (!monitor.IsSupported) {
+                            LOGGER.Warn($"{monitor} is not available");
+                            return null;
+                        }
                         _monitors.Add(type, monitor);
-                        check = true;
+                        monitor.Init();
                     }
-                }
-            }
-            if (check) {
-                await _permissionManager.Demand(monitor.Privileges);
-                if (!monitor.Start()) {
-                    throw new ApplicationException($"{monitor} is not supported");
                 }
             }
             return monitor;
@@ -76,9 +47,15 @@ namespace SiWatchApp.Services
 
         public void Dispose()
         {
-            lock (_sync) {
-                _monitors.Values.ForEach(m => m.Dispose());
-                _monitors = null;
+            if (_monitors != null) {
+                lock (_sync) {
+                    if (_monitors != null) {
+                        foreach (var monitor in _monitors.Values) {
+                            monitor.Dispose();
+                        }
+                        _monitors = null;
+                    }
+                }
             }
         }
     }
