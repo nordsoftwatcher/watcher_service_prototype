@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using SiWatchApp.Buffer;
 using SiWatchApp.Configuration;
+using SiWatchApp.Logging;
 using SiWatchApp.Models;
-using SiWatchApp.Monitors;
-using SiWatchApp.Queue;
 using SiWatchApp.Utils;
 
 namespace SiWatchApp.Services
@@ -18,26 +19,20 @@ namespace SiWatchApp.Services
         private readonly object _sync = new object();
 
         private readonly MonitoringPolicyService _policyService;
-        private readonly IPriorityQueue _inputQueue;
-        private readonly IPriorityQueue _outputQueue;
-        private readonly DataService _dataService;
+        private readonly IBuffer<Record> _buffer;
+        private readonly IObserver<EventRecord> _incomingEventsObserver;
+        private readonly SyncClient _syncClient;
         private readonly Settings _settings;
         private IDisposable _subscription = null;
 
-        public SyncService(
-                IPriorityQueue inputQueue,
-                IPriorityQueue outputQueue,
-                MonitoringPolicyService policyService,
-                DataService dataService,
-                Settings settings)
+        public SyncService(MonitoringPolicyService policyService, IBuffer<Record> buffer, Settings settings, IObserver<EventRecord> incomingEventsObserver = null)
         {
-            _inputQueue = inputQueue;
-            _outputQueue = outputQueue;
-            _dataService = dataService;
+            _buffer = buffer;
+            _incomingEventsObserver = incomingEventsObserver;
             _settings = settings;
 
+            _syncClient = new SyncClient(_settings);
             _policyService = policyService;
-            _policyService.MonitoringPolicyChanged += HandleMonitoringPolicyChanged;
         }
 
         private void HandleMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
@@ -45,7 +40,7 @@ namespace SiWatchApp.Services
             Reconfigure(mp);
         }
         
-        private void Dismiss()
+        private void Unsubscribe()
         {
             if (_subscription != null) {
                 _subscription.Dispose();
@@ -53,70 +48,102 @@ namespace SiWatchApp.Services
             }
         }
         
-        private async Task<DataPacket> PrepareDataPacket(int size)
+        private SyncPacket PreparePacket(IBlock<Record> recordBlock)
         {
-            List<MonitoringRecord> monitoringRecords = new List<MonitoringRecord>();
-            List<EventRecord> eventRecords = new List<EventRecord>();
-
-            var count = size;
-            while (count-- > 0) {
-                var record = await _outputQueue.Get();
-                if (record != null) {
-                    if (record is MonitoringRecord monitoringRecord) {
-                        monitoringRecords.Add(monitoringRecord);
-                    }
-                    else if (record is EventRecord eventRecord) {
-                        eventRecords.Add(eventRecord);
-                    }
-                }
-                else {
-                    break;
-                }
+            var packet = new SyncPacket();
+            if (recordBlock == null || recordBlock.IsEmpty) {
+                return packet;
             }
 
-            if (monitoringRecords.Count == 0 && eventRecords.Count == 0)
-                return null;
+            var records = recordBlock.Items;
+            packet.Monitors = records.OfType<MonitorRecord>().ToList();
+            packet.Events = records.OfType<EventRecord>().ToList();
 
-            return new DataPacket {
-                    Monitoring = monitoringRecords.Count == 0 ? null : monitoringRecords.GroupToDictionary(r => r.MonitorType, r => r.Value),
-                    Events = eventRecords.Count == 0 ? null : eventRecords
-            };
+            return packet;
         }
 
-        private async void Sync(MonitoringPolicy policy)
+        private void ProcessIncomingPacket(SyncPacket incoming)
         {
-            try {
-                var output = await PrepareDataPacket(policy.PacketSize);
-                if (output != null) {
-                    var input = await _dataService.Send(output);
-                    if (input != null && input.Events != null && input.Events.Count > 0) {
-                        input.Events.ForEach(async e => await _inputQueue.Put(e));
-                    }
-                    LOGGER.Debug($"Sync OK");
-                    Synced?.Invoke(this, EventArgs.Empty);
+            if (incoming?.Events != null && _incomingEventsObserver != null) {
+                foreach (var incomingEvent in incoming.Events) {
+                    _incomingEventsObserver.OnNext(incomingEvent);
                 }
+            }
+        }
+
+        private async Task Sync(int packetSize)
+        {
+            LOGGER.Debug("Begin sync");
+
+            IBlock<Record> recordBlock;
+            LOGGER.Debug($"Fetching {packetSize} records from buffer");
+            try {
+                recordBlock = _buffer.Get(packetSize);
+            }
+            catch (Exception ex) {
+                LOGGER.Error("Failed fetching next records:", ex);
+                return;
+            }
+
+            try {
+                var packet = PreparePacket(recordBlock);
+                var incoming = await _syncClient.Send(packet);
+                try {
+                    recordBlock?.Discard();
+                }
+                catch (Exception ex) {
+                    LOGGER.Error("Record block (Discard) error:", ex);
+                    throw;
+                }
+                recordBlock = null;
+
+                ProcessIncomingPacket(incoming);
+
+                LOGGER.Debug($"Sync OK");
+                FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(200), 50);
+                Synced?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex) {
                 LOGGER.Error("Sync error:", ex);
+                try {
+                    recordBlock?.Return();
+                }
+                catch (Exception ex1) {
+                    LOGGER.Error("Record block (Return) error:", ex1);
+                    throw;
+                }
                 throw;
             }
         }
 
+        public Task ForceSync()
+        {
+            return Sync(_policyService.CurrentMonitoringPolicy?.PacketSize ?? 10);
+        }
+
         public event EventHandler Synced;
 
-        private void Reconfigure(MonitoringPolicy mp)
+        private void Reconfigure(MonitoringPolicy policy)
         {
-            lock (_sync)
-            {
-                Dismiss();
-                _subscription = Observable.Interval(TimeSpan.FromSeconds(mp.FlushInterval), TaskPoolScheduler.Default).Subscribe(_ => Sync(mp));
+            lock (_sync) {
+                Unsubscribe();
+                if(policy == null)
+                    return;
+
+                _subscription = Observable.Interval(TimeSpan.FromSeconds(policy.SyncInterval), TaskPoolScheduler.Default)
+                                          .Subscribe(_ => Sync(policy.PacketSize));
             }
         }
 
         public void Start()
         {
-            Reconfigure(_policyService.CurrentMonitoringPolicy);
-            LOGGER.Debug("Started");
+            lock (_sync) {
+                if (_subscription == null) {
+                    _policyService.MonitoringPolicyChanged += HandleMonitoringPolicyChanged;
+                    Reconfigure(_policyService.CurrentMonitoringPolicy);
+                    LOGGER.Debug("Started");
+                }
+            }
         }
 
         public void Pause()
@@ -126,12 +153,13 @@ namespace SiWatchApp.Services
 
         public void Stop()
         {
-            lock (_sync)
-            {
-                Dismiss();
+            lock (_sync) {
+                if (_subscription != null) {
+                    Unsubscribe();
+                    _policyService.MonitoringPolicyChanged -= HandleMonitoringPolicyChanged;
+                    LOGGER.Debug("Stopped");
+                }
             }
-            LOGGER.Debug("Stopped");
         }
-
     }
 }

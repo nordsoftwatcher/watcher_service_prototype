@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using SiWatchApp.Logging;
 using SiWatchApp.Utils;
 using Tizen.Applications.Exceptions;
 using Tizen.Security;
@@ -13,19 +15,14 @@ namespace SiWatchApp.Services
     {
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(PermissionManager));
 
-        public PermissionManager() { }
-
-        public Task Demand(ICollection<string> privileges)
+        public Task Demand(params string[] privileges)
         {
-            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
-
-            if (privileges == null || privileges.Count == 0) {
-                tcs.SetResult(true);
-                return tcs.Task;
+            if (privileges == null || privileges.Length == 0) {
+                return Task.CompletedTask;
             }
 
             LOGGER.Debug($"Demand permissions [{String.Join(",", privileges)}]");
-            
+
             var needToAsk = new List<string>();
             var denied = new List<string>();
 
@@ -46,73 +43,88 @@ namespace SiWatchApp.Services
             }
 
             if (denied.Count > 0) {
-                tcs.SetException(new PermissionDeniedException($"Permissions [{String.Join(",", denied)}] denied"));
-                return tcs.Task;
+                return Task.FromException(new PermissionDeniedException($"Permissions [{String.Join(",", denied)}] denied"));
             }
 
-            IEnumerator<string> privilegesToAsk = needToAsk.GetEnumerator();
-            if (privilegesToAsk.MoveNext()) {
-                void AskNextPermission()
-                {
-                    var privilege = privilegesToAsk.Current;
-                    PrivacyPrivilegeManager.GetResponseContext(privilege).TryGetTarget(out var context);
-                    if (context != null) {
-                        context.ResponseFetched += ResponseHandler;
-                    }
-                    else {
-                        tcs.SetException(new ApplicationException($"Failed requesting permission {privilege}"));
-                        return;
-                    }
-                    PrivacyPrivilegeManager.RequestPermission(privilege);
-                }
-
-                void ResponseHandler(object sender, RequestResponseEventArgs args)
-                {
-                    if (args.cause == CallCause.Answer) {
-                        switch (args.result) {
-                            case RequestResult.AllowForever:
-                                LOGGER.Debug($"User allowed usage of privilege {args.privilege} definitely");
-                                break;
-                            case RequestResult.DenyForever:
-                                LOGGER.Debug($"User denied usage of privilege {args.privilege} definitely");
-                                denied.Add(args.privilege);
-                                break;
-                            case RequestResult.DenyOnce:
-                                LOGGER.Debug($"User denied usage of privilege {args.privilege} this time");
-                                denied.Add(args.privilege);
-                                break;
-                        }
-                    }
-                    else {
-                        LOGGER.Warn($"Error occured during requesting permission for {args.privilege}");
-                        denied.Add(args.privilege);
-                    }
-
-                    PrivacyPrivilegeManager.GetResponseContext(args.privilege).TryGetTarget(out var context);
-                    if (context != null) {
-                        context.ResponseFetched -= ResponseHandler;
-                    }
-
-                    if (privilegesToAsk.MoveNext()) {
-                        AskNextPermission();
-                    }
-                    else {
-                        privilegesToAsk.Dispose();
-                        if (denied.Count > 0) {
-                            tcs.SetException(new PermissionDeniedException($"Permissions [{String.Join(",", denied)}] denied"));
-                        }
-                        else {
-                            tcs.SetResult(true);
-                        }
-                    }
-                }
-
-                AskNextPermission();
+            if (needToAsk.Count == 0) {
+                return Task.CompletedTask;
             }
-            else {
-                tcs.SetResult(true);
-            }
+
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            int count = 0;
+            needToAsk.ForEach(privilegeToAsk =>
+                                      new PermissionRequest(
+                                              privilegeToAsk,
+                                              (p, allowed) => {
+                                                  if (!allowed) denied.Add(p);
+                                                  if (++count == needToAsk.Count) {
+                                                      if (denied.Count > 0) {
+                                                          tcs.SetException(
+                                                                  new PermissionDeniedException(
+                                                                          $"Permissions [{String.Join(",", denied)}] denied"));
+                                                      }
+                                                      else {
+                                                          tcs.SetResult(true);
+                                                      }
+                                                  }
+                                              }));
+
             return tcs.Task;
+        }
+
+        private struct PermissionRequest
+        {
+            private readonly Action<string, bool> _callback;
+
+            public PermissionRequest(string privilege, Action<string, bool> callback)
+            {
+                _callback = callback;
+
+                PrivacyPrivilegeManager.ResponseContext context;
+                PrivacyPrivilegeManager.GetResponseContext(privilege).TryGetTarget(out context);
+                if (context != null)
+                {
+                    context.ResponseFetched += ResponseHandler;
+                }
+                else
+                {
+                    throw new ApplicationException($"Failed requesting permission {privilege}");
+                }
+               
+                PrivacyPrivilegeManager.RequestPermission(privilege);
+            }
+
+            private void ResponseHandler(object sender, RequestResponseEventArgs args)
+            {
+                PrivacyPrivilegeManager.ResponseContext context;
+                PrivacyPrivilegeManager.GetResponseContext(args.privilege).TryGetTarget(out context);
+                if (context != null)
+                {
+                    context.ResponseFetched -= ResponseHandler;
+                }
+
+                if (args.cause == CallCause.Answer)
+                {
+                    switch (args.result)
+                    {
+                        case RequestResult.AllowForever:
+                            LOGGER.Debug($"User allowed usage of privilege {args.privilege} definitely");
+                            _callback(args.privilege, true);
+                            return;
+                        case RequestResult.DenyForever:
+                            LOGGER.Debug($"User denied usage of privilege {args.privilege} definitely");
+                            break;
+                        case RequestResult.DenyOnce:
+                            LOGGER.Debug($"User denied usage of privilege {args.privilege} this time");
+                            break;
+                    }
+                }
+                else
+                {
+                    LOGGER.Warn($"Error occured during requesting permission for {args.privilege}");
+                }
+                _callback(args.privilege, false);
+            }
         }
     }
 }

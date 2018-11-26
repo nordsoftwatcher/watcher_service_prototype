@@ -12,5 +12,6 @@
 	<include file="../services/memory-monitoring-service/db/changelog.xml" relativeToChangelogFile="true"/>
 	<include file="../services/network-monitoring-service/db/changelog.xml" relativeToChangelogFile="true"/>
 	<include file="../services/supervisor-service/db/changelog.xml" relativeToChangelogFile="true"/>
+	<include file="../services/event-service/db/changelog.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

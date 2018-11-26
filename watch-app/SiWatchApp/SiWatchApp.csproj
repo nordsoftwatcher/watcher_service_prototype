@@ -12,7 +12,18 @@
     <DebugType>None</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Queue\**" />
+    <EmbeddedResource Remove="Queue\**" />
+    <None Remove="Queue\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Events\EventValue.cs" />
+    <Compile Remove="Models\SOSInfo.cs" />
+    <Compile Remove="Models\SourceValue.cs" />
     <Compile Remove="SensorType.cs" />
+    <Compile Remove="Services\EventProcessor.cs" />
+    <Compile Remove="Services\EventSourceFactory.cs" />
+    <Compile Remove="StartPage.cs" />
     <Compile Remove="Utils\IRecordQueue.cs" />
     <Compile Remove="Utils\MemoryRecordQueue.cs" />
     <Compile Remove="Utils\PersistedQueue.cs" />
@@ -21,6 +32,7 @@
   <ItemGroup>
     <Folder Include="Converters\" />
     <Folder Include="lib\" />
+    <Folder Include="res\" />
   </ItemGroup>
 
   <ItemGroup>

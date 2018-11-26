@@ -3,20 +3,17 @@ using SiWatchApp.Events;
 
 namespace SiWatchApp.Models
 {
-    public class EventRecord : DataRecord
+    public class EventRecord : Record
     {
-        public EventType EventType { get; }
+        public EventType EventType { get; set; }
 
-        [JsonConstructor]
-        public EventRecord(EventType eventType, EventValue value)
-        {
-            EventType = eventType;
-            Value = value;
-        }
+        public LocationInfo Location { get; set; }
 
+        public EventPriority Priority { get; set; }
+        
         public override string ToString()
         {
-            return $"EventRecord{{EventType={EventType}, Value={Value}}}";
+            return $"EventRecord{{EventType={EventType},Timestamp={Timestamp},Value={Value},Location={Location}}}";
         }
     }
 }

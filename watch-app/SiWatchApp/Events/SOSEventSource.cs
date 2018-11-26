@@ -1,17 +1,15 @@
-using System;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using SiWatchApp.Models;
 using SiWatchApp.Monitors;
-using SiWatchApp.Queue;
-using SiWatchApp.Utils;
+using SiWatchApp.Services;
 
 namespace SiWatchApp.Events
 {
-    public class SOSEventSource : MessageEventSource
+    public class SOSEventSource : AbstractEventSource
     {
-        public override EventType EventType => EventType.SOS;
+        public SOSEventSource(ILocationProvider locationProvider = null) : base(EventType.SOS, locationProvider) { }
 
-        public override Priority Priority => Priority.Highest;
+        public void Signal(string message)
+        {
+            Emit(message, EventPriority.Urgent);
+        }
     }
 }

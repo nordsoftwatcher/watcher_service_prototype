@@ -9,8 +9,8 @@ import java.util.List;
 @Getter @Setter
 public class MonitoringPolicyDto
 {
-    private int minBatterLevel;
+    private int minBatteryLevel;
     private List<MonitorConfigDto> monitors;
-    private long flushInterval;
+    private long syncInterval;
     private int packetSize;
 }

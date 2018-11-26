@@ -1,65 +1,15 @@
-using System;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using SiWatchApp.Models;
 using SiWatchApp.Monitors;
-using SiWatchApp.Queue;
-using SiWatchApp.Utils;
+using SiWatchApp.Services;
 
 namespace SiWatchApp.Events
 {
-    public class MessageEventSource : IEventSource
+    public class MessageEventSource : AbstractEventSource
     {
-        private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(MessageEventSource));
+        public MessageEventSource(ILocationProvider locationProvider = null) : base(EventType.Message, locationProvider) { }
 
-        private readonly LocationMonitor _locationMonitor;
-        private readonly Subject<EventValue> _source;
-
-        public MessageEventSource()
+        public void Send(string message, EventPriority priority = EventPriority.Normal)
         {
-            _locationMonitor = new LocationMonitor();
-            _source = new Subject<EventValue>();
-            Events = _source.AsObservable();
+            Emit(message, priority);
         }
-
-        public void Init()
-        {
-            _locationMonitor.Start();
-        }
-
-        public virtual void Signal(string text)
-        {
-            var message = new MessageInfo() { Message = text };
-            try {
-                var value = _locationMonitor.GetCurrentValue();
-                if (value != null) {
-                    var location = (LocationInfo)value.Value;
-                    message.Location = location;
-                }
-                else {
-                    LOGGER.Info("Location is unavailable");
-                }
-            }
-            catch (Exception ex) {
-                LOGGER.Warn("Failed getting current location", ex);
-            }
-
-            _source.OnNext(new EventValue(message));
-        }
-
-        public IObservable<EventValue> Events { get; }
-
-        public virtual EventType EventType => EventType.Message;
-
-        public virtual Priority Priority => Priority.High;
-
-        public void Dispose()
-        {
-            _locationMonitor?.Dispose();
-            _source?.Dispose();
-        }
-
-        public string[] Privileges => _locationMonitor.Privileges;
     }
 }
-

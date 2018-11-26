@@ -10,10 +10,10 @@ namespace SiWatchApp.Monitors
 
         public override string[] Privileges => PRIVILEGES;
 
-        public override MonitorValue GetCurrentValue()
+        public override object GetCurrentValue()
         {
             var con = ConnectionManager.CurrentConnection;
-            return new MonitorValue(new NetworkInfo() { ConnectionState = con.State, ConnectionType = con.Type });
+            return new NetworkInfo() { ConnectionState = con.State, ConnectionType = con.Type };
         }
 
         public override MonitorType MonitorType => MonitorType.Network;
