@@ -8,6 +8,9 @@ import ru.nord.siwatch.backend.services.events.mapping.EventMapper;
 import ru.nord.siwatch.backend.services.events.repositories.EventRepository;
 import ru.nord.siwatch.backend.services.events.services.EventService;
 
+import java.util.Date;
+import java.util.List;
+
 @Service("eventService")
 public class EventServiceImpl implements EventService {
 
@@ -21,5 +24,15 @@ public class EventServiceImpl implements EventService {
     public Event createEvent(CreateEventInput createEventInput) {
         Event event = eventMapper.toEvent(createEventInput);
         return eventRepository.save(event);
+    }
+
+    @Override
+    public List<Event> findEvents(Long supervisorId, Date from, Date to) {
+        return null;
+    }
+
+    @Override
+    public List<Event> findEvents(Date from, Date to) {
+        return null;
     }
 }

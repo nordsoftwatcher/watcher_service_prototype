@@ -11,15 +11,25 @@
             <column autoIncrement="true" name="id" type="BIGINT" remarks="Идентификатор">
                 <constraints primaryKey="true" primaryKeyName="pk_event"/>
             </column>
-            <column name="record_timestamp" type="TIMESTAMP" remarks="Время регистрации события">
-                <constraints nullable="false"/>
-            </column>
             <column name="supervisor_id" type="BIGINT" remarks="ID супервайзера">
                 <constraints nullable="false" />
             </column>
-            <column name="name" type="VARCHAR(255)" remarks="Название события">
+            <column name="device_timestamp" type="TIMESTAMP" remarks="Время фиксации показаний устройством">
                 <constraints nullable="false"/>
             </column>
+            <column name="record_timestamp" type="TIMESTAMP" remarks="Время регистрации события">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="event_type" type="VARCHAR(255)" remarks="Тип события">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_value" type="VARCHAR(8000)" remarks="Данные события">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="latitude" type="REAL" remarks="Значение показаний"/>
+            <column name="longitude" type="REAL" remarks="Значение показаний"/>
         </createTable>
 
     </changeSet>
