@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-// import styles from './App.module.css';
+import classes from './App.module.css';
 
 import './icons';
 
 import { DateTime } from 'luxon';
 
 import { RouteInstance } from './routing/components/route-instance/RouteInstance';
+import { RouteReport } from './routing/components/route-report/RouteReport';
+
 import { IRouteInstance } from './routing/models/route-instance';
 import { IRoute } from './routing/models/route';
 import { IPerson } from './routing/models/person';
@@ -19,7 +21,7 @@ interface IAppState {
   route?: IRoute;
   routeInstance?: IRouteInstance;
   person?: IPerson;
-  timestamp: Date;
+  timestamp?: Date;
 }
 
 class App extends Component<{}, IAppState> {
@@ -54,10 +56,14 @@ class App extends Component<{}, IAppState> {
       });
     }
 
-    this.watchRouteInstance();
+    // setTimeout(() => {
+    //   this.watchRouteInstance();
+    // }, 1000);
+
+    this.fetchRouteInstance(App.params.routeId, undefined);
   }
 
-  private async fetchRouteInstance(routeId: UUID, timestamp: Date) {
+  private async fetchRouteInstance(routeId: UUID, timestamp?: Date) {
     const deviceLocationInfo = await this.deviceApi.getDeviceLocationUsingGET(
       App.params.deviceId,
       undefined,
@@ -67,7 +73,7 @@ class App extends Component<{}, IAppState> {
 
     this.setState({
       routeInstance: mapRouteInstance(deviceLocationInfo),
-      timestamp: DateTime.fromJSDate(timestamp).plus({ minutes: 5 }).toJSDate(),
+      timestamp: timestamp && DateTime.fromJSDate(timestamp).plus({ minutes: 5 }).toJSDate() || undefined,
     });
   }
 
@@ -89,7 +95,14 @@ class App extends Component<{}, IAppState> {
       return null;
     }
     return (
-      <RouteInstance route={route} routeInstance={routeInstance} person={person} />
+      <div className={classes.root}>
+        <div className={classes.routeWidget}>
+          <RouteInstance route={route} routeInstance={routeInstance} person={person} />
+        </div>
+        <div className={classes.reportWidget}>
+          {routeInstance && <RouteReport route={route} routeInstance={routeInstance} />}
+        </div>
+      </div>
     );
   }
 }
