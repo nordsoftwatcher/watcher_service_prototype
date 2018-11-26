@@ -17,8 +17,8 @@ export function mapRouteInstance(dto: DeviceLocationOutput): IRouteInstance {
 function mapCheckpoint(dto: CheckPointResultDto): ICompletedCheckpoint {
   return {
     pointId: dto.id,
-    arrival: mapDate(dto.arrivalTime)!,
-    departure: mapDate(dto.departureTime),
+    arrival: mapDate(dto.factArrivalTime)!,
+    departure: mapDate(dto.factDepartureTime),
   };
 }
 

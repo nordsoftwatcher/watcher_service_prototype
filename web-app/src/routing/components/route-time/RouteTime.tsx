@@ -166,6 +166,9 @@ export class RouteTime extends React.Component<RouteTimeProps> {
     const pointInstance = this.findPointInstance(checkpoint.id);
 
     const timestamp = pointInstance && pointInstance.arrival || checkpoint.planArrival;
+    if (!timestamp) {
+      return null;
+    }
 
     const style: React.CSSProperties = {
       left: `calc(
