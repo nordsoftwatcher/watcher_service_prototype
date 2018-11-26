@@ -3,7 +3,7 @@ import styles from './Accordion.module.css';
 
 export interface AccordionContext {
   openItemId: string | undefined;
-  toggle: (id: string, isOpen: boolean) => void;
+  toggle(id: string, isOpen: boolean): void;
 }
 
 export const AccordionContext = React.createContext<AccordionContext>({
@@ -11,14 +11,30 @@ export const AccordionContext = React.createContext<AccordionContext>({
   toggle: () => { /* noop */ },
 });
 
-export default class Accordion extends React.Component<{}, AccordionContext> {
+export interface AccordionProps {
+  openItemId?: any;
+}
 
-  state = {
-    openItemId: undefined,
-    toggle: this.toggle.bind(this),
-  };
+export default class Accordion extends React.Component<AccordionProps, AccordionContext> {
 
-  toggle(id: string, isOpen: boolean) {
+  constructor(props: AccordionProps) {
+    super(props);
+
+    this.state = {
+      openItemId: props.openItemId,
+      toggle: this.toggle,
+    };
+  }
+
+  componentDidUpdate(prevProps: AccordionProps) {
+    if (prevProps.openItemId !== this.props.openItemId) {
+      this.setState({
+        openItemId: this.props.openItemId,
+      });
+    }
+  }
+
+  toggle = (id: string, isOpen: boolean) => {
     this.setState({
       openItemId: isOpen ? id : undefined,
     });

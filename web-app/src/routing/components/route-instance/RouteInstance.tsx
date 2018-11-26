@@ -9,9 +9,10 @@ import { RoutePoint } from '../route-point/RoutePoint';
 import { RouteMap } from '../route-map/RouteMap';
 import { RouteTrack } from '../route-track/RouteTrack';
 
-import { IRoute } from '../../models/route';
+import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance } from '../../models/route-instance';
 import { IPerson } from '../../models/person';
+import { UUID } from '../../models/uuid';
 
 export interface RouteInstanceProps {
   route: IRoute;
@@ -21,6 +22,7 @@ export interface RouteInstanceProps {
 
 interface RouteInstanceState {
   showRoutingPlan: boolean;
+  selectedCheckpointId?: UUID;
 }
 
 export class RouteInstance extends React.Component<RouteInstanceProps, RouteInstanceState> {
@@ -38,6 +40,13 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
   toggleRoutingPlan = () => {
     this.setState({
       showRoutingPlan: !this.state.showRoutingPlan,
+    });
+  }
+
+  handleCheckpointClick = (checkpoint: ICheckpoint) => {
+    this.setState({
+      selectedCheckpointId: checkpoint.id,
+      showRoutingPlan: true,
     });
   }
 
@@ -70,7 +79,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
   renderRoutingPlan() {
     const { route, routeInstance, person } = this.props;
-    const { showRoutingPlan } = this.state;
+    const { showRoutingPlan, selectedCheckpointId } = this.state;
 
     if (!showRoutingPlan) {
       return null;
@@ -79,7 +88,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
     return (
       <div style={{ width: this.planWidth }} className={styles.routePlan}>
         <Scrollbars autoHide={true}>
-          <Accordion>
+          <Accordion openItemId={selectedCheckpointId}>
             {route.checkpoints.map(point => (
               <RoutePoint
                 point={point}
@@ -111,7 +120,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
         <div className={styles.routeContent}>
           <div className={styles.routeMap}>
-            <RouteMap route={route} routeInstance={routeInstance} />
+            <RouteMap route={route} routeInstance={routeInstance} onCheckpointClick={this.handleCheckpointClick} />
             <RouteTrack route={route} routeInstance={routeInstance} />
           </div>
           {this.renderRoutingPlan()}
