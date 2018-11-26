@@ -35,9 +35,7 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public Route createRoute(CreateRouteInput createRouteInput) {
-        Route route = new Route();
-        route.setSupervisorId(createRouteInput.getSupervisorId());
-        route.setName(createRouteInput.getName());
+        Route route = routeMapper.toRoute(createRouteInput);
         route.setStatus(RouteStatus.NOT_STARTED);
         routeRepository.save(route);
         /** Points */

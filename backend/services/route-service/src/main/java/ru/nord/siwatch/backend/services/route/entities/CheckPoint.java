@@ -40,12 +40,6 @@ public class CheckPoint extends AbstractEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date departureTime;
 
-    @Column(name = "plan_time")
-    private Integer planTime;
-
-    @Column(name = "fact_time")
-    private Integer factTime;
-
     @Column(name = "address", length = 2000)
     private String address;
 

@@ -5,6 +5,7 @@ import lombok.Setter;
 import ru.nord.siwatch.backend.services.common.entities.AbstractEntity;
 import ru.nord.siwatch.backend.services.route.enums.RouteStatus;
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -23,6 +24,14 @@ public class Route extends AbstractEntity {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "start_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startTime;
+
+    @Column(name = "end_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endTime;
 
     @Column(name = "supervisor_id", nullable = false)
     private Long supervisorId;

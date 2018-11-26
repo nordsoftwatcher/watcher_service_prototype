@@ -5,6 +5,7 @@ import lombok.Setter;
 import ru.nord.siwatch.backend.connectors.route.models.CheckPoint;
 import ru.nord.siwatch.backend.connectors.route.models.RoutePoint;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter @Setter
@@ -15,6 +16,10 @@ public class RouteDto extends AbstractDto {
     private SupervisorDto supervisor;
 
     private String status;
+
+    private LocalDateTime startTime;
+
+    private LocalDateTime endTime;
 
     private List<RoutePoint> routePoints;
 

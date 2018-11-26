@@ -3,7 +3,7 @@ package ru.nord.siwatch.backend.connectors.route.models;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter @Setter
 public class CheckPoint {
@@ -20,9 +20,9 @@ public class CheckPoint {
 
     private String name;
 
-    private Date arrivalTime;
+    private LocalDateTime arrivalTime;
 
-    private Date departureTime;
+    private LocalDateTime departureTime;
 
     private Integer planTime;
 
