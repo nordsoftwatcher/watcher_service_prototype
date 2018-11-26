@@ -3,7 +3,7 @@ import styles from './RouteTrack.module.css';
 import colors from '../../../colors.module.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import turf from '@turf/turf';
+import * as turf from '@turf/turf';
 
 import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance, ICompletedCheckpoint } from '../../models/route-instance';
@@ -67,7 +67,7 @@ export class RouteTrack extends React.Component<RouteTrackProps> {
 
     const posRatio = this.getDistanceRatio(routeInstance.currentPos);
     const style: React.CSSProperties = {
-      left: `calc(${posRatio}% - 13px)`,
+      left: `calc(${posRatio}% - 12px)`,
     };
 
     return (
@@ -88,6 +88,12 @@ export class RouteTrack extends React.Component<RouteTrackProps> {
       <div style={style} key={checkpoint.id} className={styles.checkpoint}>
         <RouteCheckpoint point={checkpoint} pointInstance={this.findPointInstance(checkpoint.id)} />
       </div>
+    );
+  }
+
+  private renderPlanRoute() {
+    return (
+      <div className={styles.route} />
     );
   }
 
@@ -135,7 +141,7 @@ export class RouteTrack extends React.Component<RouteTrackProps> {
 
     return (
       <div className={styles.root}>
-        <div className={styles.route} />
+        {this.renderPlanRoute()}
         {this.renderTraveledRoute()}
         {this.renderDeviations()}
         {route.checkpoints.map(point => this.renderCheckpoint(point))}

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './RoutePoint.module.css';
+import classes from './RoutePoint.module.css';
 
 import { ICheckpoint } from '../../models/route';
 
@@ -44,14 +44,14 @@ interface RoutePointInfoProps {
 
 const RoutePointShortInfo: React.StatelessComponent<RoutePointInfoProps> =
   ({ point, pointInstance }) => (
-    <div className={styles.row}>
-      <div className={styles.col}>
+    <div className={classes.row}>
+      <div className={classes.col}>
         <NameValue name='Прибытие' value={formatTime(pointInstance && pointInstance.arrival)} />
         <NameValue name='Отправление' value={formatTime(pointInstance && pointInstance.departure)} />
       </div>
-      <div className={styles.col}>
-        <NameValue name='План' value={formatMinutes(point.planTime)} />
-        <NameValue name='Факт' value={formatMinutes(pointInstance && pointInstance.factTime)} />
+      <div className={classes.col}>
+        <NameValue name='План' value={formatTime(point.planArrival)} />
+        <NameValue name='План' value={formatTime(point.planDeparute)} />
       </div>
     </div>
   );

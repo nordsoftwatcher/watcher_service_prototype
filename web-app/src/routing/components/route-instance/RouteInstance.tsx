@@ -7,7 +7,8 @@ import { Panel, Accordion, Badge, Button } from '../../../ui';
 
 import { RoutePoint } from '../route-point/RoutePoint';
 import { RouteMap } from '../route-map/RouteMap';
-import { RouteTrack } from '../route-track/RouteTrack';
+// import { RouteTrack } from '../route-track/RouteTrack';
+import { RouteTime } from '../route-time/RouteTime';
 
 import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance } from '../../models/route-instance';
@@ -121,7 +122,8 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
         <div className={styles.routeContent}>
           <div className={styles.routeMap}>
             <RouteMap route={route} routeInstance={routeInstance} onCheckpointClick={this.handleCheckpointClick} />
-            <RouteTrack route={route} routeInstance={routeInstance} />
+            {/* <RouteTrack route={route} routeInstance={routeInstance} /> */}
+            <RouteTime route={route} routeInstance={routeInstance} />
           </div>
           {this.renderRoutingPlan()}
         </div>
