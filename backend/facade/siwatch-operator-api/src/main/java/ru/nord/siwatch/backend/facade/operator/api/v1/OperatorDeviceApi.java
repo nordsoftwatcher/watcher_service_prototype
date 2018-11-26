@@ -74,12 +74,10 @@ public class OperatorDeviceApi extends ApiBase {
                             checkPoint, locations);
                     if (arrivalDepartureInfo != null) {
                         checkPoints.add(checkPointResultDto);
-                        checkPointResultDto.setArrivalTime(arrivalDepartureInfo.getArrivalTime() != null ?
-                                Date.from(arrivalDepartureInfo.getArrivalTime().toInstant(ZoneOffset.UTC)) : null);
-                        checkPointResultDto.setDepartureTime(arrivalDepartureInfo.getDepartureTime() != null ?
-                                Date.from(arrivalDepartureInfo.getDepartureTime().toInstant(ZoneOffset.UTC)) : null);
-                        //TODO : replace fact time
-//                        checkPointResultDto.setFactTime(OperatorLocationUtils.calcFactTime(arrivalDepartureInfo));
+                        checkPointResultDto.setArrivalTime(arrivalDepartureInfo.getArrivalTime());
+                        checkPointResultDto.setDepartureTime(arrivalDepartureInfo.getDepartureTime());
+                        checkPointResultDto.setPlanArrivalTime(checkPoint.getArrivalTime());
+                        checkPointResultDto.setPlanDepartureTime(checkPoint.getDepartureTime());
                     }
                 }
                 return new DeviceLocationOutput(result, checkPoints);

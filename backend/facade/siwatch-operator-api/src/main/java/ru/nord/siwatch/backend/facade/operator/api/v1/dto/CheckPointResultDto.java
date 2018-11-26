@@ -3,6 +3,7 @@ package ru.nord.siwatch.backend.facade.operator.api.v1.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter @Setter
@@ -18,13 +19,13 @@ public class CheckPointResultDto extends AbstractDto {
 
     private String name;
 
-    private Date arrivalTime;
+    private LocalDateTime arrivalTime;
 
-    private Date departureTime;
+    private LocalDateTime departureTime;
 
-    private Integer planTime;
+    private LocalDateTime planArrivalTime;
 
-    private Integer factTime;
+    private LocalDateTime planDepartureTime;
 
     private String address;
 
