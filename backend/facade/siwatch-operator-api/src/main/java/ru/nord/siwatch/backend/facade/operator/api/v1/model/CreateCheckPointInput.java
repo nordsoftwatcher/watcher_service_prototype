@@ -33,8 +33,6 @@ public class CreateCheckPointInput {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime departureTime;
 
-    private Integer planTime;
-
     private String address;
 
     private String description;
