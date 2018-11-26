@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SiWatchApp.Events;
+using SiWatchApp.Logging;
 using SiWatchApp.Monitors;
 using SiWatchApp.Utils;
 using Xamarin.Forms.Internals;
@@ -40,7 +41,7 @@ namespace SiWatchApp.Services
                                 eventSource = new SOSEventSource();
                                 break;
                             case EventType.Message:
-                                eventSource = new MessageEventSource();
+                                eventSource = new AbstractEventSource();
                                 break;
                         }
                     }

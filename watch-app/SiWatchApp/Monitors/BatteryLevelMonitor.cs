@@ -7,9 +7,9 @@ namespace SiWatchApp.Monitors
     {
         public override MonitorType MonitorType => MonitorType.Battery;
 
-        public override MonitorValue GetCurrentValue()
+        public override object GetCurrentValue()
         {
-            return new MonitorValue(Battery.Percent);
+            return Battery.Percent;
         }
     }
 }

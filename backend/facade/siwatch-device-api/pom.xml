@@ -27,6 +27,18 @@
         </dependency>
         <dependency>
             <groupId>ru.nord.siwatch.backend</groupId>
+            <artifactId>location-monitoring-connector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.nord.siwatch.backend</groupId>
+            <artifactId>memory-monitoring-connector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.nord.siwatch.backend</groupId>
+            <artifactId>network-monitoring-connector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>route-connector</artifactId>
         </dependency>
     </dependencies>

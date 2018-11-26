@@ -1,109 +1,91 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using SiWatchApp.Buffer;
 using SiWatchApp.Configuration;
+using SiWatchApp.Logging;
 using SiWatchApp.Models;
 using SiWatchApp.Monitors;
-using SiWatchApp.Queue;
-using SiWatchApp.Utils;
-using Tizen.System;
 
 namespace SiWatchApp.Services
 {
-    public class MonitoringService
+    public class MonitoringService : IDisposable
     {
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(MonitoringService));
 
-        private readonly MonitoringPolicyService _monitoringPolicyService;
-        private readonly MonitorFactory _monitorFactory;
-        private readonly IPriorityQueue _queue;
-        private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
         private readonly object _sync = new object();
 
-        public MonitoringService(MonitoringPolicyService monitoringPolicyService, MonitorFactory monitorFactory, IPriorityQueue queue)
+        private readonly MonitoringPolicyService _monitoringPolicyService;
+        private readonly IBuffer<Record> _buffer;
+
+        private MonitorFactory _monitorFactory = new MonitorFactory();
+        private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
+        private bool _started = false;
+
+        public MonitoringService(MonitoringPolicyService monitoringPolicyService, IBuffer<Record> buffer)
         {
-            _queue = queue;
+            _buffer = buffer;
             _monitoringPolicyService = monitoringPolicyService;
-            _monitorFactory = monitorFactory;
-            _monitoringPolicyService.MonitoringPolicyChanged += HandleMonitoringPolicyChanged;
         }
 
-        private async void HandleMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
+        private void HandleMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
         {
-            await Reconfigure(mp);
+            Reconfigure(mp);
         }
 
-        private void Dismiss()
+        private void Unsubscribe()
         {
             _subscriptions.ForEach(s => s.Dispose());
             _subscriptions.Clear();
         }
 
-        private async Task ProcessMonitorValue(IMonitor monitor)
+        private void ProcessMonitorValue(MonitorRecord record)
         {
-            LOGGER.Info($"Polling {monitor} from thread {Thread.CurrentThread.ManagedThreadId}");
-
-            MonitorValue mv;
-            try {
-                mv = monitor.GetCurrentValue();
-            }
-            catch (Exception ex) {
-                LOGGER.Error($"Failed getting current value from {monitor}", ex);
-                return;
-            }
-
-            if (mv == null) {
-                LOGGER.Info($"{monitor} returned empty value");
-            }
-            else {
-                var record = new MonitoringRecord(monitor.MonitorType, mv);
-                LOGGER.Debug($"{record}");
-                await _queue.Put(record);
-            }
+            LOGGER.Debug($"{record}");
+            _buffer.Append(record, Priority.Normal);
         }
 
-        private async Task Reconfigure(MonitoringPolicy mp)
+        private void Reconfigure(MonitoringPolicy policy)
         {
             lock (_sync) {
-                Dismiss();
-            }
+                Unsubscribe();
 
-            var monitors = new List<Tuple<MonitorConfig, IMonitor>>();
-            foreach (MonitorConfig mc in mp.Monitors) {
-                IMonitor monitor;
-                try {
-                    monitor = await _monitorFactory.GetMonitor(mc.Type);
-                }
-                catch (Exception ex) {
-                    LOGGER.Error($"{mc.Type} failed to start:", ex);
-                    continue;
+                if (policy == null) {
+                    return;
                 }
 
-                monitors.Add(Tuple.Create(mc, monitor));
-            }
+                if (_monitorFactory == null) {
+                    return;
+                }
 
-            lock (_sync) {
-                if (_subscriptions.Count == 0) {
-                    monitors.ForEach(m => {
-                                         var sub = Observable
-                                                   .Interval(TimeSpan.FromSeconds(m.Item1.PollInterval),
-                                                             TaskPoolScheduler.Default)
-                                                   .Subscribe(async _ => await ProcessMonitorValue(m.Item2));
-                                         _subscriptions.Add(sub);
-                                     });
+                foreach (var monitorConfig in policy.Monitors) {
+                    IMonitor monitor;
+                    try {
+                        monitor = _monitorFactory.GetMonitor(monitorConfig.Type);
+                    }
+                    catch (Exception ex) {
+                        LOGGER.Error($"{monitorConfig.Type} failed to start:", ex);
+                        continue;
+                    }
+
+                    if (monitor != null) {
+                        _subscriptions.Add(monitor.Observe(TimeSpan.FromSeconds(monitorConfig.PollInterval)).Subscribe(ProcessMonitorValue));
+                    }
                 }
             }
         }
     
         
-        public async void Start()
+        public void Start()
         {
-            await Reconfigure(_monitoringPolicyService.CurrentMonitoringPolicy);
-            LOGGER.Debug("Started");
+            lock (_sync) {
+                if (_started) {
+                    return;
+                }
+                _started = true;
+                _monitoringPolicyService.MonitoringPolicyChanged += HandleMonitoringPolicyChanged;
+                Reconfigure(_monitoringPolicyService.CurrentMonitoringPolicy);
+                LOGGER.Debug("Started");
+            }
         }
 
         public void Pause()
@@ -114,9 +96,27 @@ namespace SiWatchApp.Services
         public void Stop()
         {
             lock (_sync) {
-                Dismiss();
+                if (_started) {
+                    _started = false;
+                    _monitoringPolicyService.MonitoringPolicyChanged -= HandleMonitoringPolicyChanged;
+                    Unsubscribe();
+                    LOGGER.Debug("Stopped");
+                }
             }
-            LOGGER.Debug("Stopped");
+        }
+
+        public void Dispose()
+        {
+            lock (_sync) {
+                _started = false;
+                _monitoringPolicyService.MonitoringPolicyChanged -= HandleMonitoringPolicyChanged;
+                Unsubscribe();
+                if (_monitorFactory != null) {
+                    _monitorFactory.Dispose();
+                    _monitorFactory = null;
+                    LOGGER.Debug("Disposed");
+                }
+            }
         }
     }
 }

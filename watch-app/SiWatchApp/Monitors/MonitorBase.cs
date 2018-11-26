@@ -4,26 +4,23 @@ namespace SiWatchApp.Monitors
 {
     public abstract class MonitorBase<T> : IMonitor
     {
-        public virtual void Dispose() { }
-    
-        public virtual bool Start() => true;
-
-        public abstract MonitorValue GetCurrentValue();
-
         public Type ValueType => typeof(T);
 
+        public virtual void Dispose() { }
+
+        public virtual void Init() { }
+
+        public virtual bool IsSupported => true;
+
+        public abstract object GetCurrentValue();
+        
         public abstract MonitorType MonitorType { get; }
 
         public virtual string[] Privileges => null;
 
         public override string ToString()
         {
-            return this.GetType().Name;
-        }
-
-        protected Exception GetInvalidAccessException()
-        {
-            return new InvalidOperationException($"{GetType().Name} is disposed or not supported");
+            return GetType().Name;
         }
     }
 }

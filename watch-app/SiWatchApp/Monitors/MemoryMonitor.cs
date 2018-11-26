@@ -14,11 +14,10 @@ namespace SiWatchApp.Monitors
         private static readonly string[] PRIVILEGES = { "http://tizen.org/privilege/systemmonitor" };
         public override string[] Privileges => PRIVILEGES;
 
-        public override bool Start()
+        public override void Init()
         {
             _systemMemoryUsage = new SystemMemoryUsage();
             _storage = StorageManager.Storages.FirstOrDefault(s => s.StorageType == StorageArea.Internal);
-            return true;
         }
 
         public override void Dispose()
@@ -29,18 +28,16 @@ namespace SiWatchApp.Monitors
 
         public override MonitorType MonitorType => MonitorType.Memory;
 
-        public override MonitorValue GetCurrentValue()
+        public override object GetCurrentValue()
         {
-            if (_systemMemoryUsage == null) {
-                throw GetInvalidAccessException();
+            if (_systemMemoryUsage != null) {
+                _systemMemoryUsage.Update();
+                return new MemoryInfo() {
+                        FreeSystemMemory = (ulong) _systemMemoryUsage.Free*1024,
+                        FreeStorageMemory = _storage?.AvaliableSpace
+                };
             }
-
-            _systemMemoryUsage.Update();
-            var info = new MemoryInfo() {
-                    FreeSystemMemory = _systemMemoryUsage.Free,
-                    FreeStorageMemory = _storage?.AvaliableSpace
-            };
-            return new MonitorValue(info);
+            return null;
         }
     }
 }

@@ -1,4 +1,4 @@
-package ru.nord.siwatch.backend.facade.device.models.profile;
+package ru.nord.siwatch.backend.facade.device.models;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +9,8 @@ import java.util.List;
 @Getter @Setter
 public class MonitoringPolicy
 {
-    private int minBatterLevel;
+    private int minBatteryLevel;
     private List<MonitorConfig> monitors;
-    private Duration flushInterval;
+    private Duration syncInterval;
     private int packetSize;
 }

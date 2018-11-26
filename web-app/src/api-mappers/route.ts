@@ -5,7 +5,7 @@ import { RouteDto, CheckPoint, RoutePoint } from '../api/operator-api';
 export function mapRoute(dto: RouteDto): IRoute {
   return {
     id: dto.id,
-    name: '',
+    name: dto.name,
     checkpoints: dto.checkPoints!.map(x => mapCheckpoint(x)),
     track: dto.routePoints!.map(x => mapRoutePoint(x)),
   };

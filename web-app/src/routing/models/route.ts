@@ -3,7 +3,7 @@ import { UUID } from './uuid';
 
 export interface IRoute {
   id: UUID;
-  name: string;
+  name?: string;
   track: Coordinates[];
   checkpoints: ICheckpoint[];
 }

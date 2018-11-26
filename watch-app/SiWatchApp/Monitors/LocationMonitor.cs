@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using SiWatchApp.Logging;
 using SiWatchApp.Models;
 using SiWatchApp.Services;
 using SiWatchApp.Utils;
@@ -10,52 +11,22 @@ namespace SiWatchApp.Monitors
     public class LocationMonitor : MonitorBase<LocationInfo>
     {
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(LocationMonitor));
+        
+        private readonly ILocationProvider _locationProvider;
 
-        private Locator _locator;
-        private volatile bool _active;
+        public override bool IsSupported => _locationProvider?.IsSupported ?? false;
 
-        private static readonly string[] PRIVILEGES = { "http://tizen.org/privilege/location" };
-        public override string[] Privileges => PRIVILEGES;
-
-        public override bool Start()
+        public LocationMonitor(ILocationProvider locationProvider)
         {
-            if (!LocatorHelper.IsSupportedType(LocationType.Gps)) {
-                return false;
-            }
-
-            if (_locator == null) {
-                _locator = new Locator(LocationType.Gps);
-                _locator.ServiceStateChanged += HandleStateChanged;
-                _locator.Start();
-            }
-
-            return true;
-        }
-
-        private void HandleStateChanged(object sender, ServiceStateChangedEventArgs e)
-        {
-            LOGGER.Debug(e.ServiceState);
-            _active = e.ServiceState == ServiceState.Enabled;
-        }
-
-        public override void Dispose()
-        {
-            if (_locator != null) {
-                _locator.Dispose();
-                _locator = null;
-            }
+            _locationProvider = locationProvider;
         }
         
         public override MonitorType MonitorType => MonitorType.Location;
 
-        public override MonitorValue GetCurrentValue()
+        public override object GetCurrentValue()
         {
-            if (_locator == null) {
-                throw GetInvalidAccessException();
-            }
-
-            Location location = _active ? _locator.GetLocation() : null;
-            return location != null ? new MonitorValue(new LocationInfo(location)) : null;
+            var location = _locationProvider?.GetCurrentLocation();
+            return location != null ? new LocationInfo(location) : null;
         }
     }
 }

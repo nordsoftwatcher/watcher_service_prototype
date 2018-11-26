@@ -1,8 +1,7 @@
-package ru.nord.siwatch.backend.facade.device.models.profile;
+package ru.nord.siwatch.backend.facade.device.models;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

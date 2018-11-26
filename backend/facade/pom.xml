@@ -31,6 +31,16 @@
             </dependency>
             <dependency>
                 <groupId>ru.nord.siwatch.backend</groupId>
+                <artifactId>network-monitoring-connector</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.nord.siwatch.backend</groupId>
+                <artifactId>memory-monitoring-connector</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.nord.siwatch.backend</groupId>
                 <artifactId>route-connector</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -57,10 +67,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
