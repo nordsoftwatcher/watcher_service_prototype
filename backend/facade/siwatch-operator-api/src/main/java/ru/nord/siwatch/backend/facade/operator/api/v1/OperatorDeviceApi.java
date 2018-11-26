@@ -49,6 +49,7 @@ public class OperatorDeviceApi extends ApiBase {
     @Autowired
     private OperatorMapper operatorMapper;
 
+
     @ApiOperation(value = "Получение данных местоположения устройства")
     @GetMapping(value = "/location")
     public DeviceLocationOutput getDeviceLocation(@Valid LocationRecordSearchDto recordSearchDto) {
@@ -77,7 +78,8 @@ public class OperatorDeviceApi extends ApiBase {
                                 Date.from(arrivalDepartureInfo.getArrivalTime().toInstant(ZoneOffset.UTC)) : null);
                         checkPointResultDto.setDepartureTime(arrivalDepartureInfo.getDepartureTime() != null ?
                                 Date.from(arrivalDepartureInfo.getDepartureTime().toInstant(ZoneOffset.UTC)) : null);
-                        checkPointResultDto.setFactTime(OperatorLocationUtils.calcFactTime(arrivalDepartureInfo));
+                        //TODO : replace fact time
+//                        checkPointResultDto.setFactTime(OperatorLocationUtils.calcFactTime(arrivalDepartureInfo));
                     }
                 }
                 return new DeviceLocationOutput(result, checkPoints);
