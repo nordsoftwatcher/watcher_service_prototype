@@ -74,10 +74,10 @@ public class OperatorDeviceApi extends ApiBase {
                             checkPoint, locations);
                     if (arrivalDepartureInfo != null) {
                         checkPoints.add(checkPointResultDto);
-                        checkPointResultDto.setArrivalTime(arrivalDepartureInfo.getArrivalTime());
-                        checkPointResultDto.setDepartureTime(arrivalDepartureInfo.getDepartureTime());
-                        checkPointResultDto.setPlanArrivalTime(checkPoint.getArrivalTime());
-                        checkPointResultDto.setPlanDepartureTime(checkPoint.getDepartureTime());
+                        checkPointResultDto.setFactArrivalTime(arrivalDepartureInfo.getArrivalTime());
+                        checkPointResultDto.setFactDepartureTime(arrivalDepartureInfo.getDepartureTime());
+                        checkPointResultDto.setArrivalTime(checkPoint.getArrivalTime());
+                        checkPointResultDto.setDepartureTime(checkPoint.getDepartureTime());
                     }
                 }
                 return new DeviceLocationOutput(result, checkPoints);
