@@ -19,4 +19,8 @@ public class EventConnector {
         return restTemplate.postForObject("/event/", eventInfo , Event.class);
     }
 
+    public Event getLastEventByTypeAndSupervisorId(String eventType, Long supervisorId) {
+        return restTemplate.getForObject("/event/" + eventType + "/" + supervisorId, Event.class);
+    }
+
 }

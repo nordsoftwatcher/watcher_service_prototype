@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.nord.siwatch.backend.services.common.api.ApiBase;
 import ru.nord.siwatch.backend.services.events.api.dto.EventDto;
 import ru.nord.siwatch.backend.services.events.api.model.CreateEventInput;
@@ -37,6 +34,13 @@ public class EventApi extends ApiBase {
     public EventDto createEvent(@RequestBody @Valid CreateEventInput createEventInput) {
         Event event = eventService.createEvent(createEventInput);
         return eventMapper.toEventDto(event);
+    }
+
+    @ApiOperation(value = "Получение последнего события заданного типа")
+    @GetMapping("/{eventType}/supervisor/{supervisorId}")
+    public EventDto getLastEventByTypeAndSupervisorId(@PathVariable("eventType") String eventType, @PathVariable("supervisorId") Long supervisorId) {
+        Event lastEvent = eventService.getLastEventByTypeAndSupervisorId(eventType, supervisorId);
+        return lastEvent != null ? eventMapper.toEventDto(lastEvent) : null;
     }
 
 }

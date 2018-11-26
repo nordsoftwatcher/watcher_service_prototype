@@ -10,6 +10,8 @@ public interface EventService {
 
     Event createEvent(CreateEventInput createEventInput);
 
+    Event getLastEventByTypeAndSupervisorId(String eventType, Long supervisorId);
+
     List<Event> findEvents(Long supervisorId, Date from, Date to);
 
     List<Event> findEvents(Date from, Date to);
