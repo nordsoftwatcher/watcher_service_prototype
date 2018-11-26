@@ -51,11 +51,32 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<Event> findEvents(Long supervisorId, Date from, Date to) {
-        return null;
+        if (supervisorId == null) {
+            return findEvents(from, to);
+        }
+        if (from != null && to != null) {
+            return eventRepository.findAllBySupervisorIdAndInInterval(supervisorId, from, to);
+        }
+        if (from != null && to == null) {
+            return eventRepository.findAllBySupervisorIdAndFromDate(supervisorId, from);
+        }
+        if (from == null && to != null) {
+            return eventRepository.findAllBySupervisorIdAndToDate(supervisorId, to);
+        }
+        return eventRepository.findAllBySupervisor(supervisorId);
     }
 
     @Override
     public List<Event> findEvents(Date from, Date to) {
-        return null;
+        if (from != null && to != null) {
+            return eventRepository.findAllInInterval(from, to);
+        }
+        if (from != null && to == null) {
+            return eventRepository.findAllByFromDate(from);
+        }
+        if (from == null && to != null) {
+            return eventRepository.findAllByToDate(to);
+        }
+        return eventRepository.findAllEvents();
     }
 }

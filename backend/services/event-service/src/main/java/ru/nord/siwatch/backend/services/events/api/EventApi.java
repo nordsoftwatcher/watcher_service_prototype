@@ -8,12 +8,16 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.nord.siwatch.backend.services.common.api.ApiBase;
 import ru.nord.siwatch.backend.services.events.api.dto.EventDto;
+import ru.nord.siwatch.backend.services.events.api.dto.SearchEventsDto;
 import ru.nord.siwatch.backend.services.events.api.model.CreateEventInput;
 import ru.nord.siwatch.backend.services.events.entities.Event;
 import ru.nord.siwatch.backend.services.events.mapping.EventMapper;
 import ru.nord.siwatch.backend.services.events.services.EventService;
 
 import javax.validation.Valid;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.List;
 
 @Api(description = "Event API")
 @RestController
@@ -41,6 +45,17 @@ public class EventApi extends ApiBase {
     public EventDto getLastEventByTypeAndSupervisorId(@PathVariable("eventType") String eventType, @PathVariable("supervisorId") Long supervisorId) {
         Event lastEvent = eventService.getLastEventByTypeAndSupervisorId(eventType, supervisorId);
         return lastEvent != null ? eventMapper.toEventDto(lastEvent) : null;
+    }
+
+    @ApiOperation(value = "Получение событий за временной интервал")
+    @GetMapping("/search")
+    public List<EventDto> search(SearchEventsDto searchEventsDto) {
+        final List<Event> events = eventService.findEvents(
+                searchEventsDto.getSupervisorId(),
+                searchEventsDto.getFromTime() != null ? Date.from(searchEventsDto.getFromTime().toInstant(ZoneOffset.UTC)) : null,
+                searchEventsDto.getToTime() != null ? Date.from(searchEventsDto.getToTime().toInstant(ZoneOffset.UTC)) : null
+        );
+        return eventMapper.toEventDtoList(events);
     }
 
 }

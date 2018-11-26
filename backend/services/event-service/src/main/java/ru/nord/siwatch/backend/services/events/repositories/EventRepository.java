@@ -19,8 +19,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByToDate(Date to);
 
     @Query("SELECT event FROM Event event ORDER BY event.deviceTime DESC")
-    List<Event> findAll();
-
+    List<Event> findAllEvents();
 
     @Query("SELECT event FROM Event event WHERE event.supervisorId =?1 AND event.deviceTime>=?2 AND event.deviceTime<=?3 ORDER BY event.deviceTime DESC")
     List<Event> findAllBySupervisorIdAndInInterval(Long supervisorId, Date from, Date to);
