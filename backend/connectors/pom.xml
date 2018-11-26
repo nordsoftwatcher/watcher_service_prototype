@@ -64,6 +64,7 @@
                 <module>memory-monitoring-connector</module>
                 <module>network-monitoring-connector</module>
                 <module>supervisor-connector</module>
+                <module>event-connector</module>
             </modules>
         </profile>
     </profiles>
