@@ -3,7 +3,7 @@ package ru.nord.siwatch.backend.services.route.api.dto;
 import lombok.Getter;
 import lombok.Setter;
 import ru.nord.siwatch.backend.services.common.api.dto.AbstractEntityDto;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,13 +19,9 @@ public class CheckPointDto extends AbstractEntityDto {
 
     private String name;
 
-    private Date arrivalTime;
+    private LocalDateTime arrivalTime;
 
-    private Date departureTime;
-
-    private Integer planTime;
-
-    private Integer factTime;
+    private LocalDateTime departureTime;
 
     private String address;
 

@@ -88,4 +88,24 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="change-route-add-start-end-time" author="nord">
+        <addColumn catalogName="cat"
+                   schemaName="public"
+                   tableName="route">
+            <column name="start_time" type="TIMESTAMP" remarks="Начальное время маршрута"/>
+            <column name="end_time" type="TIMESTAMP" remarks="Конечное время маршрута"/>
+        </addColumn>
+
+        <dropColumn catalogName="cat"
+                    columnName="plan_time"
+                    schemaName="public"
+                    tableName="check_point"/>
+
+        <dropColumn catalogName="cat"
+                    columnName="fact_time"
+                    schemaName="public"
+                    tableName="check_point"/>
+
+    </changeSet>
+
 </databaseChangeLog>
