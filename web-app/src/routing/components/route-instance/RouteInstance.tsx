@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './RouteInstance.module.css';
+import colors from '../../../colors.module.css';
 
 import Scrollbars from 'react-custom-scrollbars';
 
@@ -88,7 +89,12 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
     return (
       <div style={{ width: this.planWidth }} className={styles.routePlan}>
-        <Scrollbars autoHide={true}>
+        <Scrollbars
+          autoHide={true}
+          renderThumbVertical={props =>
+            <div {...props} style={{ background: colors.white, opacity: .2, borderRadius: 'inherit' }} />
+          }
+        >
           <Accordion openItemId={selectedCheckpointId}>
             {route.checkpoints.map(point => (
               <RoutePoint
