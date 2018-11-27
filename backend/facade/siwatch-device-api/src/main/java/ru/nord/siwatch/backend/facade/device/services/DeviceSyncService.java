@@ -57,7 +57,7 @@ public class DeviceSyncService
 
     private List<EventRecord> getOutgoingEvents() {
         List<EventRecord> outgoingEvents = new ArrayList<>();
-        if(Math.random() < 0.3) {
+        if(false) {
             EventRecord eventRecord = new EventRecord();
             eventRecord.setEventType(DeviceEventType.Message);
             eventRecord.setTimestamp(LocalDateTime.now());
@@ -116,10 +116,14 @@ public class DeviceSyncService
         processMonitors(deviceId, packet.getMonitors());
         processEvents(deviceId, packet.getMonitors(), packet.getEvents());
 
+        List<EventRecord> outgoingEvents = getOutgoingEvents();
+
         MessagePacket response = new MessagePacket();
-        response.setEvents(getOutgoingEvents());
+        if(outgoingEvents != null && !outgoingEvents.isEmpty()) {
+            response.setEvents(getOutgoingEvents());
+        }
         response.setTimestamp(LocalDateTime.now());
-        
+
         return response;
     }
 }
