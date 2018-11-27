@@ -32,7 +32,21 @@ public class OperatorLocationUtils {
 
     }
 
+    public static Integer calcTimeInMinutes(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime == null || endTime == null) {
+            return null;
+        }
+        Date arrivalTime = Date.from(startTime.toInstant(ZoneOffset.UTC));
+        Date departureTime = Date.from(endTime.toInstant(ZoneOffset.UTC));
+
+        return toIntExact(abs(departureTime.getTime() - arrivalTime.getTime()) / MINUTE);
+
+    }
+
     public static ArrivalDepartureInfo getArrivalAndDepartureTime(CheckPoint checkPoint, List<Location> locations) {
+        if (CollectionUtils.isEmpty(locations)) {
+            return null;
+        }
         LocalDateTime arrivalTime = null;
         LocalDateTime departureTime = null;
         for (Location location : locations) {
