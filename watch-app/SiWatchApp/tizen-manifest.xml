@@ -6,8 +6,8 @@
         <icon>SiWatchApp.png</icon>
         <metadata key="deviceId" value="TEST_DEVICE" />
         <metadata key="feedbackSync" value="true" />
-        <metadata key="apiUrl" value="http://192.168.1.46:9020/api/v1/device/" />
         <metadata key="http://tizen.org/metadata/prefer_dotnet_aot" value="false" />
+        <metadata key="apiUrl" value="http://10.0.2.2:9020/api/v1/device/" />
         <background-category value="background-network" />
         <background-category value="location" />
         <background-category value="sensor" />

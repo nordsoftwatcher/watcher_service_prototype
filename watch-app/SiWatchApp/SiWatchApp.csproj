@@ -12,12 +12,8 @@
     <DebugType>None</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Queue\**" />
-    <EmbeddedResource Remove="Queue\**" />
-    <None Remove="Queue\**" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="Events\EventValue.cs" />
+    <Compile Remove="Models\MessageInfo.cs" />
     <Compile Remove="Models\SOSInfo.cs" />
     <Compile Remove="Models\SourceValue.cs" />
     <Compile Remove="SensorType.cs" />

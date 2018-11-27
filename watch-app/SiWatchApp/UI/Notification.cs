@@ -16,9 +16,19 @@ namespace SiWatchApp.UI
             sc = SynchronizationContext.Current;
         }
 
+        private static void Invoke(Action action)
+        {
+            if (Device.IsInvokeRequired) {
+                Device.BeginInvokeOnMainThread(action);
+            }
+            else {
+                action();
+            }
+        }
+
         public static void ShowToast(string text, TimeSpan duration)
         {
-            sc.Post(_ => { Toast.DisplayText(text, (int)duration.TotalMilliseconds ); }, null);
+            Invoke(() => { Toast.DisplayText(text, (int)duration.TotalMilliseconds ); });
         }
 
         public static Task<bool> ShowInfo(string title, string text)
@@ -32,23 +42,16 @@ namespace SiWatchApp.UI
                     BottomButton = new MenuItem { Text = "OK" }
             };
             popup.BottomButton.Clicked += (sender, args) => {
-                                              popup.Dismiss();
+                                              Invoke(() => popup.Dismiss());
                                               tcs.SetResult(true);
                                           };
             popup.BackButtonPressed += (sender, args) => {
-                                           popup.Dismiss();
+                                           Invoke(() => popup.Dismiss());
                                            tcs.SetResult(false);
                                        };
 
-            if (Device.IsInvokeRequired) {
-                //popup.Show();
-                Device.BeginInvokeOnMainThread(() => popup.Show());
-                //sc.Post(_ => popup.Show(), null);
-            }
-            else {
-                popup.Show();
-            }
-
+            Invoke(() => popup.Show());
+            
             return tcs.Task;
         }
 
@@ -73,14 +76,7 @@ namespace SiWatchApp.UI
                                            callback(null);
                                        };
 
-            if (Device.IsInvokeRequired) {
-                //popup.Show();
-                Device.BeginInvokeOnMainThread(() => popup.Show());
-                //sc.Post(_ => popup.Show(), null);
-            }
-            else {
-                popup.Show();
-            }
+            Invoke(() => popup.Show());
         }
     }
 }

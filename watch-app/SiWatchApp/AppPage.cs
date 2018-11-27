@@ -5,7 +5,7 @@ using Xamarin.Forms;
 
 namespace SiWatchApp
 {
-    public class AppPage : CirclePage
+    public class AppPage : TwoButtonPage
     {
         public SynchronizationContext synchronizationContext;
 

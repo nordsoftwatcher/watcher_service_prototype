@@ -21,7 +21,7 @@ namespace SiWatchApp.Services
             _syncService = syncService;
         }
 
-        private Priority GetBufferPriority(EventPriority eventPriority)
+        private Priority MapPriority(EventPriority eventPriority)
         {
             switch (eventPriority)
             {
@@ -41,7 +41,7 @@ namespace SiWatchApp.Services
         private async void HandleEvent(EventRecord eventRecord)
         {
             try {
-                _buffer.Append(eventRecord, GetBufferPriority(eventRecord.Priority));
+                _buffer.Append(eventRecord, MapPriority(eventRecord.Priority));
             }
             catch (Exception ex) {
                 LOGGER.Error("Buffer error (Append):", ex);
@@ -53,10 +53,10 @@ namespace SiWatchApp.Services
                     await _syncService.ForceSync();
                 }
                 catch (Exception) {
-                    Notification.ShowToast($"Delay sending {eventRecord.EventType}!", TimeSpan.FromSeconds(1));
+                    Notification.ShowToast($"Delayed sending {eventRecord.EventType}!", TimeSpan.FromSeconds(1));
                     return;
                 }
-                Notification.ShowToast($"{eventRecord.EventType} sent!", TimeSpan.FromSeconds(1));
+                Notification.ShowToast($"{eventRecord.EventType} sent!", TimeSpan.FromMilliseconds(800));
             }
         }
 

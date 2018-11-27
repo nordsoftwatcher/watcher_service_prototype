@@ -14,11 +14,16 @@ import ru.nord.siwatch.backend.connectors.networkmonitoring.NetworkMonitoringCon
 import ru.nord.siwatch.backend.connectors.networkmonitoring.models.NetworkInfo;
 import ru.nord.siwatch.backend.facade.device.models.MessagePacket;
 import ru.nord.siwatch.backend.facade.device.models.SyncPacket;
+import ru.nord.siwatch.backend.facade.device.models.events.DeviceEventType;
+import ru.nord.siwatch.backend.facade.device.models.events.EventPriority;
 import ru.nord.siwatch.backend.facade.device.models.events.EventRecord;
 import ru.nord.siwatch.backend.facade.device.models.monitoring.MonitorRecord;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @Slf4j
@@ -48,6 +53,19 @@ public class DeviceSyncService
         this.locationMonitoringConnector = locationMonitoringConnector;
         this.businessEventService = businessEventService;
         this.monitorRecordMapper = monitorRecordMapper;
+    }
+
+    private List<EventRecord> getOutgoingEvents() {
+        List<EventRecord> outgoingEvents = new ArrayList<>();
+        if(Math.random() < 0.3) {
+            EventRecord eventRecord = new EventRecord();
+            eventRecord.setEventType(DeviceEventType.Message);
+            eventRecord.setTimestamp(LocalDateTime.now());
+            eventRecord.setPriority(EventPriority.Low);
+            eventRecord.setValue("Test message at "+ new Date());
+            outgoingEvents.add(eventRecord);
+        }
+        return outgoingEvents;
     }
 
     private void processMonitors(String deviceId, List<MonitorRecord> monitors)
@@ -99,7 +117,9 @@ public class DeviceSyncService
         processEvents(deviceId, packet.getMonitors(), packet.getEvents());
 
         MessagePacket response = new MessagePacket();
+        response.setEvents(getOutgoingEvents());
         response.setTimestamp(LocalDateTime.now());
+        
         return response;
     }
 }
