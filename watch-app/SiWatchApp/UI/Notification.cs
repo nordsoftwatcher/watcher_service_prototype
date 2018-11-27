@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
+using Application = Tizen.Applications.Application;
 
 namespace SiWatchApp.UI
 {

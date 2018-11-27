@@ -19,24 +19,17 @@ namespace SiWatchApp.Services
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(SyncClient));
         
         private readonly Settings _settings;
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
 
         public SyncClient(Settings settings)
         {
             _settings = settings;
-            _jsonSerializerSettings = new JsonSerializerSettings {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    Converters = { new StringEnumConverter() },
-                    NullValueHandling = NullValueHandling.Ignore
-            };
         }
 
-        private async Task<SyncPacket> TrySend(HttpClient httpClient, SyncPacket packet)
+        private async Task<string> TrySend(HttpClient httpClient, string jsonOut)
         {
             HttpResponseMessage response;
             try {
-                var jsonOut = JsonConvert.SerializeObject(packet, Formatting.None, _jsonSerializerSettings);
-                LOGGER.Debug("Sending", jsonOut);
+                //LOGGER.Debug("Sending", jsonOut);
                 HttpContent content = new StringContent(jsonOut, Encoding.UTF8, APPLICATION_JSON);
                 response = await httpClient.PutAsync("sync", content);
             }
@@ -49,11 +42,8 @@ namespace SiWatchApp.Services
                 if (response.Content?.Headers?.ContentType != null && response.Content.Headers.ContentType.MediaType.Equals(APPLICATION_JSON)) {
                     try {
                         string jsonIn = await response.Content.ReadAsStringAsync();
-                        LOGGER.Debug("Got", jsonIn);
-                        if (!String.IsNullOrEmpty(jsonIn)) {
-                            var reply = JsonConvert.DeserializeObject<SyncPacket>(jsonIn, _jsonSerializerSettings);
-                            return reply;
-                        }
+                        //LOGGER.Debug("Got", jsonIn);
+                        return jsonIn;
                     }
                     catch (Exception ex) {
                         LOGGER.Warn("Failed reading incoming data:", ex);
@@ -69,25 +59,23 @@ namespace SiWatchApp.Services
             return null;
         }
 
-        public async Task<SyncPacket> Send(SyncPacket packet)
+        public async Task<string> Send(string json)
         {
-            packet.DeviceId = _settings.DeviceId;
-            
             Exception lastException = null;
-            int attempts = _settings.SendRetryCount;
-            using (var httpClient = new HttpClient { BaseAddress = new Uri(_settings.ApiUrl) }) {
+            int attempts = _settings.SyncSendRetryCount;
+            using (var httpClient = new HttpClient { BaseAddress = new Uri(_settings.ApiUrl), Timeout = _settings.SyncSendHttpTimeout }) {
                 while (attempts-- >= 0) {
                     try {
-                        return await TrySend(httpClient, packet);
+                        return await TrySend(httpClient, json);
                     }
                     catch (HttpRequestException ex) {
                         lastException = ex;
                         if (attempts < 0) {
                             LOGGER.Warn("Failed sending packet");
                         } else {
-                            LOGGER.Warn($"Failed sending packet. Will retry after {(int)_settings.SendRetryDelay.TotalMilliseconds}ms");
+                            LOGGER.Warn($"Failed sending packet. Will retry after {(int)_settings.SyncSendRetryDelay.TotalMilliseconds}ms");
                         }
-                        await Task.Delay(_settings.SendRetryDelay);
+                        await Task.Delay(_settings.SyncSendRetryDelay);
                     }
                     catch (Exception ex) {
                         lastException = ex;

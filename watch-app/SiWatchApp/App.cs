@@ -13,6 +13,7 @@ using SiWatchApp.Logging;
 using SiWatchApp.Models;
 using SiWatchApp.Queue;
 using SiWatchApp.Services;
+using SiWatchApp.System;
 using Tizen.Applications;
 using Tizen.System;
 using Application = Xamarin.Forms.Application;
@@ -70,12 +71,14 @@ namespace SiWatchApp
         private void OnStartFinishRequest(object sender, EventArgs e)
         {
             if (_started) {
+                DevicePower.ReleaseLock(PowerLock.DisplayNormal);
                 _actionEventSource?.Signal("RouteFinish", EventPriority.Urgent);
                 _started = false;
                 _mainPage.SetStartFinishText("START");
                 _monitoringService?.Stop();
             }
             else {
+                DevicePower.RequestLock(PowerLock.DisplayNormal, TimeSpan.Zero);
                 _actionEventSource?.Signal("RouteStart", EventPriority.Urgent);
                 _started = true;
                 _mainPage.SetStartFinishText("FINISH");
@@ -115,7 +118,7 @@ namespace SiWatchApp
         public async void Init()
         {
             LOGGER.Info("Init");
-
+            
             _uiScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
             Notification.Init();
 
@@ -133,7 +136,7 @@ namespace SiWatchApp
 
             _mainPage.SetStatus("Checking permissions...");
             try {
-                await _permissionManager.Demand("http://tizen.org/privilege/internet", "http://tizen.org/privilege/display");
+                await _permissionManager.Demand("http://tizen.org/privilege/internet", DevicePower.Privilege);
                 await LocationService.Instance.DemandPermission(_permissionManager);
             }
             catch (Exception ex) {
@@ -141,7 +144,7 @@ namespace SiWatchApp
                 Tizen.Applications.Application.Current.Exit();
                 return;
             }
-
+            
             try {
                 await FeedbackService.Instance.DemandPermission(_permissionManager);
             }
@@ -247,6 +250,9 @@ namespace SiWatchApp
 
         private void OnSynced(object sender, bool success)
         {
+            if (_settings.FeedbackSync) {
+                FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(80), 90);
+            }
             _mainPage.SetStatus(success ? "Sync OK" : "Sync FAILED");
         }
 

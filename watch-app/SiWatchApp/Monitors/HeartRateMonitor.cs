@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using Tizen.Sensor;
 
 namespace SiWatchApp.Monitors
@@ -16,10 +14,7 @@ namespace SiWatchApp.Monitors
         {
             if (IsSupported) {
                 if (_sensor == null) {
-                    _sensor = new Tizen.Sensor.HeartRateMonitor();
-                    _sensor.PausePolicy = SensorPausePolicy.None;
-                    _sensor.Interval = 100;
-                    //_sensor.TimeSpan = TimeSpan.FromMilliseconds(100);
+                    _sensor = new Tizen.Sensor.HeartRateMonitor { Interval = 1000 };
                     _sensor.DataUpdated += OnSensorDataUpdated;
                     _sensor.Start();
                 }

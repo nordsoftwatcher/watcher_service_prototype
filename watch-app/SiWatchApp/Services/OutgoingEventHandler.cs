@@ -56,7 +56,7 @@ namespace SiWatchApp.Services
                     Notification.ShowToast($"Delayed sending {eventRecord.EventType}!", TimeSpan.FromSeconds(1));
                     return;
                 }
-                Notification.ShowToast($"{eventRecord.EventType} sent!", TimeSpan.FromMilliseconds(800));
+                Notification.ShowToast($"{eventRecord.EventType} sent!", TimeSpan.FromMilliseconds(500));
             }
         }
 
