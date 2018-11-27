@@ -1,0 +1,7 @@
+.heartbeatLost {
+  color: var(--red);
+}
+
+.heartbeatFound {
+  color: var(--green);
+}

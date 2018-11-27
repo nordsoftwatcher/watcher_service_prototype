@@ -2,7 +2,7 @@ import { IRouteInstance, ITrackCoordiantes } from '../models/route-instance';
 
 export type Deviation = Array<{ point: ITrackCoordiantes; index: number }>;
 
-const deviationThreshold = 0.00025;
+const deviationThreshold = 0.0003;
 
 export function getDeviations(routeInstance?: IRouteInstance) {
   if (!routeInstance) {

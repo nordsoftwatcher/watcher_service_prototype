@@ -141,6 +141,10 @@ export class RouteTime extends React.Component<RouteTimeProps> {
       return null;
     }
 
+    if (!routeInstance.track[routeInstance.track.length - 1]) {
+      return null;
+    }
+
     const currentPos = DateTime.fromJSDate(routeInstance.track[routeInstance.track.length - 1].attributes.timestamp);
 
     const style: React.CSSProperties = {

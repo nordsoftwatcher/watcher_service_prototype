@@ -11,15 +11,18 @@ import { RouteReport } from './routing/components/route-report/RouteReport';
 import { IRouteInstance } from './routing/models/route-instance';
 import { IRoute } from './routing/models/route';
 import { IPerson } from './routing/models/person';
-import { OperatorRouteApiApi, OperatorDeviceApiApi } from './api/operator-api';
+import { OperatorRouteApiApi, OperatorDeviceApiApi, OperatorEventApiApi } from './api/operator-api';
 import { mapRoute } from './api-mappers/route';
 import { mapRouteInstance } from './api-mappers/route-instance';
 import { mapPerson } from './api-mappers/person';
 import { UUID } from './routing/models/uuid';
+import { ITrackEvent } from './routing/models/track-event';
+import { mapEvent } from './api-mappers/track-event';
 
 interface IAppState {
   route?: IRoute;
   routeInstance?: IRouteInstance;
+  events: ITrackEvent[];
   person?: IPerson;
   timestamp?: Date;
 }
@@ -28,18 +31,18 @@ class App extends Component<{}, IAppState> {
 
   static params = {
     deviceId: 'TEST_DEVICE',
-    routeId: 1,
-    startTimestamp: '2018-11-23T13:00:00Z',
+    routeId: 4,
     refreshIntervalMs: 1000,
   };
 
   private routeApi = new OperatorRouteApiApi();
   private deviceApi = new OperatorDeviceApiApi();
+  private eventsApi = new OperatorEventApiApi();
 
   constructor(props: {}) {
     super(props);
     this.state = {
-      timestamp: new Date(App.params.startTimestamp),
+      events: [],
     };
   }
 
@@ -56,11 +59,8 @@ class App extends Component<{}, IAppState> {
       });
     }
 
-    // setTimeout(() => {
-    //   this.watchRouteInstance();
-    // }, 1000);
-
-    this.fetchRouteInstance(App.params.routeId, undefined);
+    this.watchRouteInstance();
+    this.watchEvents();
   }
 
   private async fetchRouteInstance(routeId: UUID, timestamp?: Date) {
@@ -77,11 +77,35 @@ class App extends Component<{}, IAppState> {
     });
   }
 
-  watchRouteInstance() {
+  private watchRouteInstance() {
     setInterval(async () => {
       const { route, timestamp } = this.state;
 
       this.fetchRouteInstance(route!.id, timestamp);
+    }, App.params.refreshIntervalMs);
+  }
+
+  private async fetchEvents() {
+    const { person } = this.state;
+
+    if (!person) {
+      return;
+    }
+
+    const events = await this.eventsApi.getEventUsingGET(
+      undefined,
+      person.id,
+      undefined,
+    );
+
+    this.setState({
+      events: events.filter(x => !!x.latitude && !!x.longitude).map(mapEvent),
+    });
+  }
+
+  private watchEvents() {
+    setInterval(async () => {
+      this.fetchEvents();
     }, App.params.refreshIntervalMs);
   }
 
@@ -90,18 +114,18 @@ class App extends Component<{}, IAppState> {
   }
 
   render() {
-    const { route, routeInstance, person } = this.state;
+    const { route, routeInstance, person, events } = this.state;
     if (!route || !person) {
       return null;
     }
     return (
       <div className={classes.root}>
         <div className={classes.routeWidget}>
-          <RouteInstance route={route} routeInstance={routeInstance} person={person} />
+          <RouteInstance route={route} routeInstance={routeInstance} person={person} events={events} />
         </div>
-        <div className={classes.reportWidget}>
+        {/* <div className={classes.reportWidget}>
           {routeInstance && <RouteReport route={route} routeInstance={routeInstance} />}
-        </div>
+        </div> */}
       </div>
     );
   }
