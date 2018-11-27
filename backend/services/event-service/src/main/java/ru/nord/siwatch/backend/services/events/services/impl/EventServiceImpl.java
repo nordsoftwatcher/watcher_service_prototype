@@ -24,9 +24,6 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Override
     public Event createEvent(CreateEventInput createEventInput) {
         Event event = eventMapper.toEvent(createEventInput);
@@ -35,18 +32,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event getLastEventByTypeAndSupervisorId(String eventType, Long supervisorId) {
-        try {
-            Query query = entityManager.createQuery("SELECT event FROM Event event " +
-                    "WHERE event.eventType = :eventType and event.supervisorId = :supervisorId " +
-                    "ORDER BY event.deviceTime DESC");
-            query.setParameter("eventType", eventType);
-            query.setParameter("supervisorId", supervisorId);
-            query.setFirstResult(0);
-            query.setMaxResults(1);
-            return (Event) query.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        return eventRepository.findFirstByEventTypeAndSupervisorIdOrderByDeviceTimeDesc(eventType, supervisorId).orElse(null);
     }
 
     @Override

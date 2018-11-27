@@ -17,8 +17,9 @@ namespace SiWatchApp.Services
                     DeviceId = metadata["deviceId"],
                     ApiUrl = metadata["apiUrl"],
                     FeedbackSync = Boolean.Parse(metadata["feedbackSync"]),
-                    SendRetryCount = 3,
-                    SendRetryDelay = TimeSpan.FromSeconds(3)
+                    SendRetryCount = 0,
+                    SendRetryDelay = TimeSpan.FromSeconds(3),
+                    DefaultSyncPacketSize = 10
             };
         }
 

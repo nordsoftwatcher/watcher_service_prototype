@@ -4,8 +4,8 @@ using SiWatchApp.Models;
 
 namespace SiWatchApp.Queue
 {
-    public interface IPriorityQueue : IQueue
+    public interface IPriorityQueue<T> : IQueue<T> where T:class
     {
-        Task Put(object item, Priority priority);
+        Task Put(T item, Priority priority);
     }
 }

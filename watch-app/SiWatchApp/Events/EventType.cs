@@ -4,6 +4,6 @@ namespace SiWatchApp.Events
     {
         SOS,
         Message,
-        Action
+        Action,
     }
 }

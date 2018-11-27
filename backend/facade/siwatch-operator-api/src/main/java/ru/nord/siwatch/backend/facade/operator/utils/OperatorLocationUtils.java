@@ -32,7 +32,21 @@ public class OperatorLocationUtils {
 
     }
 
+    public static Integer calcTimeInMinutes(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime == null || endTime == null) {
+            return null;
+        }
+        Date arrivalTime = Date.from(startTime.toInstant(ZoneOffset.UTC));
+        Date departureTime = Date.from(endTime.toInstant(ZoneOffset.UTC));
+
+        return toIntExact(abs(departureTime.getTime() - arrivalTime.getTime()) / MINUTE);
+
+    }
+
     public static ArrivalDepartureInfo getArrivalAndDepartureTime(CheckPoint checkPoint, List<Location> locations) {
+        if (CollectionUtils.isEmpty(locations)) {
+            return null;
+        }
         LocalDateTime arrivalTime = null;
         LocalDateTime departureTime = null;
         for (Location location : locations) {
@@ -87,19 +101,33 @@ public class OperatorLocationUtils {
     }
 
     public static double distanceFromRouteLine(RoutePoint first, RoutePoint second, Location location) {
-        double numerator = abs(
-                (second.getLongitude() - first.getLongitude()) * location.getLatitude() -
-                (second.getLatitude() - first.getLatitude()) * location.getLongitude() +
-                (second.getLatitude() * first.getLongitude()) -
-                (second.getLongitude() * first.getLatitude())
-        );
-        double denominator = sqrt(pow(second.getLongitude() - first.getLongitude(), 2) + pow(second.getLatitude() - first.getLatitude(), 2));
+        return getDistance(first.getLatitude(), first.getLongitude(), second.getLatitude(), second.getLongitude(), location.getLatitude(), location.getLongitude());
+    }
 
-        if (denominator != 0) {
-            return numerator / denominator;
-        } else {
-            return 0;
-        }
+    private static double getDistance(double ax, double ay, double bx, double by, double x, double y) {
+        if ((ax == x && ay == y) || (bx == x && by == y)) return 0;
+
+        double AB = getDistanceBetweenPoints(ax, ay, bx, by);
+        double AC = getDistanceBetweenPoints(ax, ay, x, y);
+
+        if (AB == 0) return AC;
+
+        double BC = getDistanceBetweenPoints(bx, by, x, y);
+
+        if (isObtuseAngle(AC, BC, AB)) return BC;
+        if (isObtuseAngle(BC, AC, AB)) return AC;
+
+        double p = (AC + BC + AB) / 2;
+        return 2 * sqrt(p * (p - AB) * (p - BC) * (p - AC)) / AB;
+    }
+
+    private static double getDistanceBetweenPoints(double x1, double y1, double x2, double y2) {
+        return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+    }
+
+    private static boolean isObtuseAngle(double oppositeLine, double a, double b) {
+        double cos = (a * a + b * b - oppositeLine * oppositeLine) / (2 * a * b);
+        return cos < 0;
     }
 
 }

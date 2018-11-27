@@ -60,26 +60,9 @@ public class OperatorDeviceApi extends ApiBase {
             Route route = routeService.getRouteById(recordSearchDto.getRouteId());
             if (route != null) {
                 /** Transform locations */
-                List<LocationDto> result = new ArrayList<>(locations.size());
-                for (Location location : locations) {
-                    LocationDto tempLocation = operatorMapper.toLocationDto(location);
-                    tempLocation.setRouteDistance(OperatorLocationUtils.distanceFromRoute(route, location));
-                    result.add(tempLocation);
-                }
+                List<LocationDto> result = routeService.transformLocations(locations, route);
                 /** Transform checkpoints */
-                List<CheckPointResultDto> checkPoints = new ArrayList<>(route.getCheckPoints().size());
-                for (CheckPoint checkPoint : route.getCheckPoints()) {
-                    CheckPointResultDto checkPointResultDto = operatorMapper.toCheckPointResultDto(checkPoint);
-                    ArrivalDepartureInfo arrivalDepartureInfo = OperatorLocationUtils.getArrivalAndDepartureTime(
-                            checkPoint, locations);
-                    if (arrivalDepartureInfo != null) {
-                        checkPoints.add(checkPointResultDto);
-                        checkPointResultDto.setFactArrivalTime(arrivalDepartureInfo.getArrivalTime());
-                        checkPointResultDto.setFactDepartureTime(arrivalDepartureInfo.getDepartureTime());
-                        checkPointResultDto.setArrivalTime(checkPoint.getArrivalTime());
-                        checkPointResultDto.setDepartureTime(checkPoint.getDepartureTime());
-                    }
-                }
+                List<CheckPointResultDto> checkPoints = routeService.transformCheckpoints(locations, route);
                 return new DeviceLocationOutput(result, checkPoints);
             } else {
                 throw new RuntimeException("Route with id " + recordSearchDto.getRouteId() + " hasn't been found");

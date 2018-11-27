@@ -4,19 +4,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.nord.siwatch.backend.facade.device.api.v1.dto.EventRecordDto;
-import ru.nord.siwatch.backend.facade.device.api.v1.dto.ProfileDto;
 import ru.nord.siwatch.backend.facade.device.api.v1.dto.DtoMapper;
+import ru.nord.siwatch.backend.facade.device.api.v1.dto.MessagePacketDto;
+import ru.nord.siwatch.backend.facade.device.api.v1.dto.ProfileDto;
 import ru.nord.siwatch.backend.facade.device.api.v1.dto.SyncPacketDto;
-import ru.nord.siwatch.backend.facade.device.models.MonitorRecord;
+import ru.nord.siwatch.backend.facade.device.models.MessagePacket;
+import ru.nord.siwatch.backend.facade.device.models.SyncPacket;
 import ru.nord.siwatch.backend.facade.device.services.DeviceProfileService;
+import ru.nord.siwatch.backend.facade.device.services.DeviceSyncService;
 
 import javax.validation.constraints.NotBlank;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Api(description = "DeviceApi")
 @RestController
@@ -26,12 +25,17 @@ public class DeviceApi extends ApiBase
 {
     static final String PATH = "device";
 
-    private final DeviceProfileService deviceProfileService;
+    private final DeviceProfileService profileService;
+    private final DeviceSyncService syncService;
     private final DtoMapper mapper;
 
-    public DeviceApi(DeviceProfileService deviceProfileService, DtoMapper mapper)
+    public DeviceApi(
+        DeviceProfileService profileService,
+        DeviceSyncService syncService,
+        DtoMapper mapper)
     {
-        this.deviceProfileService = deviceProfileService;
+        this.profileService = profileService;
+        this.syncService = syncService;
         this.mapper = mapper;
     }
 
@@ -39,28 +43,22 @@ public class DeviceApi extends ApiBase
     @GetMapping(value = "profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ProfileDto getProfile(@NotBlank String deviceId)
     {
-        log.info("Profile sent to "+ deviceId);
-        return mapper.getProfileDto(deviceProfileService.getDeviceProfile(deviceId));
+        log.info("Profile request by device '"+ Objects.toString(deviceId)+"'");
+        return mapper.getProfileDto(profileService.getDeviceProfile(deviceId));
     }
 
     @ApiOperation(value = "Синхронизация с устройством")
     @PutMapping(value = "sync", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public SyncPacketDto sync(@RequestBody SyncPacketDto packet)
+    public MessagePacketDto sync(@RequestBody SyncPacketDto inputDto)
     {
-        log.info("Sync: "+ Objects.toString(packet));
+        log.info("Sync receive: "+ Objects.toString(inputDto));
 
-        if(packet.getMonitors() != null) {
-            List<MonitorRecord> records = packet.getMonitors().stream().map(mapper::getMonitorRecord).collect(Collectors.toList());
-            deviceProfileService.saveMonitors(packet.getDeviceId(), records);
-        }
+        final SyncPacket packet = mapper.getSyncPacket(inputDto);
+        MessagePacket message = syncService.sync(packet);
 
-        SyncPacketDto response = new SyncPacketDto();
-        response.setTimestamp(ZonedDateTime.now());
-        //response.setEvents(new ArrayList<EventRecordDto>());
-        //EventRecordDto eventRecordDto = new EventRecordDto();
-        //eventRecordDto.setEventType(EventType.Message);
-        //eventRecordDto.setValue("It is "+new Date() + " now!");
-        //response.getEvents().add(eventRecordDto);
-        return response;
+        final MessagePacketDto outputDto = mapper.getMessagePacketDto(message);
+        log.info("Sync send: "+ Objects.toString(outputDto));
+
+        return outputDto;
     }
 }

@@ -1,10 +1,12 @@
+using System;
 using System.Threading.Tasks;
 
 namespace SiWatchApp.Queue
 {
-    public interface IQueue
+    public interface IQueue<T> : IDisposable where T: class
     {
-        Task Put(object item);
-        Task<object> Get();
+        Task Put(T item);
+        Task<T> Get();
+        int Count { get; }
     }
 }
