@@ -11,8 +11,11 @@ using SiWatchApp.Configuration;
 using SiWatchApp.Events;
 using SiWatchApp.Logging;
 using SiWatchApp.Models;
+using SiWatchApp.Queue;
 using SiWatchApp.Services;
-using Xamarin.Forms;
+using Tizen.Applications;
+using Tizen.System;
+using Application = Xamarin.Forms.Application;
 using Notification = SiWatchApp.UI.Notification;
 
 namespace SiWatchApp
@@ -23,7 +26,7 @@ namespace SiWatchApp
 
         private readonly MainPage _mainPage;
 
-        private readonly SynchronizationContextScheduler _synchronizationContextScheduler;
+        private readonly SynchronizationContextScheduler _uiScheduler;
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
         private SettingsService _settingsService;
@@ -32,6 +35,7 @@ namespace SiWatchApp
         private Settings _settings;
         private PermissionManager _permissionManager;
         private InMemoryBuffer<Record> _buffer;
+        private InMemoryPriorityQueue<TextMessage> _messageQueue;
         private MonitoringPolicyService _monitoringPolicyService;
         private MonitoringService _monitoringService;
         private SyncService _syncService;
@@ -46,42 +50,60 @@ namespace SiWatchApp
             _mainPage.SOSRequest += OnSOSRequest;
             _mainPage.ExitRequest += OnExitRequest;
             _mainPage.StartFinishRequest += OnStartFinishRequest;
+            _mainPage.ReadMessageRequest += OnReadMessageRequest;
 
-            _synchronizationContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+            _uiScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
             Notification.Init();
 
             MainPage = _mainPage;
+            Init();
+        }
+
+        private async void OnReadMessageRequest(object sender, EventArgs e)
+        {
+            if(_messageQueue == null)
+                return;
+
+            TextMessage message = await _messageQueue.Get();
+            if (message != null) {
+                Notification.ShowInfo("Incoming message", message.Text);
+            }
         }
 
         private bool _started = false;
         private void OnStartFinishRequest(object sender, EventArgs e)
         {
             if (_started) {
-                _actionEventSource?.Signal("STOP", EventPriority.Urgent);
+                _actionEventSource?.Signal("RouteFinish", EventPriority.Urgent);
                 _started = false;
                 _mainPage.SetStartFinishText("START");
+                _monitoringService?.Stop();
             }
             else {
-                _actionEventSource?.Signal("START", EventPriority.Urgent);
+                _actionEventSource?.Signal("RouteStart", EventPriority.Urgent);
                 _started = true;
-                _mainPage.SetStartFinishText("STOP");
+                _mainPage.SetStartFinishText("FINISH");
+                _monitoringService?.Start();
             }
         }
 
-        private async void OnExitRequest(object sender, EventArgs e)
+        private void Shutdown()
         {
-            var result = await Notification.ShowQuestion("Exit SiWatch?");
-            if (true != result)
-                return;
-
-            LOGGER.Info("Exiting...");
-
+            LOGGER.Info("Shutting down...");
+            if (_monitoringPolicyService != null) {
+                _monitoringPolicyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
+            }
             _monitoringService?.Dispose();
             _syncService?.Stop();
             _disposables?.ForEach(d => d.Dispose());
             LocationService.Instance.Dispose();
-            
+
             Tizen.Applications.Application.Current.Exit();
+        }
+
+        private void OnExitRequest(object sender, EventArgs e)
+        {
+            Notification.ShowQuestion("Exit SiWatch?", r => { if (true == r) Shutdown(); });
         }
 
         private void OnSOSRequest(object sender, EventArgs e)
@@ -89,23 +111,30 @@ namespace SiWatchApp
             _sosEventSource?.Signal("SOS!");
         }
 
-        protected override async void OnStart()
+        protected override void OnStart()
         {
             LOGGER.Info("OnStart");
+        }
+
+        private async void Init()
+        {
+            LOGGER.Info("Init");
             
             _settingsService = new SettingsService();
             _permissionManager = new PermissionManager();
             _buffer = new InMemoryBuffer<Record>();
             _disposables.Add(_buffer);
+            _messageQueue = new InMemoryPriorityQueue<TextMessage>();
+            _disposables.Add(_messageQueue);
 
             _mainPage.SetStatus("Loading settings...");
             _settings = await _settingsService.GetSettings();
-            _mainPage.SetDeviceId("DeviceID: " + _settings.DeviceId);
-            _mainPage.SetApiUrl("API: " + _settings.ApiUrl);
+            _mainPage.SetPolicyInfo("DeviceID: " + _settings.DeviceId);
+            _mainPage.SetApiUrl(_settings.ApiUrl);
 
             _mainPage.SetStatus("Checking permissions...");
             try {
-                await _permissionManager.Demand("http://tizen.org/privilege/internet");
+                await _permissionManager.Demand("http://tizen.org/privilege/internet", "http://tizen.org/privilege/display");
                 await LocationService.Instance.DemandPermission(_permissionManager);
             }
             catch (Exception ex) {
@@ -127,7 +156,7 @@ namespace SiWatchApp
                 _profile = await _profileService.GetProfile();
             }
             catch (Exception ex) {
-                await Notification.ShowInfo("Error", ex.Message);
+                await Notification.ShowInfo("Error", "Failed loading profile: "+ex.Message);
                 Tizen.Applications.Application.Current.Exit();
                 return;
             }
@@ -137,7 +166,7 @@ namespace SiWatchApp
                 await _profileService.CheckProfile(_profile, _permissionManager);
             }
             catch (Exception ex) {
-                await Notification.ShowInfo("Error", ex.Message);
+                await Notification.ShowInfo("Error", "Failed checking profile: " + ex.Message);
                 Tizen.Applications.Application.Current.Exit();
                 return;
             }
@@ -152,7 +181,7 @@ namespace SiWatchApp
                     Tizen.Applications.Application.Current.Exit();
                     return;
                 }
-                var sub0 = Observable.Interval(TimeSpan.FromSeconds(2), _synchronizationContextScheduler)
+                var sub0 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
                                      .Subscribe(_ => {
                                                     var location = LocationService.Instance.GetCurrentLocation();
                                                     var info = location == null ? "unknown" : "available";
@@ -167,13 +196,12 @@ namespace SiWatchApp
             }
 
             _monitoringPolicyService = new MonitoringPolicyService(_profile);
+            _monitoringPolicyService.MonitoringPolicyChanged += OnMonitoringPolicyChanged;
+            UpdateMonitoringPolicy();
+
             _monitoringService = new MonitoringService(_monitoringPolicyService, _buffer);
-            _disposables.Add(_monitoringService);
-
-            _incomingEventHandler = new IncomingEventHandler();
-
-            _syncService = new SyncService(_monitoringPolicyService, _buffer, _settings,
-                                           _incomingEventHandler.NotifyOn(_synchronizationContextScheduler));
+            _incomingEventHandler = new IncomingEventHandler(_messageQueue);
+            _syncService = new SyncService(_monitoringPolicyService, _buffer, _settings, _incomingEventHandler);
             _syncService.Synced += OnSynced;
 
             _outgoingEventHandler = new OutgoingEventHandler(_buffer, _syncService);
@@ -185,32 +213,48 @@ namespace SiWatchApp
             _actionEventSource = new ActionEventSource(LocationService.Instance);
             var sub2 = _actionEventSource.ObserveOn(TaskPoolScheduler.Default).Subscribe(_outgoingEventHandler);
             _disposables.Add(sub2);
+
+            var sub3 = Observable.Interval(TimeSpan.FromMilliseconds(1000), _uiScheduler).Subscribe(_ => {
+                    if (_messageQueue != null) _mainPage.ShowMessageButton(_messageQueue.Count > 0);
+                });
+            _disposables.Add(sub3);
             
-            _monitoringService.Start();
+            //_monitoringService.Start();
             _syncService.Start();
 
-            _mainPage.SetStatus("Working...");
-
+            _mainPage.SetStatus("Ready");
             _mainPage.EnableSOS(true);
             _mainPage.SetStartFinishText("START");
             _mainPage.EnableStartFinish(true);
 
-            var sub3 = Observable.Interval(TimeSpan.FromSeconds(2), _synchronizationContextScheduler)
+            var sub4 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
                                  .Subscribe(_ => {
-                                                _mainPage.SetStatus("Monitoring...");
-                                                _mainPage.SetBufferInfo($"Buffered {_buffer.Count} records");
+                                                _mainPage.SetStatus(_started ? "Monitoring..." : "Waiting...");
+                                                _mainPage.SetBufferInfo(_buffer.Count > 0 ? $"Buffered {_buffer.Count} records" : "Buffer is empty");
                                             });
-            _disposables.Add(sub3);
+            _disposables.Add(sub4);
         }
 
-        private void OnSynced(object sender, EventArgs e)
+        private void UpdateMonitoringPolicy()
         {
-            _mainPage.SetStatus("Synchronized");
+            var name = _monitoringPolicyService.CurrentMonitoringPolicyName;
+            _mainPage.SetPolicyInfo("Policy: "+ (name == null ? "OFF" : name+"%"));
+        }
+
+        private void OnMonitoringPolicyChanged(object sender, MonitoringPolicy e)
+        {
+            UpdateMonitoringPolicy();
+        }
+
+        private void OnSynced(object sender, bool success)
+        {
+            _mainPage.SetStatus(success ? "Sync OK" : "Sync FAILED");
         }
 
         protected override void OnSleep()
         {
             LOGGER.Info("OnSleep");
+            //Tizen.Applications.AppControl.SendLaunchRequest(new AppControl());
         }
 
         protected override void OnResume()

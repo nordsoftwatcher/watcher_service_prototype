@@ -4,7 +4,7 @@ import colors from '../../../colors.module.css';
 
 // import 'leaflet/dist/leaflet.css'
 import { Map, Marker, TileLayer, Polyline, Tooltip } from 'react-leaflet';
-import { IRoute } from '../../models/route';
+import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance } from '../../models/route-instance';
 import { routePointIcon, passedPointIcon, currentPosIcon } from './icons';
 import { UUID } from '../../models/uuid';
@@ -14,6 +14,7 @@ import { Coordinates } from '../../models/coordinates';
 interface RouteMapProps {
   route: IRoute;
   routeInstance?: IRouteInstance;
+  onCheckpointClick?(checkpoint: ICheckpoint): void;
 }
 
 interface RouteMapState {
@@ -38,6 +39,13 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
     return this.props.route.checkpoints.find(x => x.id === pointId);
   }
 
+  handleCheckpointClick = (checkpoint: ICheckpoint) => {
+    const { onCheckpointClick } = this.props;
+    if (onCheckpointClick) {
+      onCheckpointClick(checkpoint);
+    }
+  }
+
   render() {
     const { route, routeInstance } = this.props;
 
@@ -55,7 +63,12 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
           <Polyline positions={route.track} color={colors.blue} dashArray='1 7' />
 
           {route.checkpoints.map(point => (
-            <Marker position={point.coords} key={point.id} icon={routePointIcon}>
+            <Marker
+              position={point.coords}
+              key={point.id}
+              icon={routePointIcon}
+              onClick={() => this.handleCheckpointClick(point)}
+            >
               <Tooltip direction='bottom' className={styles.tooltip}>
                 {point.name}
               </Tooltip>
@@ -65,7 +78,12 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
           {routeInstance && routeInstance.chekpoints.map(p => {
             const point = this.getPointById(p.pointId)!;
             return (
-              <Marker position={point.coords} key={p.pointId} icon={passedPointIcon}>
+              <Marker
+                position={point.coords}
+                key={p.pointId}
+                icon={passedPointIcon}
+                onClick={() => this.handleCheckpointClick(point)}
+              >
                 <Tooltip direction='bottom' className={styles.tooltip}>
                   {point.name}
                 </Tooltip>

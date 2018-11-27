@@ -41,32 +41,34 @@ namespace SiWatchApp.Services
         private void ProcessMonitorValue(MonitorRecord record)
         {
             LOGGER.Debug($"{record}");
-            _buffer.Append(record, Priority.Normal);
+            try {
+                _buffer.Append(record, Priority.Normal);
+            }
+            catch (Exception ex) {
+                LOGGER.Error("Buffer error (Append)", ex);
+                throw;
+            }
         }
 
         private void Reconfigure(MonitoringPolicy policy)
         {
             lock (_sync) {
                 Unsubscribe();
-
-                if (policy == null) {
+                if (policy == null ) {
                     return;
                 }
-
                 if (_monitorFactory == null) {
                     return;
                 }
-
                 foreach (var monitorConfig in policy.Monitors) {
                     IMonitor monitor;
                     try {
                         monitor = _monitorFactory.GetMonitor(monitorConfig.Type);
                     }
                     catch (Exception ex) {
-                        LOGGER.Error($"{monitorConfig.Type} failed to start:", ex);
+                        LOGGER.Error($"{monitorConfig.Type} failed:", ex);
                         continue;
                     }
-
                     if (monitor != null) {
                         _subscriptions.Add(monitor.Observe(TimeSpan.FromSeconds(monitorConfig.PollInterval)).Subscribe(ProcessMonitorValue));
                     }

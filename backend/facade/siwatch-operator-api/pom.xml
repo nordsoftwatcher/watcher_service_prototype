@@ -24,27 +24,22 @@
         <dependency>
             <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>battery-monitoring-connector</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>heartrate-monitoring-connector</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 		<dependency>
             <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>location-monitoring-connector</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>route-connector</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>supervisor-connector</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ru.nord.siwatch.backend</groupId>

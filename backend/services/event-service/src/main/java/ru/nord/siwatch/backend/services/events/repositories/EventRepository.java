@@ -6,6 +6,7 @@ import ru.nord.siwatch.backend.services.events.entities.Event;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
@@ -33,4 +34,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT event FROM Event event WHERE event.supervisorId =?1 ORDER BY event.deviceTime DESC")
     List<Event> findAllBySupervisor(Long supervisorId);
 
+    Optional<Event> findFirstByEventTypeAndSupervisorIdOrderByDeviceTimeDesc(String eventType, Long supervisorId);
 }

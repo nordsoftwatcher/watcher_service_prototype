@@ -72,18 +72,21 @@ namespace SiWatchApp.Services
         public async Task<SyncPacket> Send(SyncPacket packet)
         {
             packet.DeviceId = _settings.DeviceId;
-
-            var attempts = _settings.SendRetryCount + 1;
+            
             Exception lastException = null;
-
+            int attempts = _settings.SendRetryCount;
             using (var httpClient = new HttpClient { BaseAddress = new Uri(_settings.ApiUrl) }) {
-                while (attempts-- > 0) {
+                while (attempts-- >= 0) {
                     try {
                         return await TrySend(httpClient, packet);
                     }
                     catch (HttpRequestException ex) {
                         lastException = ex;
-                        LOGGER.Warn("Failed sending packet. Will retry after " + _settings.SendRetryDelay.TotalMilliseconds + "ms");
+                        if (attempts < 0) {
+                            LOGGER.Warn("Failed sending packet");
+                        } else {
+                            LOGGER.Warn($"Failed sending packet. Will retry after {(int)_settings.SendRetryDelay.TotalMilliseconds}ms");
+                        }
                         await Task.Delay(_settings.SendRetryDelay);
                     }
                     catch (Exception ex) {

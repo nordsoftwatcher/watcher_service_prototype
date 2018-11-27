@@ -41,6 +41,14 @@
             <groupId>ru.nord.siwatch.backend</groupId>
             <artifactId>route-connector</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ru.nord.siwatch.backend</groupId>
+            <artifactId>event-connector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.nord.siwatch.backend</groupId>
+            <artifactId>supervisor-connector</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

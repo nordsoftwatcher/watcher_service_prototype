@@ -1,0 +1,14 @@
+.root {
+  display: flex;
+}
+
+.routeWidget {
+  flex: 3;
+  padding: 32px;
+}
+
+.reportWidget {
+  flex: 1;
+  padding: 32px;
+  padding-left: 0;
+}

@@ -14,5 +14,6 @@ export interface ICheckpoint {
   address: string;
   description: string;
   coords: Coordinates;
-  planTime?: number;
+  planArrival: Date;
+  planDeparute?: Date;
 }

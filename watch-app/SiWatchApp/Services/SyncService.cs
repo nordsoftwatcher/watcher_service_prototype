@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -8,7 +7,8 @@ using SiWatchApp.Buffer;
 using SiWatchApp.Configuration;
 using SiWatchApp.Logging;
 using SiWatchApp.Models;
-using SiWatchApp.Utils;
+
+// ReSharper disable InconsistentlySynchronizedField
 
 namespace SiWatchApp.Services
 {
@@ -20,22 +20,24 @@ namespace SiWatchApp.Services
 
         private readonly MonitoringPolicyService _policyService;
         private readonly IBuffer<Record> _buffer;
+        private readonly Settings _settings;
         private readonly IObserver<EventRecord> _incomingEventsObserver;
         private readonly SyncClient _syncClient;
-        private readonly Settings _settings;
-        private IDisposable _subscription = null;
+        private IDisposable _subscription;
 
-        public SyncService(MonitoringPolicyService policyService, IBuffer<Record> buffer, Settings settings, IObserver<EventRecord> incomingEventsObserver = null)
+        public SyncService(MonitoringPolicyService policyService,
+                IBuffer<Record> buffer,
+                Settings settings,
+                IObserver<EventRecord> incomingEventsObserver = null)
         {
             _buffer = buffer;
-            _incomingEventsObserver = incomingEventsObserver;
             _settings = settings;
-
-            _syncClient = new SyncClient(_settings);
+            _incomingEventsObserver = incomingEventsObserver;
             _policyService = policyService;
+            _syncClient = new SyncClient(_settings);
         }
 
-        private void HandleMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
+        private void OnMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
         {
             Reconfigure(mp);
         }
@@ -76,7 +78,7 @@ namespace SiWatchApp.Services
             LOGGER.Debug("Begin sync");
 
             IBlock<Record> recordBlock;
-            LOGGER.Debug($"Fetching {packetSize} records from buffer");
+            LOGGER.Debug($"Fetching {packetSize} records from buffer...");
             try {
                 recordBlock = _buffer.Get(packetSize);
             }
@@ -97,11 +99,13 @@ namespace SiWatchApp.Services
                 }
                 recordBlock = null;
 
-                ProcessIncomingPacket(incoming);
+                LOGGER.Debug("Sync done");
+                if (_settings.FeedbackSync) {
+                    FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(100), 80);
+                }
+                Synced?.Invoke(this, true);
 
-                LOGGER.Debug($"Sync OK");
-                FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(200), 50);
-                Synced?.Invoke(this, EventArgs.Empty);
+                ProcessIncomingPacket(incoming);
             }
             catch (Exception ex) {
                 LOGGER.Error("Sync error:", ex);
@@ -112,26 +116,26 @@ namespace SiWatchApp.Services
                     LOGGER.Error("Record block (Return) error:", ex1);
                     throw;
                 }
-                throw;
+                Synced?.Invoke(this, false);
             }
         }
 
         public Task ForceSync()
         {
-            return Sync(_policyService.CurrentMonitoringPolicy?.PacketSize ?? 10);
+            return Sync(_policyService.CurrentMonitoringPolicy?.PacketSize ?? _settings.DefaultSyncPacketSize);
         }
 
-        public event EventHandler Synced;
+        public event EventHandler<bool> Synced;
 
         private void Reconfigure(MonitoringPolicy policy)
         {
             lock (_sync) {
                 Unsubscribe();
-                if(policy == null)
-                    return;
-
-                _subscription = Observable.Interval(TimeSpan.FromSeconds(policy.SyncInterval), TaskPoolScheduler.Default)
-                                          .Subscribe(_ => Sync(policy.PacketSize));
+                if (policy != null) {
+                    _subscription = Observable
+                                    .Interval(TimeSpan.FromSeconds(policy.SyncInterval), TaskPoolScheduler.Default)
+                                    .Subscribe(_ => Sync(policy.PacketSize).Wait());
+                }
             }
         }
 
@@ -139,7 +143,7 @@ namespace SiWatchApp.Services
         {
             lock (_sync) {
                 if (_subscription == null) {
-                    _policyService.MonitoringPolicyChanged += HandleMonitoringPolicyChanged;
+                    _policyService.MonitoringPolicyChanged += OnMonitoringPolicyChanged;
                     Reconfigure(_policyService.CurrentMonitoringPolicy);
                     LOGGER.Debug("Started");
                 }
@@ -156,7 +160,7 @@ namespace SiWatchApp.Services
             lock (_sync) {
                 if (_subscription != null) {
                     Unsubscribe();
-                    _policyService.MonitoringPolicyChanged -= HandleMonitoringPolicyChanged;
+                    _policyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
                     LOGGER.Debug("Stopped");
                 }
             }

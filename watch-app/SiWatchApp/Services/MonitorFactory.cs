@@ -15,7 +15,7 @@ namespace SiWatchApp.Services
         
         public IMonitor GetMonitor(MonitorType type)
         {
-            IMonitor monitor = null;
+            IMonitor monitor;
             lock (_sync) {
                 if (_monitors == null) {
                     throw new ObjectDisposedException("MonitorFactory is disposed");
@@ -28,17 +28,17 @@ namespace SiWatchApp.Services
                         monitor = MonitorBuilder.CreateMonitor(type);
                     }
                     catch (Exception ex) {
-                        LOGGER.Error($"Failed creating monitor of type '{type}':", ex.ToString());
+                        LOGGER.Error($"Failed creating monitor of type '{type}':", ex);
                         throw;
                     }
 
                     if (monitor != null) {
                         if (!monitor.IsSupported) {
-                            LOGGER.Warn($"{monitor} is not available");
+                            LOGGER.Warn($"{monitor} is not supported");
                             return null;
                         }
-                        _monitors.Add(type, monitor);
                         monitor.Init();
+                        _monitors.Add(type, monitor);
                     }
                 }
             }

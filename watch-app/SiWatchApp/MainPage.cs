@@ -1,9 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using SiWatchApp.Events;
-using SiWatchApp.Services;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -12,11 +7,11 @@ namespace SiWatchApp
     public class MainPage : AppPage
     {
         private Label titleLabel = new Label() { FontSize = 7, TextColor = Color.LightCyan, HorizontalOptions = LayoutOptions.Center, Text = "SiWatch"};
-        private Label deviceIdLabel = new Label() { FontSize = 5, HorizontalOptions = LayoutOptions.Center };
-        private Label apiUrlLabel = new Label() { FontSize = 5, HorizontalOptions = LayoutOptions.Center };
-        private Button sosButton = new Button() { FontSize = 12, BackgroundColor = Color.Red, Text = "SOS", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
-        private Button startFinishButton = new Button() { FontSize = 9, BackgroundColor = Color.Blue, Text = "Action", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
-        private Label statusLabel = new Label() { FontSize = 5, TextColor = Color.DeepPink, HorizontalOptions = LayoutOptions.Center };
+        private Label policyLabel = new Label() { FontSize = 5, HorizontalOptions = LayoutOptions.Center };
+        private Label apiUrlLabel = new Label() { FontSize = 4, HorizontalOptions = LayoutOptions.Center };
+        private Button sosButton = new Button() { FontSize = 10, BackgroundColor = Color.Red, Text = " SOS ", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
+        private Button startFinishButton = new Button() { FontSize = 10, WidthRequest = 180, BackgroundColor = Color.Blue, Text = "Action", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
+        private Label statusLabel = new Label() { FontSize = 7, TextColor = Color.DeepPink, HorizontalOptions = LayoutOptions.Center };
         private Label locationLabel = new Label() { FontSize = 5, TextColor = Color.LightSeaGreen, HorizontalOptions = LayoutOptions.Center };
         private Label bufferLabel = new Label() { FontSize = 5, TextColor = Color.DeepSkyBlue, HorizontalOptions = LayoutOptions.Center };
         private Button exitButton = new Button() { FontSize = 9, HorizontalOptions = LayoutOptions.Center, Text = "Exit", IsEnabled = true};
@@ -26,18 +21,43 @@ namespace SiWatchApp
             var layout = new StackLayout() {
                     Spacing = 4,
                     VerticalOptions = LayoutOptions.Center,
-                    Children = { titleLabel, deviceIdLabel, apiUrlLabel, sosButton, startFinishButton, statusLabel, locationLabel, bufferLabel, exitButton }
+                    Children = { titleLabel, policyLabel, apiUrlLabel, sosButton, statusLabel, startFinishButton,  locationLabel, bufferLabel, exitButton }
             };
             Content = layout;
-
+            //FirstButton = new MenuItem() { Icon = new FileImageSource { File = "no.png", } };
+            //FirstButton.Clicked += (sender, args) => ExitRequest?.Invoke(this, EventArgs.Empty);
+            
             sosButton.Clicked += (sender, args) => SOSRequest?.Invoke(this, EventArgs.Empty);
             exitButton.Clicked += (sender, args) => ExitRequest?.Invoke(this, EventArgs.Empty);
             startFinishButton.Clicked += (sender, args) => StartFinishRequest?.Invoke(this, EventArgs.Empty);
         }
 
-        public void SetDeviceId(String deviceId)
+        public void ShowMessageButton(bool show)
         {
-            Invoke(() => deviceIdLabel.Text = deviceId ?? "<UNKNOWN>");
+            Invoke(() => {
+                    if (show) {
+                        if (SecondButton == null) {
+                            SecondButton = new MenuItem() { Icon = new FileImageSource { File = "message.png" } };
+                            SecondButton.Clicked += OnReadMessageRequest;
+                        }
+                    }
+                    else {
+                        if (SecondButton != null) {
+                            SecondButton.Clicked -= OnReadMessageRequest;
+                            SecondButton = null;
+                        }
+                    }
+                });
+        }
+
+        private void OnReadMessageRequest(object sender, EventArgs e)
+        {
+            ReadMessageRequest?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void SetPolicyInfo(String info)
+        {
+            Invoke(() => policyLabel.Text = info ?? "");
         }
 
         public void SetApiUrl(String apiUrl)
@@ -60,7 +80,6 @@ namespace SiWatchApp
             Invoke(() => locationLabel.Text = info ?? "");
         }
         
-
         public void EnableSOS(bool enabled)
         {
             Invoke(() => sosButton.IsVisible = enabled);
@@ -79,5 +98,6 @@ namespace SiWatchApp
         public event EventHandler ExitRequest;
         public event EventHandler SOSRequest;
         public event EventHandler StartFinishRequest;
+        public event EventHandler ReadMessageRequest;
     }
 }

@@ -12,7 +12,6 @@ export interface ICompletedCheckpoint {
   pointId: UUID;
   arrival: Date;
   departure?: Date;
-  factTime?: number;
 }
 
 export interface ITrackCoordiantes {
@@ -21,5 +20,6 @@ export interface ITrackCoordiantes {
 }
 
 export interface ITrackCoordinatesMeta {
+  timestamp: Date;
   distanceFromRoute: number;
 }

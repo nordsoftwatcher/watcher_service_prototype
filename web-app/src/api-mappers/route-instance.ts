@@ -1,5 +1,6 @@
 import { IRouteInstance, ICompletedCheckpoint, ITrackCoordiantes } from '../routing/models/route-instance';
 import { DeviceLocationOutput, CheckPointResultDto, LocationDto } from '../api/operator-api';
+import { mapDate } from './date';
 
 export function mapRouteInstance(dto: DeviceLocationOutput): IRouteInstance {
   const track = dto.locations ? dto.locations.map(mapLocation) : [];
@@ -16,9 +17,8 @@ export function mapRouteInstance(dto: DeviceLocationOutput): IRouteInstance {
 function mapCheckpoint(dto: CheckPointResultDto): ICompletedCheckpoint {
   return {
     pointId: dto.id,
-    arrival: dto.arrivalTime!,
-    departure: dto.departureTime,
-    factTime: dto.factTime,
+    arrival: mapDate(dto.factArrivalTime)!,
+    departure: mapDate(dto.factDepartureTime),
   };
 }
 
@@ -29,6 +29,7 @@ function mapLocation(dto: LocationDto): ITrackCoordiantes {
       lng: dto.longitude!,
     },
     attributes: {
+      timestamp: mapDate(dto.deviceTime)!,
       distanceFromRoute: dto.routeDistance!,
     },
   };

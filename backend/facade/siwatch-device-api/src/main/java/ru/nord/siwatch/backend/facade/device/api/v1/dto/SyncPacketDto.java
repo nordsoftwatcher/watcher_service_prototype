@@ -9,15 +9,9 @@ import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-@Getter @Setter @ToString
-public class SyncPacketDto
+@Getter @Setter @ToString(callSuper = true)
+public class SyncPacketDto extends MessagePacketDto
 {
-    @NotBlank
     private String deviceId;
-
-    private ZonedDateTime timestamp;
-
     private List<MonitorRecordDto> monitors;
-
-    private List<EventRecordDto> events;
 }

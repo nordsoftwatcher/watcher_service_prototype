@@ -190,10 +190,16 @@ export interface CheckPointResultDto {
     description?: string;
     /**
      * 
-     * @type {number}
+     * @type {Date}
      * @memberof CheckPointResultDto
      */
-    factTime?: number;
+    factArrivalTime?: Date;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CheckPointResultDto
+     */
+    factDepartureTime?: Date;
     /**
      * 
      * @type {number}
@@ -224,12 +230,6 @@ export interface CheckPointResultDto {
      * @memberof CheckPointResultDto
      */
     order?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof CheckPointResultDto
-     */
-    planTime?: number;
     /**
      * 
      * @type {number}
@@ -297,12 +297,6 @@ export interface CreateCheckPointInput {
      * @type {number}
      * @memberof CreateCheckPointInput
      */
-    planTime?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof CreateCheckPointInput
-     */
     radius: number;
 }
 
@@ -320,6 +314,12 @@ export interface CreateRouteInput {
     checkPoints?: Array<CreateCheckPointInput>;
     /**
      * 
+     * @type {Date}
+     * @memberof CreateRouteInput
+     */
+    endTime?: Date;
+    /**
+     * 
      * @type {string}
      * @memberof CreateRouteInput
      */
@@ -330,6 +330,12 @@ export interface CreateRouteInput {
      * @memberof CreateRouteInput
      */
     routePoints?: Array<CreateRoutePointInput>;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateRouteInput
+     */
+    startTime?: Date;
     /**
      * 
      * @type {number}
@@ -466,6 +472,12 @@ export interface Route {
     checkPoints?: Array<CheckPoint>;
     /**
      * 
+     * @type {Date}
+     * @memberof Route
+     */
+    endTime?: Date;
+    /**
+     * 
      * @type {number}
      * @memberof Route
      */
@@ -482,6 +494,12 @@ export interface Route {
      * @memberof Route
      */
     routePoints?: Array<RoutePoint>;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Route
+     */
+    startTime?: Date;
     /**
      * 
      * @type {string}
@@ -510,6 +528,12 @@ export interface RouteDto {
     checkPoints?: Array<CheckPoint>;
     /**
      * 
+     * @type {Date}
+     * @memberof RouteDto
+     */
+    endTime?: Date;
+    /**
+     * 
      * @type {number}
      * @memberof RouteDto
      */
@@ -526,6 +550,12 @@ export interface RouteDto {
      * @memberof RouteDto
      */
     routePoints?: Array<RoutePoint>;
+    /**
+     * 
+     * @type {Date}
+     * @memberof RouteDto
+     */
+    startTime?: Date;
     /**
      * 
      * @type {string}

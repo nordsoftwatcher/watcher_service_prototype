@@ -1,6 +1,7 @@
 import { Coordinates } from '../routing/models/coordinates';
 import { IRoute, ICheckpoint } from '../routing/models/route';
 import { RouteDto, CheckPoint, RoutePoint } from '../api/operator-api';
+import { mapDate } from './date';
 
 export function mapRoute(dto: RouteDto): IRoute {
   return {
@@ -17,11 +18,12 @@ function mapCheckpoint(dto: CheckPoint): ICheckpoint {
     address: dto.address!,
     description: dto.description!,
     name: dto.name!,
-    planTime: dto.planTime,
     coords: {
       lat: dto.latitude!,
       lng: dto.longitude!,
     },
+    planArrival: mapDate(dto.arrivalTime)!,
+    planDeparute: mapDate(dto.departureTime),
   };
 }
 
