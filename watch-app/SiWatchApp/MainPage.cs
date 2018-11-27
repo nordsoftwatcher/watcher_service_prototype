@@ -9,7 +9,7 @@ namespace SiWatchApp
         private Label titleLabel = new Label() { FontSize = 7, TextColor = Color.LightCyan, HorizontalOptions = LayoutOptions.Center, Text = "SiWatch"};
         private Label policyLabel = new Label() { FontSize = 5, HorizontalOptions = LayoutOptions.Center };
         private Label apiUrlLabel = new Label() { FontSize = 4, HorizontalOptions = LayoutOptions.Center };
-        private Button sosButton = new Button() { FontSize = 10, BackgroundColor = Color.Red, Text = " SOS ", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
+        private Button sosButton = new Button() { FontSize = 10, BackgroundColor = Color.Red, Text = "   SOS   ", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
         private Button startFinishButton = new Button() { FontSize = 10, WidthRequest = 180, BackgroundColor = Color.Blue, Text = "Action", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
         private Label statusLabel = new Label() { FontSize = 7, TextColor = Color.DeepPink, HorizontalOptions = LayoutOptions.Center };
         private Label locationLabel = new Label() { FontSize = 5, TextColor = Color.LightSeaGreen, HorizontalOptions = LayoutOptions.Center };

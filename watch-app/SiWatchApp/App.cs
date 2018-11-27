@@ -26,7 +26,7 @@ namespace SiWatchApp
 
         private readonly MainPage _mainPage;
 
-        private readonly SynchronizationContextScheduler _uiScheduler;
+        private SynchronizationContextScheduler _uiScheduler;
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
         private SettingsService _settingsService;
@@ -51,12 +51,8 @@ namespace SiWatchApp
             _mainPage.ExitRequest += OnExitRequest;
             _mainPage.StartFinishRequest += OnStartFinishRequest;
             _mainPage.ReadMessageRequest += OnReadMessageRequest;
-
-            _uiScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
-            Notification.Init();
-
+            
             MainPage = _mainPage;
-            Init();
         }
 
         private async void OnReadMessageRequest(object sender, EventArgs e)
@@ -116,10 +112,13 @@ namespace SiWatchApp
             LOGGER.Info("OnStart");
         }
 
-        private async void Init()
+        public async void Init()
         {
             LOGGER.Info("Init");
-            
+
+            _uiScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+            Notification.Init();
+
             _settingsService = new SettingsService();
             _permissionManager = new PermissionManager();
             _buffer = new InMemoryBuffer<Record>();
@@ -214,7 +213,7 @@ namespace SiWatchApp
             var sub2 = _actionEventSource.ObserveOn(TaskPoolScheduler.Default).Subscribe(_outgoingEventHandler);
             _disposables.Add(sub2);
 
-            var sub3 = Observable.Interval(TimeSpan.FromMilliseconds(1000), _uiScheduler).Subscribe(_ => {
+            var sub3 = Observable.Interval(TimeSpan.FromMilliseconds(2000), _uiScheduler).Subscribe(_ => {
                     if (_messageQueue != null) _mainPage.ShowMessageButton(_messageQueue.Count > 0);
                 });
             _disposables.Add(sub3);
@@ -238,7 +237,7 @@ namespace SiWatchApp
         private void UpdateMonitoringPolicy()
         {
             var name = _monitoringPolicyService.CurrentMonitoringPolicyName;
-            _mainPage.SetPolicyInfo("Policy: "+ (name == null ? "OFF" : name+"%"));
+            _mainPage.SetPolicyInfo("Power profile: "+ (name == null ? "OFF" : name+"%"));
         }
 
         private void OnMonitoringPolicyChanged(object sender, MonitoringPolicy e)

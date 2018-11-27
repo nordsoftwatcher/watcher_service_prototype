@@ -8,15 +8,18 @@ namespace SiWatchApp
         {
             base.OnCreate();
 
-            LoadApplication(new App());
+            var app = new App();
+            LoadApplication(app);
+
+            app.Init();
         }
 
         static void Main(string[] args)
         {
-            var app = new Program();
-            global::Xamarin.Forms.Platform.Tizen.Forms.Init(app);
+            var program = new Program();
+            global::Xamarin.Forms.Platform.Tizen.Forms.Init(program);
             global::Tizen.Wearable.CircularUI.Forms.Renderer.FormsCircularUI.Init();
-            app.Run(args);
+            program.Run(args);
         }
     }
 }
