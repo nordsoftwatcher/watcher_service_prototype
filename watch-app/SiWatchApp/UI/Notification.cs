@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -38,41 +39,48 @@ namespace SiWatchApp.UI
                                            popup.Dismiss();
                                            tcs.SetResult(false);
                                        };
-            //popup.Show();
-            //Device.BeginInvokeOnMainThread(() => popup.Show());
-            sc.Post(_ => popup.Show(), null);
+
+            if (Device.IsInvokeRequired) {
+                //popup.Show();
+                Device.BeginInvokeOnMainThread(() => popup.Show());
+                //sc.Post(_ => popup.Show(), null);
+            }
+            else {
+                popup.Show();
+            }
 
             return tcs.Task;
         }
 
-        public static Task<bool?> ShowQuestion(string question, string yes = "Yes", string no = "No")
+        public static void ShowQuestion(string question, Action<bool?> callback, string yes = "Yes", string no = "No")
         {
-            TaskCompletionSource<bool?> tcs = new TaskCompletionSource<bool?>();
-
             var popup = new TwoButtonPopup {
-                    Title = "Question",
+                    //Title = "Question",
                     FirstButton = new MenuItem() { Text = no, Icon = new FileImageSource { File = "no.png", }, },
                     SecondButton = new MenuItem() { Text = yes, Icon = new FileImageSource { File = "yes.png", }, },
                     Content = new Label() {  Text = question, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center}
             };
             popup.FirstButton.Clicked += (sender, args) => {
                                               popup.Dismiss();
-                                              tcs.SetResult(false);
+                                              callback(false);
                                           };
             popup.SecondButton.Clicked += (sender, args) => {
                                              popup.Dismiss();
-                                             tcs.SetResult(true);
+                                             callback(true);
                                          };
             popup.BackButtonPressed += (sender, args) => {
                                            popup.Dismiss();
-                                           tcs.SetResult(null);
+                                           callback(null);
                                        };
 
-            //popup.Show();
-            //Device.BeginInvokeOnMainThread(() => popup.Show());
-            sc.Post(_ => popup.Show(), null);
-
-            return tcs.Task;
+            if (Device.IsInvokeRequired) {
+                //popup.Show();
+                Device.BeginInvokeOnMainThread(() => popup.Show());
+                //sc.Post(_ => popup.Show(), null);
+            }
+            else {
+                popup.Show();
+            }
         }
     }
 }

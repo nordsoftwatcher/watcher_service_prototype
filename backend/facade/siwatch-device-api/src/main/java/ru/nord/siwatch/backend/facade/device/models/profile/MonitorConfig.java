@@ -1,7 +1,8 @@
-package ru.nord.siwatch.backend.facade.device.models;
+package ru.nord.siwatch.backend.facade.device.models.profile;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.nord.siwatch.backend.facade.device.models.monitoring.MonitorType;
 
 import java.time.Duration;
 

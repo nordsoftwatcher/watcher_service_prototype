@@ -1,9 +1,11 @@
 package ru.nord.siwatch.backend.connectors.event;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.nord.siwatch.backend.connectors.event.models.Event;
@@ -28,7 +30,7 @@ public class EventConnector {
     }
 
     public Event getLastEventByTypeAndSupervisorId(String eventType, Long supervisorId) {
-        return restTemplate.getForObject("/event/" + eventType + "/" + supervisorId, Event.class);
+        return restTemplate.getForObject("/event/" + eventType + "/supervisor/" + supervisorId, Event.class);
     }
 
     public List<Event> find(Long supervisorId, LocalDateTime fromTime, LocalDateTime toTime) {

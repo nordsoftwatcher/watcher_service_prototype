@@ -9,5 +9,6 @@ namespace SiWatchApp.Configuration
         public bool FeedbackSync { get; set; }
         public int SendRetryCount { get; set; }
         public TimeSpan SendRetryDelay { get; set; }
+        public int DefaultSyncPacketSize { get; set; }
     }
 }

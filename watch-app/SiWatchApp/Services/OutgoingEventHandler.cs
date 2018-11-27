@@ -53,10 +53,10 @@ namespace SiWatchApp.Services
                     await _syncService.ForceSync();
                 }
                 catch (Exception) {
-                    Notification.ShowToast("Failed sending urgent event!", TimeSpan.FromSeconds(3));
+                    Notification.ShowToast($"Delay sending {eventRecord.EventType}!", TimeSpan.FromSeconds(1));
                     return;
                 }
-                Notification.ShowToast("Urgent event sent successfully!", TimeSpan.FromSeconds(3));
+                Notification.ShowToast($"{eventRecord.EventType} sent!", TimeSpan.FromSeconds(1));
             }
         }
 

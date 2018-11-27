@@ -4,10 +4,10 @@
     <ui-application appid="ru.nord.siwatch.SiWatchApp" exec="SiWatchApp.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
         <label>SiWatchApp</label>
         <icon>SiWatchApp.png</icon>
-        <metadata key="http://tizen.org/metadata/prefer_dotnet_aot" value="true" />
         <metadata key="deviceId" value="TEST_DEVICE" />
-        <metadata key="apiUrl" value="http://192.168.1.46:8081/api/v1/device/" />
         <metadata key="feedbackSync" value="true" />
+        <metadata key="apiUrl" value="http://192.168.1.46:9020/api/v1/device/" />
+        <metadata key="http://tizen.org/metadata/prefer_dotnet_aot" value="false" />
         <background-category value="background-network" />
         <background-category value="location" />
         <background-category value="sensor" />
@@ -21,6 +21,7 @@
         <privilege>http://tizen.org/privilege/healthinfo</privilege>
         <privilege>http://tizen.org/privilege/systemmonitor</privilege>
         <privilege>http://tizen.org/privilege/haptic</privilege>
+        <privilege>http://tizen.org/privilege/display</privilege>
     </privileges>
     <provides-appdefined-privileges />
     <feature name="http://tizen.org/feature/battery">true</feature>

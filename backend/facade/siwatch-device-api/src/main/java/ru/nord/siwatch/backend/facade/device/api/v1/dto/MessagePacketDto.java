@@ -3,14 +3,15 @@ package ru.nord.siwatch.backend.facade.device.api.v1.dto;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import ru.nord.siwatch.backend.facade.device.models.monitoring.MonitorType;
+import ru.nord.siwatch.backend.facade.device.models.events.EventRecord;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Getter @Setter @ToString
-public class MonitorRecordDto
+public class MessagePacketDto
 {
-    private MonitorType monitorType;
     private ZonedDateTime timestamp;
-    private Object value;
+    private List<EventRecordDto> events;
 }

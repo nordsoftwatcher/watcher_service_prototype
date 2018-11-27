@@ -12,12 +12,11 @@ namespace SiWatchApp.Services
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(MonitoringPolicyService));
 
         private readonly List<MonitoringPolicy> _policies;
-        private MonitoringPolicy _currentMonitoringPolicy;
 
         public MonitoringPolicyService(Profile profile)
         {
             _policies = profile.Monitoring.Where(m => m != null).OrderByDescending(m => m.MinBatteryLevel).ToList();
-            _currentMonitoringPolicy = ChooseMonitoringPolicy();
+            CurrentMonitoringPolicy = ChooseMonitoringPolicy();
             LogCurrentMonitoringPolicy();
 
             Battery.PercentChanged += Battery_PercentChanged;
@@ -25,28 +24,41 @@ namespace SiWatchApp.Services
 
         private MonitoringPolicy ChooseMonitoringPolicy()
         {
-            return _policies.FirstOrDefault(m => m.MinBatteryLevel <= Battery.Percent);
+            return _policies.FirstOrDefault(m => m.MinBatteryLevel < Battery.Percent);
         }
 
         private void LogCurrentMonitoringPolicy()
         {
-            if(_currentMonitoringPolicy == null)
-                LOGGER.Info("Monitoring off");
-            else
-                LOGGER.Info($"Monitoring policy is '>{_currentMonitoringPolicy.MinBatteryLevel}%'");
+            var currentMonitoringPolicyName = CurrentMonitoringPolicyName;
+            LOGGER.Info(currentMonitoringPolicyName == null ? "Monitoring off" : $"Current monitoring policy is '{currentMonitoringPolicyName}%'");
         }
 
         private void Battery_PercentChanged(object sender, BatteryPercentChangedEventArgs e)
         {
             var mp = ChooseMonitoringPolicy();
-            if (!ReferenceEquals(_currentMonitoringPolicy, mp)) {
-                _currentMonitoringPolicy = mp;
+            if (!ReferenceEquals(CurrentMonitoringPolicy, mp)) {
+                CurrentMonitoringPolicy = mp;
                 LogCurrentMonitoringPolicy();
                 MonitoringPolicyChanged?.Invoke(this, mp);
             }
         }
 
-        public MonitoringPolicy CurrentMonitoringPolicy => _currentMonitoringPolicy;
+        public string CurrentMonitoringPolicyName
+        {
+            get {
+                var policy = CurrentMonitoringPolicy;
+                var index = _policies.FindIndex(p => p == policy);
+                if (index < 0) {
+                    return null;
+                }
+                if (index == 0) {
+                    return "100~" + policy.MinBatteryLevel;
+                }
+                return _policies[index - 1].MinBatteryLevel + "~" + policy.MinBatteryLevel;
+            }
+        }
+
+        public MonitoringPolicy CurrentMonitoringPolicy { get; private set; }
 
         public event EventHandler<MonitoringPolicy> MonitoringPolicyChanged;
     }

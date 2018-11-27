@@ -1,4 +1,4 @@
-package ru.nord.siwatch.backend.facade.device.models;
+package ru.nord.siwatch.backend.facade.device.models.profile;
 
 import lombok.Getter;
 import lombok.Setter;

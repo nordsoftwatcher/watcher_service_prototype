@@ -44,7 +44,8 @@ public class EventApi extends ApiBase {
     @GetMapping("/{eventType}/supervisor/{supervisorId}")
     public EventDto getLastEventByTypeAndSupervisorId(@PathVariable("eventType") String eventType, @PathVariable("supervisorId") Long supervisorId) {
         Event lastEvent = eventService.getLastEventByTypeAndSupervisorId(eventType, supervisorId);
-        return lastEvent != null ? eventMapper.toEventDto(lastEvent) : null;
+        EventDto eventDto = eventMapper.toEventDto(lastEvent);
+        return eventDto;
     }
 
     @ApiOperation(value = "Получение событий за временной интервал")

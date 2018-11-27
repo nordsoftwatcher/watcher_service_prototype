@@ -12,6 +12,7 @@ using SiWatchApp.Events;
 using SiWatchApp.Logging;
 using SiWatchApp.Models;
 using SiWatchApp.Services;
+using Tizen.System;
 using Xamarin.Forms;
 using Notification = SiWatchApp.UI.Notification;
 
@@ -23,7 +24,7 @@ namespace SiWatchApp
 
         private readonly MainPage _mainPage;
 
-        private readonly SynchronizationContextScheduler _synchronizationContextScheduler;
+        private readonly SynchronizationContextScheduler _uiScheduler;
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
         private SettingsService _settingsService;
@@ -47,7 +48,7 @@ namespace SiWatchApp
             _mainPage.ExitRequest += OnExitRequest;
             _mainPage.StartFinishRequest += OnStartFinishRequest;
 
-            _synchronizationContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+            _uiScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
             Notification.Init();
 
             MainPage = _mainPage;
@@ -57,31 +58,36 @@ namespace SiWatchApp
         private void OnStartFinishRequest(object sender, EventArgs e)
         {
             if (_started) {
-                _actionEventSource?.Signal("STOP", EventPriority.Urgent);
+                _actionEventSource?.Signal("RouteFinish", EventPriority.Urgent);
                 _started = false;
                 _mainPage.SetStartFinishText("START");
+                _monitoringService?.Stop();
             }
             else {
-                _actionEventSource?.Signal("START", EventPriority.Urgent);
+                _actionEventSource?.Signal("RouteStart", EventPriority.Urgent);
                 _started = true;
-                _mainPage.SetStartFinishText("STOP");
+                _mainPage.SetStartFinishText("FINISH");
+                _monitoringService?.Start();
             }
         }
 
-        private async void OnExitRequest(object sender, EventArgs e)
+        private void Shutdown()
         {
-            var result = await Notification.ShowQuestion("Exit SiWatch?");
-            if (true != result)
-                return;
-
-            LOGGER.Info("Exiting...");
-
+            LOGGER.Info("Shutting down...");
+            if (_monitoringPolicyService != null) {
+                _monitoringPolicyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
+            }
             _monitoringService?.Dispose();
             _syncService?.Stop();
             _disposables?.ForEach(d => d.Dispose());
             LocationService.Instance.Dispose();
-            
+
             Tizen.Applications.Application.Current.Exit();
+        }
+
+        private void OnExitRequest(object sender, EventArgs e)
+        {
+            Notification.ShowQuestion("Exit SiWatch?", r => { if (true == r) Shutdown(); });
         }
 
         private void OnSOSRequest(object sender, EventArgs e)
@@ -100,12 +106,12 @@ namespace SiWatchApp
 
             _mainPage.SetStatus("Loading settings...");
             _settings = await _settingsService.GetSettings();
-            _mainPage.SetDeviceId("DeviceID: " + _settings.DeviceId);
-            _mainPage.SetApiUrl("API: " + _settings.ApiUrl);
+            _mainPage.SetPolicyInfo("DeviceID: " + _settings.DeviceId);
+            _mainPage.SetApiUrl(_settings.ApiUrl);
 
             _mainPage.SetStatus("Checking permissions...");
             try {
-                await _permissionManager.Demand("http://tizen.org/privilege/internet");
+                await _permissionManager.Demand("http://tizen.org/privilege/internet", "http://tizen.org/privilege/display");
                 await LocationService.Instance.DemandPermission(_permissionManager);
             }
             catch (Exception ex) {
@@ -152,7 +158,7 @@ namespace SiWatchApp
                     Tizen.Applications.Application.Current.Exit();
                     return;
                 }
-                var sub0 = Observable.Interval(TimeSpan.FromSeconds(2), _synchronizationContextScheduler)
+                var sub0 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
                                      .Subscribe(_ => {
                                                     var location = LocationService.Instance.GetCurrentLocation();
                                                     var info = location == null ? "unknown" : "available";
@@ -167,13 +173,12 @@ namespace SiWatchApp
             }
 
             _monitoringPolicyService = new MonitoringPolicyService(_profile);
+            _monitoringPolicyService.MonitoringPolicyChanged += OnMonitoringPolicyChanged;
+            UpdateMonitoringPolicy();
+
             _monitoringService = new MonitoringService(_monitoringPolicyService, _buffer);
-            _disposables.Add(_monitoringService);
-
             _incomingEventHandler = new IncomingEventHandler();
-
-            _syncService = new SyncService(_monitoringPolicyService, _buffer, _settings,
-                                           _incomingEventHandler.NotifyOn(_synchronizationContextScheduler));
+            _syncService = new SyncService(_monitoringPolicyService, _buffer, _settings, _incomingEventHandler.NotifyOn(_uiScheduler));
             _syncService.Synced += OnSynced;
 
             _outgoingEventHandler = new OutgoingEventHandler(_buffer, _syncService);
@@ -186,26 +191,36 @@ namespace SiWatchApp
             var sub2 = _actionEventSource.ObserveOn(TaskPoolScheduler.Default).Subscribe(_outgoingEventHandler);
             _disposables.Add(sub2);
             
-            _monitoringService.Start();
+            //_monitoringService.Start();
             _syncService.Start();
 
-            _mainPage.SetStatus("Working...");
-
+            _mainPage.SetStatus("Ready");
             _mainPage.EnableSOS(true);
             _mainPage.SetStartFinishText("START");
             _mainPage.EnableStartFinish(true);
 
-            var sub3 = Observable.Interval(TimeSpan.FromSeconds(2), _synchronizationContextScheduler)
+            var sub3 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
                                  .Subscribe(_ => {
-                                                _mainPage.SetStatus("Monitoring...");
-                                                _mainPage.SetBufferInfo($"Buffered {_buffer.Count} records");
+                                                _mainPage.SetStatus(_started ? "Monitoring..." : "Waiting...");
+                                                _mainPage.SetBufferInfo(_buffer.Count > 0 ? $"Buffered {_buffer.Count} records" : "Buffer is empty");
                                             });
             _disposables.Add(sub3);
         }
 
-        private void OnSynced(object sender, EventArgs e)
+        private void UpdateMonitoringPolicy()
         {
-            _mainPage.SetStatus("Synchronized");
+            var name = _monitoringPolicyService.CurrentMonitoringPolicyName;
+            _mainPage.SetPolicyInfo("Policy: "+ (name == null ? "OFF" : name+"%"));
+        }
+
+        private void OnMonitoringPolicyChanged(object sender, MonitoringPolicy e)
+        {
+            UpdateMonitoringPolicy();
+        }
+
+        private void OnSynced(object sender, bool success)
+        {
+            _mainPage.SetStatus(success ? "Sync OK" : "Sync FAILED");
         }
 
         protected override void OnSleep()
