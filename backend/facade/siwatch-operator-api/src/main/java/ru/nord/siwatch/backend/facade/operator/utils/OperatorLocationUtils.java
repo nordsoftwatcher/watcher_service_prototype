@@ -65,7 +65,7 @@ public class OperatorLocationUtils {
 
     public static Integer calcTimeInMinutes(LocalDateTime startTime, LocalDateTime endTime) {
         if (startTime == null || endTime == null) {
-            return null;
+            return 0;
         }
         Date arrivalTime = Date.from(startTime.toInstant(ZoneOffset.UTC));
         Date departureTime = Date.from(endTime.toInstant(ZoneOffset.UTC));

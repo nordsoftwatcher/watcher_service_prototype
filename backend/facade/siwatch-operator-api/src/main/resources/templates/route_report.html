@@ -114,6 +114,17 @@
         <span>Конец маршрута : <b
                 th:text="${#dates.format(routeEndTime, 'dd-MMM-yyyy HH:mm')}"></b></span><br>
 
+        <span>Общее планируемое время в пути (мин.) : <b th:text="${totalIntervalTime}"></b></span><br>
+        <span class="error" th:if="${totalIntervalTime < factTotalIntervalTime}">Общее фактическое время в пути (мин.) :
+            <b th:text="${factTotalIntervalTime}"></b><br>
+        </span>
+        <span class="success" th:if="${totalIntervalTime >= factTotalIntervalTime}">Общее фактическое время в пути (мин.) :
+            <b th:text="${factTotalIntervalTime}"></b><br>
+        </span>
+
+        <b class="error" th:if="${checkPointNotPassedCount != 0}">Маршрут не пройден</b>
+        <b class="success" th:if="${checkPointNotPassedCount == 0}">Маршрут пройден</b>
+
         <h3>Информация о пунктах назначения</h3>
         <table>
             <tr>
@@ -135,9 +146,13 @@
         </table>
 
         <h3>Информация о пройденых пунктах</h3>
-        <span>Количество пройденных пунктов : <b th:text="${checkPointPassedCount}"></b></span><br>
-        <span>Количество непройденных пунктов : <b
-                th:text="${checkPointNotPassedCount}"></b></span><br>
+        <span class="success">Количество пройденных пунктов : <b th:text="${checkPointPassedCount}"></b></span><br>
+        <span class="error" th:if="${checkPointNotPassedCount != 0}">
+            Количество непройденных пунктов : <b th:text="${checkPointNotPassedCount}"></b><br>
+        </span>
+        <span class="success" th:if="${checkPointNotPassedCount == 0}">
+            Количество непройденных пунктов : <b th:text="${checkPointNotPassedCount}"></b><br>
+        </span>
         <table>
             <tr>
                 <th>Пункт назначения</th>

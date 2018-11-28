@@ -67,17 +67,52 @@ public class OperatorReportController extends ApiBase {
         List<LocationDto> transformedLocations = routeService.transformLocations(locations, route);
         List<CheckPointResultDto> checkPointsResults = routeService.transformCheckpoints(locations, route);
         List<CheckPointPassedDto> checkPointPassedInfos = getCheckPointPassedInformation(checkPointsResults, route.getCheckPoints());
+        List<RouteIntervalDto> routeIntervals = getRouteIntervals(route, locations, checkPointsResults);
         /** Set attributes */
         model.addAttribute("routeName", route.getName());
         model.addAttribute("supervisorName", supervisor.getName() + " " + supervisor.getMiddleName() + " " + supervisor.getLastName());
-        model.addAttribute("routeStartTime", route.getStartTime() != null ? Date.from(route.getStartTime().toInstant(ZoneOffset.UTC)) : null);
-        model.addAttribute("routeEndTime", route.getEndTime() != null ? Date.from(route.getEndTime().toInstant(ZoneOffset.UTC)) : null);
+        model.addAttribute("routeStartTime", getRouteStartTime(routeIntervals));
+        model.addAttribute("routeEndTime", getRouteEndTime(routeIntervals));
         model.addAttribute("routeDeviations", getRouteDeviations(transformedLocations));
         model.addAttribute("checkPointPassedInfos", checkPointPassedInfos);
         model.addAttribute("checkPointPassedCount", checkPointPassedInfos.stream().filter(checkPointPassed -> checkPointPassed.getPassed()).count());
         model.addAttribute("checkPointNotPassedCount", checkPointPassedInfos.stream().filter(checkPointPassed -> !checkPointPassed.getPassed()).count());
-        model.addAttribute("routeIntervals", getRouteIntervals(route, locations, checkPointsResults));
+        model.addAttribute("routeIntervals", routeIntervals);
+        model.addAttribute("totalIntervalTime", getTotalIntervalTime(routeIntervals));
+        model.addAttribute("factTotalIntervalTime", getFactTotalIntervalTime(routeIntervals));
         return "route_report";
+    }
+
+    private Integer getTotalIntervalTime(List<RouteIntervalDto> routeIntervals) {
+        Integer result = 0;
+        for (RouteIntervalDto routeInterval : routeIntervals) {
+            result += (routeInterval.getPlanTimeMinutes());
+        }
+        return result;
+    }
+
+    private Integer getFactTotalIntervalTime(List<RouteIntervalDto> routeIntervals) {
+        Integer result = 0;
+        for (RouteIntervalDto routeInterval : routeIntervals) {
+            result += (routeInterval.getFactTimeMinutes());
+        }
+        return result;
+    }
+
+    private Date getRouteStartTime(List<RouteIntervalDto> routeIntervals) {
+        if (CollectionUtils.isEmpty(routeIntervals)) {
+            return null;
+        }
+        RouteIntervalDto routeInterval = routeIntervals.get(0);
+        return routeInterval.getStartTime();
+    }
+
+    private Date getRouteEndTime(List<RouteIntervalDto> routeIntervals) {
+        if (CollectionUtils.isEmpty(routeIntervals)) {
+            return null;
+        }
+        RouteIntervalDto routeInterval = routeIntervals.get(routeIntervals.size() - 1);
+        return routeInterval.getEndTime();
     }
 
     private List<RouteDeviationDto> getRouteDeviations(List<LocationDto> locations) {
