@@ -120,14 +120,19 @@ public class OperatorReportController extends ApiBase {
                         OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getDepartureTime()),
                         OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactArrivalTime()),
                         OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactDepartureTime()),
-                        (checkPointResult.getFactArrivalTime() != null && checkPointResult.getFactDepartureTime() != null)
+                        OperatorLocationUtils.beforeDate(checkPointResult.getArrivalTime(), checkPointResult.getFactArrivalTime()),
+                        OperatorLocationUtils.beforeDate(checkPointResult.getDepartureTime(), checkPointResult.getFactDepartureTime()),
+                        OperatorLocationUtils.isCheckpointPassed(
+                                checkPointResult.getFactArrivalTime(),
+                                checkPointResult.getFactDepartureTime(),
+                                checkPointResult.getDepartureTime())
                 ));
             } else {
                 result.add(new CheckPointPassedDto(
                         checkPoint.getName(), checkPoint.getAddress(), checkPoint.getDescription(),
                         OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getArrivalTime()),
                         OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getDepartureTime()),
-                        null, null, false
+                        null, null,  false, false, false
                 ));
             }
         }

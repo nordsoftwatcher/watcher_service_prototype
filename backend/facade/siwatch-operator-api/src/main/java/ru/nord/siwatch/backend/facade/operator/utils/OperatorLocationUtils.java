@@ -21,6 +21,26 @@ public class OperatorLocationUtils {
     private static final long SECOND = 1000;
     private static final long MINUTE = SECOND * 60;
 
+    public static boolean isCheckpointPassed(LocalDateTime factArrivalTime, LocalDateTime factDepartureTime, LocalDateTime departureTime) {
+        if (factArrivalTime == null) {
+            return false;
+        }
+        if (factArrivalTime != null && factDepartureTime != null) {
+            return true;
+        }
+        if (factDepartureTime == null && departureTime == null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean beforeDate(LocalDateTime first, LocalDateTime second) {
+        if (first == null || second == null) {
+            return false;
+        }
+        return beforeDate(getDateFromLocalDateTime(first), getDateFromLocalDateTime(second));
+    }
+
     public static boolean beforeDate(Date first, Date second) {
         if (first == null || second == null) {
             return false;

@@ -141,8 +141,8 @@
         <table>
             <tr>
                 <th>Пункт назначения</th>
-                <th>Время прибытия</th>
-                <th>Время отбытия</th>
+                <th>Планируемое время прибытия</th>
+                <th>Планируемое время отбытия</th>
                 <th>Фактическое время прибытия</th>
                 <th>Фактическое время отбытия</th>
                 <th>Пройден</th>
@@ -152,8 +152,19 @@
                     <td th:text="${checkPointPassedInfo.name}"></td>
                     <td th:text="${#dates.format(checkPointPassedInfo.arrivalTime, 'dd-MMM-yyyy HH:mm')}"></td>
                     <td th:text="${#dates.format(checkPointPassedInfo.departureTime, 'dd-MMM-yyyy HH:mm')}"></td>
-                    <td th:text="${#dates.format(checkPointPassedInfo.factArrivalTime, 'dd-MMM-yyyy HH:mm')}"></td>
-                    <td th:text="${#dates.format(checkPointPassedInfo.factDepartureTime, 'dd-MMM-yyyy HH:mm')}"></td>
+                    <td th:if="${checkPointPassedInfo.arrivalLate == false}">
+                        <span class="success" th:text="${#dates.format(checkPointPassedInfo.factArrivalTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:if="${checkPointPassedInfo.arrivalLate == true}">
+                        <span class="error" th:text="${#dates.format(checkPointPassedInfo.factArrivalTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+
+                    <td th:if="${checkPointPassedInfo.departureLate == false}">
+                        <span class="success" th:text="${#dates.format(checkPointPassedInfo.factDepartureTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:if="${checkPointPassedInfo.departureLate == true}">
+                        <span class="error" th:text="${#dates.format(checkPointPassedInfo.factDepartureTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
                     <td>
                         <span class="success" th:if="${checkPointPassedInfo.passed == true}">Пройден</span>
                         <span class="error" th:if="${checkPointPassedInfo.passed == false}">Не пройден</span>
@@ -185,13 +196,11 @@
                           th:text="${#dates.format(routeInterval.factStartTime, 'dd-MMM-yyyy HH:mm')}"></span>
                     </td>
                     <td th:if="${routeInterval.arrivalLate == false}">
-                <span class="success"
-                      th:text="${#dates.format(routeInterval.factStartTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                        <span class="success" th:text="${#dates.format(routeInterval.factStartTime, 'dd-MMM-yyyy HH:mm')}"></span>
                     </td>
 
                     <td th:if="${routeInterval.departureLate == true}">
-                    <span class="error"
-                          th:text="${#dates.format(routeInterval.factEndTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                        <span class="error" th:text="${#dates.format(routeInterval.factEndTime, 'dd-MMM-yyyy HH:mm')}"></span>
                     </td>
                     <td th:if="${routeInterval.departureLate == false}">
                     <span class="success"
