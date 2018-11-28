@@ -393,6 +393,62 @@ export interface DeviceLocationOutput {
 /**
  * 
  * @export
+ * @interface Event
+ */
+export interface Event {
+    /**
+     * 
+     * @type {Date}
+     * @memberof Event
+     */
+    deviceTime?: Date;
+    /**
+     * 
+     * @type {string}
+     * @memberof Event
+     */
+    eventType?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Event
+     */
+    eventValue?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Event
+     */
+    id?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Event
+     */
+    latitude?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Event
+     */
+    longitude?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Event
+     */
+    recordTime?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof Event
+     */
+    supervisorId?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface LocationDto
  */
 export interface LocationDto {
@@ -860,6 +916,131 @@ export class OperatorDeviceApiApi extends BaseAPI {
      */
     public getDeviceLocationUsingGET(deviceId?: string, fromTime?: Date, routeId?: number, toTime?: Date, options?: any) {
         return OperatorDeviceApiApiFp(this.configuration).getDeviceLocationUsingGET(deviceId, fromTime, routeId, toTime, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * OperatorEventApiApi - fetch parameter creator
+ * @export
+ */
+export const OperatorEventApiApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Получение событий за временной интервал
+         * @param {Date} [fromTime] 
+         * @param {number} [supervisorId] 
+         * @param {Date} [toTime] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEventUsingGET(fromTime?: Date, supervisorId?: number, toTime?: Date, options: any = {}): FetchArgs {
+            const localVarPath = `/api/v1/operator/event`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, baseOptions, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (fromTime !== undefined) {
+                localVarQueryParameter['fromTime'] = (fromTime as any).toISOString();
+            }
+
+            if (supervisorId !== undefined) {
+                localVarQueryParameter['supervisorId'] = supervisorId;
+            }
+
+            if (toTime !== undefined) {
+                localVarQueryParameter['toTime'] = (toTime as any).toISOString();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OperatorEventApiApi - functional programming interface
+ * @export
+ */
+export const OperatorEventApiApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Получение событий за временной интервал
+         * @param {Date} [fromTime] 
+         * @param {number} [supervisorId] 
+         * @param {Date} [toTime] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEventUsingGET(fromTime?: Date, supervisorId?: number, toTime?: Date, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Event>> {
+            const localVarFetchArgs = OperatorEventApiApiFetchParamCreator(configuration).getEventUsingGET(fromTime, supervisorId, toTime, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * OperatorEventApiApi - factory interface
+ * @export
+ */
+export const OperatorEventApiApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @summary Получение событий за временной интервал
+         * @param {Date} [fromTime] 
+         * @param {number} [supervisorId] 
+         * @param {Date} [toTime] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEventUsingGET(fromTime?: Date, supervisorId?: number, toTime?: Date, options?: any) {
+            return OperatorEventApiApiFp(configuration).getEventUsingGET(fromTime, supervisorId, toTime, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * OperatorEventApiApi - object-oriented interface
+ * @export
+ * @class OperatorEventApiApi
+ * @extends {BaseAPI}
+ */
+export class OperatorEventApiApi extends BaseAPI {
+    /**
+     * 
+     * @summary Получение событий за временной интервал
+     * @param {Date} [fromTime] 
+     * @param {number} [supervisorId] 
+     * @param {Date} [toTime] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OperatorEventApiApi
+     */
+    public getEventUsingGET(fromTime?: Date, supervisorId?: number, toTime?: Date, options?: any) {
+        return OperatorEventApiApiFp(this.configuration).getEventUsingGET(fromTime, supervisorId, toTime, options)(this.fetch, this.basePath);
     }
 
 }

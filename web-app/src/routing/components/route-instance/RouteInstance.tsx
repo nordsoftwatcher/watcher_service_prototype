@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './RouteInstance.module.css';
+import colors from '../../../colors.module.css';
 
 import Scrollbars from 'react-custom-scrollbars';
 
@@ -14,11 +15,13 @@ import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance } from '../../models/route-instance';
 import { IPerson } from '../../models/person';
 import { UUID } from '../../models/uuid';
+import { ITrackEvent } from '../../models/track-event';
 
 export interface RouteInstanceProps {
   route: IRoute;
   routeInstance?: IRouteInstance;
   person: IPerson;
+  events: ITrackEvent[];
 }
 
 interface RouteInstanceState {
@@ -88,7 +91,12 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
     return (
       <div style={{ width: this.planWidth }} className={styles.routePlan}>
-        <Scrollbars autoHide={true}>
+        <Scrollbars
+          autoHide={true}
+          renderThumbVertical={props =>
+            <div {...props} style={{ background: colors.white, opacity: .2, borderRadius: 'inherit' }} />
+          }
+        >
           <Accordion openItemId={selectedCheckpointId}>
             {route.checkpoints.map(point => (
               <RoutePoint
@@ -105,7 +113,7 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
   }
 
   render() {
-    const { route, routeInstance, person } = this.props;
+    const { route, routeInstance, person, events } = this.props;
 
     return (
       <Panel label='SiWatch Widget'>
@@ -121,7 +129,12 @@ export class RouteInstance extends React.Component<RouteInstanceProps, RouteInst
 
         <div className={styles.routeContent}>
           <div className={styles.routeMap}>
-            <RouteMap route={route} routeInstance={routeInstance} onCheckpointClick={this.handleCheckpointClick} />
+            <RouteMap
+              route={route}
+              routeInstance={routeInstance}
+              onCheckpointClick={this.handleCheckpointClick}
+              events={events}
+            />
             {/* <RouteTrack route={route} routeInstance={routeInstance} /> */}
             <RouteTime route={route} routeInstance={routeInstance} />
           </div>

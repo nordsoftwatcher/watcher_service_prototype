@@ -13,8 +13,10 @@ using SiWatchApp.Logging;
 using SiWatchApp.Models;
 using SiWatchApp.Queue;
 using SiWatchApp.Services;
+using SiWatchApp.System;
 using Tizen.Applications;
 using Tizen.System;
+using Xamarin.Forms;
 using Application = Xamarin.Forms.Application;
 using Notification = SiWatchApp.UI.Notification;
 
@@ -55,6 +57,16 @@ namespace SiWatchApp
             MainPage = _mainPage;
         }
 
+        private void InvokeOnMainThread(Action action)
+        {
+            if (Device.IsInvokeRequired) {
+                Device.BeginInvokeOnMainThread(action);
+            }
+            else {
+                action();
+            }
+        }
+
         private async void OnReadMessageRequest(object sender, EventArgs e)
         {
             if(_messageQueue == null)
@@ -70,13 +82,17 @@ namespace SiWatchApp
         private void OnStartFinishRequest(object sender, EventArgs e)
         {
             if (_started) {
+                DevicePower.ReleaseLock(PowerLock.DisplayNormal);
                 _actionEventSource?.Signal("RouteFinish", EventPriority.Urgent);
+                SetStatus("RouteFinish signaled!");
                 _started = false;
                 _mainPage.SetStartFinishText("START");
                 _monitoringService?.Stop();
             }
             else {
+                DevicePower.RequestLock(PowerLock.DisplayNormal, TimeSpan.Zero);
                 _actionEventSource?.Signal("RouteStart", EventPriority.Urgent);
+                SetStatus("RouteStart signaled!");
                 _started = true;
                 _mainPage.SetStartFinishText("FINISH");
                 _monitoringService?.Start();
@@ -85,12 +101,13 @@ namespace SiWatchApp
 
         private void Shutdown()
         {
+            SetStatus("Shutting down...");
             LOGGER.Info("Shutting down...");
             if (_monitoringPolicyService != null) {
                 _monitoringPolicyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
             }
             _monitoringService?.Dispose();
-            _syncService?.Stop();
+            _syncService?.Dispose();
             _disposables?.ForEach(d => d.Dispose());
             LocationService.Instance.Dispose();
 
@@ -105,6 +122,7 @@ namespace SiWatchApp
         private void OnSOSRequest(object sender, EventArgs e)
         {
             _sosEventSource?.Signal("SOS!");
+            _mainPage.SetStatus("SOS signaled!");
         }
 
         protected override void OnStart()
@@ -112,10 +130,15 @@ namespace SiWatchApp
             LOGGER.Info("OnStart");
         }
 
+        private void SetStatus(string s)
+        {
+            InvokeOnMainThread(() => _mainPage.SetStatus(s));
+        }
+
         public async void Init()
         {
             LOGGER.Info("Init");
-
+            
             _uiScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
             Notification.Init();
 
@@ -126,30 +149,32 @@ namespace SiWatchApp
             _messageQueue = new InMemoryPriorityQueue<TextMessage>();
             _disposables.Add(_messageQueue);
 
-            _mainPage.SetStatus("Loading settings...");
+            SetStatus("Loading settings...");
             _settings = await _settingsService.GetSettings();
             _mainPage.SetPolicyInfo("DeviceID: " + _settings.DeviceId);
             _mainPage.SetApiUrl(_settings.ApiUrl);
 
-            _mainPage.SetStatus("Checking permissions...");
+            // check mandatory privileges
+            SetStatus("Checking permissions...");
             try {
-                await _permissionManager.Demand("http://tizen.org/privilege/internet", "http://tizen.org/privilege/display");
-                await LocationService.Instance.DemandPermission(_permissionManager);
+                await _permissionManager.Demand("http://tizen.org/privilege/internet", DevicePower.Privilege, LocationService.Privilege);
             }
             catch (Exception ex) {
-                await Notification.ShowInfo("Error", ex.Message);
+                await Notification.ShowInfo("Error", "Permissions checking error: "+ex.Message);
                 Tizen.Applications.Application.Current.Exit();
                 return;
             }
 
-            try {
-                await FeedbackService.Instance.DemandPermission(_permissionManager);
+            // check optional privileges
+            try
+            {
+                await _permissionManager.Demand(FeedbackService.Privilege);
             }
             catch (Exception) {
                 LOGGER.Info("Vibrator will be not available");
             }
 
-            _mainPage.SetStatus("Loading profile...");
+            SetStatus("Loading profile...");
             _profileService = new ProfileService(_settings);
             try {
                 _profile = await _profileService.GetProfile();
@@ -160,7 +185,7 @@ namespace SiWatchApp
                 return;
             }
 
-            _mainPage.SetStatus("Checking profile...");
+            SetStatus("Checking profile...");
             try {
                 await _profileService.CheckProfile(_profile, _permissionManager);
             }
@@ -170,7 +195,7 @@ namespace SiWatchApp
                 return;
             }
 
-            _mainPage.SetStatus("Initializing services...");
+            SetStatus("Initializing services...");
             if (LocationService.Instance.IsSupported) {
                 try {
                     LocationService.Instance.Start();
@@ -180,13 +205,6 @@ namespace SiWatchApp
                     Tizen.Applications.Application.Current.Exit();
                     return;
                 }
-                var sub0 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
-                                     .Subscribe(_ => {
-                                                    var location = LocationService.Instance.GetCurrentLocation();
-                                                    var info = location == null ? "unknown" : "available";
-                                                    _mainPage.SetLocationInfo($"Location {info}");
-                                                });
-                _disposables.Add(sub0);
             }
             else {
                 await Notification.ShowInfo("Error", "Location service is not supported");
@@ -212,26 +230,30 @@ namespace SiWatchApp
             _actionEventSource = new ActionEventSource(LocationService.Instance);
             var sub2 = _actionEventSource.ObserveOn(TaskPoolScheduler.Default).Subscribe(_outgoingEventHandler);
             _disposables.Add(sub2);
-
-            var sub3 = Observable.Interval(TimeSpan.FromMilliseconds(2000), _uiScheduler).Subscribe(_ => {
-                    if (_messageQueue != null) _mainPage.ShowMessageButton(_messageQueue.Count > 0);
-                });
-            _disposables.Add(sub3);
             
             //_monitoringService.Start();
             _syncService.Start();
 
-            _mainPage.SetStatus("Ready");
+            SetStatus("Ready");
+
             _mainPage.EnableSOS(true);
             _mainPage.SetStartFinishText("START");
             _mainPage.EnableStartFinish(true);
 
-            var sub4 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
+            // ui info update job
+            var sub3 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
                                  .Subscribe(_ => {
                                                 _mainPage.SetStatus(_started ? "Monitoring..." : "Waiting...");
-                                                _mainPage.SetBufferInfo(_buffer.Count > 0 ? $"Buffered {_buffer.Count} records" : "Buffer is empty");
-                                            });
-            _disposables.Add(sub4);
+                                                _mainPage.SetBufferInfo(_buffer.Count > 0 ? $"Queued {_buffer.Count} records" : "Queue is empty");
+                                                _mainPage.SetTime(DateTime.Now.ToString("HH:mm"));
+
+                                                if (_messageQueue != null) _mainPage.ShowMessageButton(_messageQueue.Count > 0);
+
+                                                var location = LocationService.Instance.GetCurrentLocation();
+                                                var info = location == null ? "???" : $"lat={location.Latitude:F4}, lon={location.Longitude:F4}";
+                                                _mainPage.SetLocationInfo($"Loc.: {info}");
+                                 });
+            _disposables.Add(sub3);
         }
 
         private void UpdateMonitoringPolicy()
@@ -242,12 +264,15 @@ namespace SiWatchApp
 
         private void OnMonitoringPolicyChanged(object sender, MonitoringPolicy e)
         {
-            UpdateMonitoringPolicy();
+            InvokeOnMainThread(UpdateMonitoringPolicy);
         }
 
         private void OnSynced(object sender, bool success)
         {
-            _mainPage.SetStatus(success ? "Sync OK" : "Sync FAILED");
+            if (_settings.FeedbackSync) {
+                FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(90), 95);
+            }
+            SetStatus(success ? "Sync OK" : "Sync FAILED");
         }
 
         protected override void OnSleep()

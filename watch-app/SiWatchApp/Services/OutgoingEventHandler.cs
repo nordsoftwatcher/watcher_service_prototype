@@ -53,10 +53,10 @@ namespace SiWatchApp.Services
                     await _syncService.ForceSync();
                 }
                 catch (Exception) {
-                    Notification.ShowToast($"Delayed sending {eventRecord.EventType}!", TimeSpan.FromSeconds(1));
+                    //Notification.ShowToast($"Delayed sending {eventRecord.EventType}!", TimeSpan.FromSeconds(1));
                     return;
                 }
-                Notification.ShowToast($"{eventRecord.EventType} sent!", TimeSpan.FromMilliseconds(800));
+                //Notification.ShowToast($"{eventRecord.EventType} sent!", TimeSpan.FromMilliseconds(500));
             }
         }
 
@@ -77,5 +77,6 @@ namespace SiWatchApp.Services
                 HandleEvent(eventRecord);
             }
         }
+
     }
 }

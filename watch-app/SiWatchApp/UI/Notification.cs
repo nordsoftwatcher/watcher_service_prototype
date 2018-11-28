@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
+using Application = Tizen.Applications.Application;
 
 namespace SiWatchApp.UI
 {
@@ -59,8 +60,8 @@ namespace SiWatchApp.UI
         {
             var popup = new TwoButtonPopup {
                     //Title = "Question",
-                    FirstButton = new MenuItem() { Text = no, Icon = new FileImageSource { File = "no.png", }, },
-                    SecondButton = new MenuItem() { Text = yes, Icon = new FileImageSource { File = "yes.png", }, },
+                    FirstButton = new MenuItem() { Text = no, Icon = Icons.No },
+                    SecondButton = new MenuItem() { Text = yes, Icon = Icons.Yes },
                     Content = new Label() {  Text = question, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center}
             };
             popup.FirstButton.Clicked += (sender, args) => {

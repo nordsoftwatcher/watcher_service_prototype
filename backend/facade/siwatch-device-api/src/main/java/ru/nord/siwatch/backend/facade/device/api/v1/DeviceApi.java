@@ -15,6 +15,10 @@ import ru.nord.siwatch.backend.facade.device.services.DeviceProfileService;
 import ru.nord.siwatch.backend.facade.device.services.DeviceSyncService;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Api(description = "DeviceApi")
@@ -49,16 +53,24 @@ public class DeviceApi extends ApiBase
 
     @ApiOperation(value = "Синхронизация с устройством")
     @PutMapping(value = "sync", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public MessagePacketDto sync(@RequestBody SyncPacketDto inputDto)
+    public MessagePacketDto sync(@RequestBody SyncPacketDto[] input)
     {
-        log.info("Sync receive: "+ Objects.toString(inputDto));
+        log.info("Sync receive: "+ Arrays.toString(input));
 
-        final SyncPacket packet = mapper.getSyncPacket(inputDto);
-        MessagePacket message = syncService.sync(packet);
+        final MessagePacket pack = new MessagePacket();
+        pack.setEvents(new ArrayList<>());
+        for (SyncPacketDto syncPacket : input) {
+            final SyncPacket packet = mapper.getSyncPacket(syncPacket);
+            final MessagePacket message = syncService.sync(packet);
+            if(message != null && message.getEvents() != null) {
+                pack.getEvents().addAll(message.getEvents());
+            }
+        }
+        pack.setTimestamp(LocalDateTime.now());
 
-        final MessagePacketDto outputDto = mapper.getMessagePacketDto(message);
-        log.info("Sync send: "+ Objects.toString(outputDto));
+        final MessagePacketDto output = mapper.getMessagePacketDto(pack);
+        log.info("Sync send: "+ Objects.toString(output));
 
-        return outputDto;
+        return output;
     }
 }
