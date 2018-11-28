@@ -21,6 +21,13 @@ public class OperatorLocationUtils {
     private static final long SECOND = 1000;
     private static final long MINUTE = SECOND * 60;
 
+    public static boolean beforeDate(Date first, Date second) {
+        if (first == null || second == null) {
+            return false;
+        }
+        return first.before(second);
+    }
+
     public static Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
         return localDateTime != null ?  Date.from(localDateTime.toInstant(ZoneOffset.UTC)) : null;
     }

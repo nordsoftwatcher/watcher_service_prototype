@@ -15,9 +15,14 @@
         text-align: left;
         padding: 8px;
     }
-    .success { color: #0F6308 }
-    .error { color: red },
-    .large_info {font-size : 160%}
+    .success {
+        color: #0F6308;
+        font-weight : bold
+    }
+    .error {
+        color: red;
+        font-weight : bold
+    }
     </style>
 </head>
 <body>
@@ -80,8 +85,12 @@
     <tr>
         <th>Название начала участка</th>
         <th>Название конца участка</th>
-        <th>Начало участка (время)</th>
-        <th>Конец участка (время)</th>
+        <th>Планируемое начало (время)</th>
+        <th>Планируемое завершение (время)</th>
+        <th>Фактическое начало (время)</th>
+        <th>Фактическое завершение (время)</th>
+        <th>Плановое время (минуты)</th>
+        <th>Фактическое время (минуты)</th>
     </tr>
     <th:block th:each="routeInterval : ${routeIntervals}">
         <tr>
@@ -89,6 +98,21 @@
             <td th:text="${routeInterval.endName}"></td>
             <td th:text="${#dates.format(routeInterval.startTime, 'dd-MMM-yyyy HH:mm')}"></td>
             <td th:text="${#dates.format(routeInterval.endTime, 'dd-MMM-yyyy HH:mm')}"></td>
+            <td th:if="${routeInterval.arrivalLate == true}">
+                <span class="error" th:text="${#dates.format(routeInterval.factStartTime, 'dd-MMM-yyyy HH:mm')}"></span>
+            </td>
+            <td th:if="${routeInterval.arrivalLate == false}">
+                <span class="success" th:text="${#dates.format(routeInterval.factStartTime, 'dd-MMM-yyyy HH:mm')}"></span>
+            </td>
+
+            <td th:if="${routeInterval.departureLate == true}">
+                <span class="error" th:text="${#dates.format(routeInterval.factEndTime, 'dd-MMM-yyyy HH:mm')}"></span>
+            </td>
+            <td th:if="${routeInterval.departureLate == false}">
+                <span class="success" th:text="${#dates.format(routeInterval.factEndTime, 'dd-MMM-yyyy HH:mm')}"></span>
+            </td>
+            <td th:text="${routeInterval.planTimeMinutes}"></td>
+            <td th:text="${routeInterval.factTimeMinutes}"></td>
         </tr>
     </th:block>
 </table>
