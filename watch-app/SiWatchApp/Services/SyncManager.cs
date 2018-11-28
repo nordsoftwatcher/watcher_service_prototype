@@ -16,10 +16,12 @@ namespace SiWatchApp.Services
         private readonly JsonSerializerSettings _jsonSerializerSettings;
         private readonly SyncClient _syncClient;
         private readonly IJsonStorage _storage;
+        private readonly Settings _settings;
 
         public SyncManager(IJsonStorage storage, Settings settings)
         {
             _storage = storage;
+            _settings = settings;
             _jsonSerializerSettings = new JsonSerializerSettings {
                     Formatting = Formatting.None,
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
@@ -31,6 +33,7 @@ namespace SiWatchApp.Services
         
         public async Task<SyncPacket> Send(SyncPacket packet)
         {
+            packet.DeviceId = _settings.DeviceId;
             var packetJson = JsonConvert.SerializeObject(packet, Formatting.None, _jsonSerializerSettings);
 
             await _storage.Append(packetJson);

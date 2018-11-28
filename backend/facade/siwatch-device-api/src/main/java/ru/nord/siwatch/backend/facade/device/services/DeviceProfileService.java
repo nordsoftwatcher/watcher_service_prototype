@@ -23,10 +23,10 @@ public class DeviceProfileService
         mc11.setPollInterval(Duration.ofSeconds(30));
         final MonitorConfig mc12 = new MonitorConfig();
         mc12.setType(MonitorType.Location);
-        mc12.setPollInterval(Duration.ofSeconds(5));
+        mc12.setPollInterval(Duration.ofSeconds(4));
         final MonitorConfig mc13 = new MonitorConfig();
         mc13.setType(MonitorType.HeartRate);
-        mc13.setPollInterval(Duration.ofSeconds(5));
+        mc13.setPollInterval(Duration.ofSeconds(4));
         final MonitorConfig mc14 = new MonitorConfig();
         mc14.setType(MonitorType.Memory);
         mc14.setPollInterval(Duration.ofSeconds(30));
@@ -35,9 +35,9 @@ public class DeviceProfileService
         mc15.setPollInterval(Duration.ofSeconds(30));
 
         final MonitoringPolicy mp1 = new MonitoringPolicy();
-        mp1.setMinBatteryLevel(50);
-        mp1.setSyncInterval(Duration.ofSeconds(15));
-        mp1.setPacketSize(60);
+        mp1.setMinBatteryLevel(30);
+        mp1.setSyncInterval(Duration.ofSeconds(8));
+        mp1.setPacketSize(1000);
         mp1.setMonitors(Arrays.asList(mc11, mc12, mc13, mc14, mc15));
 
         final MonitorConfig mc21 = new MonitorConfig();
@@ -53,7 +53,7 @@ public class DeviceProfileService
         final MonitoringPolicy mp2 = new MonitoringPolicy();
         mp2.setMinBatteryLevel(5);
         mp2.setSyncInterval(Duration.ofSeconds(25));
-        mp2.setPacketSize(40);
+        mp2.setPacketSize(400);
         mp2.setMonitors(Arrays.asList(mc21, mc22, mc23));
 
         final Profile profile = new Profile();

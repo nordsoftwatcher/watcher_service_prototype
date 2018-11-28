@@ -167,7 +167,14 @@ namespace SiWatchApp.Services
 
         public void Dispose()
         {
-            _storage.Dispose();
+            lock (_sync) {
+                if (_subscription != null) {
+                    Unsubscribe();
+                    _policyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
+                }
+                _storage.Dispose();
+                LOGGER.Debug("Disposed");
+            }
         }
     }
 }

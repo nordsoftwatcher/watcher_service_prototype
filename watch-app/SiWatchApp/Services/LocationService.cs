@@ -24,11 +24,8 @@ namespace SiWatchApp.Services
             _locator.ServiceStateChanged += LocatorOnServiceStateChanged;
         }
 
-        public Task DemandPermission(PermissionManager permissionManager)
-        {
-            return permissionManager.Demand("http://tizen.org/privilege/location");
-        }
-
+        public static string Privilege => "http://tizen.org/privilege/location";
+        
         public void Dispose()
         {
             if (_locator != null) {

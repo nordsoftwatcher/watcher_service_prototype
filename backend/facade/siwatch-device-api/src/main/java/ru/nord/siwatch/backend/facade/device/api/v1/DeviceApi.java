@@ -17,6 +17,7 @@ import ru.nord.siwatch.backend.facade.device.services.DeviceSyncService;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,7 +55,7 @@ public class DeviceApi extends ApiBase
     @PutMapping(value = "sync", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public MessagePacketDto sync(@RequestBody SyncPacketDto[] input)
     {
-        log.info("Sync receive: "+ Objects.toString(input));
+        log.info("Sync receive: "+ Arrays.toString(input));
 
         final MessagePacket pack = new MessagePacket();
         pack.setEvents(new ArrayList<>());

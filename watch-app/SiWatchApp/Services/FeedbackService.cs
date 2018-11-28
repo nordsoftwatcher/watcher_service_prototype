@@ -11,11 +11,8 @@ namespace SiWatchApp.Services
 
         public static readonly FeedbackService Instance = new FeedbackService();
 
-        public Task DemandPermission(PermissionManager permissionManager)
-        {
-            return permissionManager.Demand("http://tizen.org/privilege/haptic");
-        }
-
+        public static string Privilege => "http://tizen.org/privilege/haptic";
+        
         public void Vibrate(TimeSpan duration, int intensity)
         {
             if (Vibrator.Vibrators.Count > 0) {
