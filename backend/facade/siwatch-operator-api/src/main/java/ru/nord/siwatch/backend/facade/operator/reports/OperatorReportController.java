@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import ru.nord.siwatch.backend.facade.operator.api.v1.dto.LocationDto;
 import ru.nord.siwatch.backend.facade.operator.mapping.OperatorMapper;
 import ru.nord.siwatch.backend.facade.operator.reports.dto.CheckPointPassedDto;
 import ru.nord.siwatch.backend.facade.operator.reports.dto.RouteDeviationDto;
+import ru.nord.siwatch.backend.facade.operator.reports.dto.RouteIntervalDto;
 import ru.nord.siwatch.backend.facade.operator.services.DeviceLocationService;
 import ru.nord.siwatch.backend.facade.operator.services.RouteService;
 import ru.nord.siwatch.backend.facade.operator.services.SupervisorService;
@@ -24,10 +26,7 @@ import ru.nord.siwatch.backend.facade.operator.utils.OperatorLocationUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @Slf4j
@@ -77,6 +76,7 @@ public class OperatorReportController extends ApiBase {
         model.addAttribute("checkPointPassedInfos", checkPointPassedInfos);
         model.addAttribute("checkPointPassedCount", checkPointPassedInfos.stream().filter(checkPointPassed -> checkPointPassed.getPassed()).count());
         model.addAttribute("checkPointNotPassedCount", checkPointPassedInfos.stream().filter(checkPointPassed -> !checkPointPassed.getPassed()).count());
+        model.addAttribute("routeIntervals", getRouteIntervals(route, locations, checkPointsResults));
         return "route_report";
     }
 
@@ -92,8 +92,8 @@ public class OperatorReportController extends ApiBase {
             } else {
                 if (currentStartTime != null) {
                     deviations.add(new RouteDeviationDto(
-                            Date.from(currentStartTime.toInstant(ZoneOffset.UTC)),
-                            Date.from(location.getDeviceTime().toInstant(ZoneOffset.UTC)),
+                            OperatorLocationUtils.getDateFromLocalDateTime(currentStartTime),
+                            OperatorLocationUtils.getDateFromLocalDateTime(location.getDeviceTime()),
                             OperatorLocationUtils.calcTimeInMinutes(currentStartTime, location.getDeviceTime())
                     ));
                     currentStartTime = null;
@@ -123,22 +123,59 @@ public class OperatorReportController extends ApiBase {
             if (checkPointResult != null) {
                 result.add(new CheckPointPassedDto(
                         checkPointResult.getName(), checkPointResult.getAddress(), checkPoint.getDescription(),
-                        checkPointResult.getArrivalTime() != null ?  Date.from(checkPointResult.getArrivalTime().toInstant(ZoneOffset.UTC)) : null,
-                        checkPointResult.getDepartureTime() != null ?  Date.from(checkPointResult.getDepartureTime().toInstant(ZoneOffset.UTC)) : null,
-                        checkPointResult.getFactArrivalTime() != null ?  Date.from(checkPointResult.getFactArrivalTime().toInstant(ZoneOffset.UTC)) : null,
-                        checkPointResult.getFactDepartureTime() != null ?  Date.from(checkPointResult.getFactDepartureTime().toInstant(ZoneOffset.UTC)) : null,
+                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getArrivalTime()),
+                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getDepartureTime()),
+                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactArrivalTime()),
+                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactDepartureTime()),
                         (checkPointResult.getFactArrivalTime() != null && checkPointResult.getFactDepartureTime() != null)
                 ));
             } else {
                 result.add(new CheckPointPassedDto(
                         checkPoint.getName(), checkPoint.getAddress(), checkPoint.getDescription(),
-                        checkPoint.getArrivalTime() != null ?  Date.from(checkPoint.getArrivalTime().toInstant(ZoneOffset.UTC)) : null,
-                        checkPoint.getDepartureTime() != null ?  Date.from(checkPoint.getDepartureTime().toInstant(ZoneOffset.UTC)) : null,
+                        OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getArrivalTime()),
+                        OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getDepartureTime()),
                         null, null, false
                 ));
             }
         }
         return result;
+    }
+
+    private List<RouteIntervalDto> getRouteIntervals(Route route, List<Location> locations, List<CheckPointResultDto> checkPointResults) {
+        if (CollectionUtils.isEmpty(route.getCheckPoints())) {
+            return Collections.emptyList();
+        }
+        List<RouteIntervalDto> intervals = new ArrayList<>();
+        if (route.getCheckPoints().size() != 1) {
+            for (int i = 0; i < route.getCheckPoints().size() - 1; i++) {
+                CheckPoint startCheckpoint = route.getCheckPoints().get(i);
+                CheckPoint endCheckpoint = route.getCheckPoints().get(i + 1);
+                RouteIntervalDto routeInterval = new RouteIntervalDto(
+                        startCheckpoint.getName(), endCheckpoint.getName(),
+                        OperatorLocationUtils.getDateFromLocalDateTime(startCheckpoint.getDepartureTime()),
+                        OperatorLocationUtils.getDateFromLocalDateTime(endCheckpoint.getArrivalTime())
+                );
+                intervals.add(routeInterval);
+            }
+        } else {
+            /** Route start */
+            CheckPoint startCheckpoint = route.getCheckPoints().get(0);
+            RouteIntervalDto startInterval = new RouteIntervalDto(
+                    "Начало маршрута", startCheckpoint.getName(),
+                    OperatorLocationUtils.getDateFromLocalDateTime(route.getStartTime()),
+                    OperatorLocationUtils.getDateFromLocalDateTime(startCheckpoint.getArrivalTime())
+            );
+            intervals.add(startInterval);
+            /** Route end */
+            CheckPoint endCheckpoint = route.getCheckPoints().get(route.getCheckPoints().size() - 1);
+            RouteIntervalDto endInterval = new RouteIntervalDto(
+                    endCheckpoint.getName(), "Конец маршрута",
+                    OperatorLocationUtils.getDateFromLocalDateTime(endCheckpoint.getDepartureTime()),
+                    OperatorLocationUtils.getDateFromLocalDateTime(route.getEndTime())
+            );
+            intervals.add(endInterval);
+        }
+        return intervals;
     }
 
 }

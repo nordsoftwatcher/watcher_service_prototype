@@ -75,6 +75,25 @@
     </th:block>
 </table>
 
+<h3 style="text-align:center">Информация об участках маршрута</h3>
+<table>
+    <tr>
+        <th>Название начала участка</th>
+        <th>Название конца участка</th>
+        <th>Начало участка (время)</th>
+        <th>Конец участка (время)</th>
+    </tr>
+    <th:block th:each="routeInterval : ${routeIntervals}">
+        <tr>
+            <td th:text="${routeInterval.startName}"></td>
+            <td th:text="${routeInterval.endName}"></td>
+            <td th:text="${#dates.format(routeInterval.startTime, 'dd-MMM-yyyy HH:mm')}"></td>
+            <td th:text="${#dates.format(routeInterval.endTime, 'dd-MMM-yyyy HH:mm')}"></td>
+        </tr>
+    </th:block>
+</table>
+
+
 <h3 style="text-align:center">Общее количество отклонений от маршрута</h3>
 <table>
     <tr>

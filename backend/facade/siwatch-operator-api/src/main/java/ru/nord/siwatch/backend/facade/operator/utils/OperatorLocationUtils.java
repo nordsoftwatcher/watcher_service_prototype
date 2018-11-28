@@ -21,6 +21,10 @@ public class OperatorLocationUtils {
     private static final long SECOND = 1000;
     private static final long MINUTE = SECOND * 60;
 
+    public static Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
+        return localDateTime != null ?  Date.from(localDateTime.toInstant(ZoneOffset.UTC)) : null;
+    }
+
     public static Integer calcFactTime(ArrivalDepartureInfo arrivalDepartureInfo) {
         if (arrivalDepartureInfo.getArrivalTime() == null || arrivalDepartureInfo.getDepartureTime() == null) {
             return null;
