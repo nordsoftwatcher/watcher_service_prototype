@@ -23,6 +23,10 @@ public class CheckPointPassedDto {
 
     private Date factDepartureTime;
 
+    private Boolean arrivalLate;
+
+    private Boolean departureLate;
+
     private Boolean passed;
 
 }

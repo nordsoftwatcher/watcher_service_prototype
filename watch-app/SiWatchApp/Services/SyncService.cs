@@ -12,7 +12,7 @@ using SiWatchApp.Models;
 
 namespace SiWatchApp.Services
 {
-    public class SyncService
+    public class SyncService : IDisposable
     {
         private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(SyncService));
 
@@ -22,7 +22,8 @@ namespace SiWatchApp.Services
         private readonly IBuffer<Record> _buffer;
         private readonly Settings _settings;
         private readonly IObserver<EventRecord> _incomingEventsObserver;
-        private readonly SyncClient _syncClient;
+        private readonly SyncManager _syncManager;
+        private readonly IJsonStorage _storage;
         private IDisposable _subscription;
 
         public SyncService(MonitoringPolicyService policyService,
@@ -34,7 +35,9 @@ namespace SiWatchApp.Services
             _settings = settings;
             _incomingEventsObserver = incomingEventsObserver;
             _policyService = policyService;
-            _syncClient = new SyncClient(_settings);
+
+            _storage = new StringJsonStorage();
+            _syncManager = new SyncManager(_storage, _settings);
         }
 
         private void OnMonitoringPolicyChanged(object sender, MonitoringPolicy mp)
@@ -64,10 +67,10 @@ namespace SiWatchApp.Services
             return packet;
         }
 
-        private void ProcessIncomingPacket(SyncPacket incoming)
+        private void ProcessResponsePacket(SyncPacket responsePacket)
         {
-            if (incoming?.Events != null && _incomingEventsObserver != null) {
-                foreach (var incomingEvent in incoming.Events) {
+            if (responsePacket != null && responsePacket.Events != null && _incomingEventsObserver != null) {
+                foreach (var incomingEvent in responsePacket.Events) {
                     _incomingEventsObserver.OnNext(incomingEvent);
                 }
             }
@@ -78,18 +81,17 @@ namespace SiWatchApp.Services
             LOGGER.Debug("Begin sync");
 
             IBlock<Record> recordBlock;
-            LOGGER.Debug($"Fetching {packetSize} records from buffer...");
+            LOGGER.Debug($"Fetching at most {packetSize} records from buffer...");
             try {
                 recordBlock = _buffer.Get(packetSize);
             }
             catch (Exception ex) {
-                LOGGER.Error("Failed fetching next records:", ex);
+                LOGGER.Error("Failed fetching records:", ex);
                 return;
             }
-
             try {
                 var packet = PreparePacket(recordBlock);
-                var incoming = await _syncClient.Send(packet);
+                var incoming = await _syncManager.Send(packet);
                 try {
                     recordBlock?.Discard();
                 }
@@ -100,12 +102,9 @@ namespace SiWatchApp.Services
                 recordBlock = null;
 
                 LOGGER.Debug("Sync done");
-                if (_settings.FeedbackSync) {
-                    FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(100), 80);
-                }
                 Synced?.Invoke(this, true);
 
-                ProcessIncomingPacket(incoming);
+                ProcessResponsePacket(incoming);
             }
             catch (Exception ex) {
                 LOGGER.Error("Sync error:", ex);
@@ -163,6 +162,18 @@ namespace SiWatchApp.Services
                     _policyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
                     LOGGER.Debug("Stopped");
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            lock (_sync) {
+                if (_subscription != null) {
+                    Unsubscribe();
+                    _policyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
+                }
+                _storage.Dispose();
+                LOGGER.Debug("Disposed");
             }
         }
     }

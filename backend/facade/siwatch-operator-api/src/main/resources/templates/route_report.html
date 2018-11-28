@@ -4,95 +4,248 @@
     <meta charset="UTF-8"/>
     <title th:text="|Отчет по маршруту ${routeName}|"></title>
     <style>
-    table {
-        font-family: arial, sans-serif;
-        border-collapse: collapse;
-        width: 100%;
+    :root {
+      --blue: #01BEE9;
+      --green: #06C575;
+      --red: #F10F45;
+      --black: #2A2B31;
+      --white: #FFFFFF;
+      --white-50: #FFFFFF80;
+      --white-75: #FFFFFFBF;
+      --bg: #082A3B;
     }
 
-    td, th {
-        border: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
+    * {
+      box-sizing: border-box;
     }
-    .success { color: #0F6308 }
-    .error { color: red },
-    .large_info {font-size : 160%}
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #18191D;
+      color: var(--white);
+      margin: 2rem;
+    }
+
+    h2 {
+      font-weight: bold;
+    }
+
+    h3 {
+      font-weight: bold;
+    }
+
+    .success {
+      color: var(--green);
+    }
+
+    .error {
+      color: var(--red);
+    }
+
+    table {
+      border-spacing: 0;
+      width: 100%;
+      border-radius: 4px;
+      background: #0F384D;
+      margin-top: 1rem;
+    }
+
+    td,
+    th {
+      border-bottom: 1px solid var(--white-50);
+      text-align: left;
+      padding: .5rem;
+    }
+
+    th {
+      color: var(--white-75);
+      font-weight: normal;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr td:first-child {
+      padding-left: 1rem;
+    }
+
+    tr:first-child th {
+      padding: 1rem .5rem;
+    }
+
+    tr:first-child th:first-child {
+      padding-left: 1rem;
+    }
+
+    .panel {
+      background: #2C566B;
+      border-radius: 4px;
+      border: 3px solid #2C566B;
+      width: 1400px;
+      margin: auto;
+    }
+
+    .panel__title {
+      padding: 1rem;
+    }
+
+    .panel__content {
+      border-radius: inherit;
+      background: var(--bg);
+      padding: 1rem;
+      line-height: 1.5;
+    }
+
+
+
     </style>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&amp;subset=cyrillic" rel="stylesheet">
 </head>
 <body>
-<h2 style="text-align:center">Отчет по маршруту "<span th:text="${routeName}"></span>"</h2>
+<div class="panel">
+    <div class="panel__content">
+        <h2>Отчет по маршруту "<span th:text="${routeName}"></span>"</h2>
 
-<h3 style="text-align:center">Информация о маршруте</h3>
-<span style="font-size : 130%">Супервайзер : <b th:text="${supervisorName}"></b></span><br>
-<span style="font-size : 130%">Начало маршрута : <b th:text="${#dates.format(routeStartTime, 'dd-MMM-yyyy HH:mm')}"></b></span><br>
-<span style="font-size : 130%">Конец маршрута : <b th:text="${#dates.format(routeEndTime, 'dd-MMM-yyyy HH:mm')}"></b></span><br>
+        <h3>Информация о маршруте</h3>
+        <span>Супервайзер : <b th:text="${supervisorName}"></b></span><br>
+        <span>Начало маршрута : <b
+                th:text="${#dates.format(routeStartTime, 'dd-MMM-yyyy HH:mm')}"></b></span><br>
+        <span>Конец маршрута : <b
+                th:text="${#dates.format(routeEndTime, 'dd-MMM-yyyy HH:mm')}"></b></span><br>
 
-<h3 style="text-align:center">Информация о пунктах назначения</h3>
-<table>
-    <tr>
-        <th>Пункт назначения</th>
-        <th>Адрес</th>
-        <th>Время прибытия</th>
-        <th>Время отбытия</th>
-        <th>Описание</th>
-    </tr>
-    <th:block th:each="checkpoint : ${checkPointPassedInfos}">
-        <tr>
-            <td th:text="${checkpoint.name}"></td>
-            <td th:text="${checkpoint.address}"></td>
-            <td th:text="${#dates.format(checkpoint.arrivalTime, 'dd-MMM-yyyy HH:mm')}"></td>
-            <td th:text="${#dates.format(checkpoint.departureTime, 'dd-MMM-yyyy HH:mm')}"></td>
-            <td th:text="${checkpoint.description}"></td>
-        </tr>
-    </th:block>
-</table>
+        <span>Общее планируемое время в пути (мин.) : <b th:text="${totalIntervalTime}"></b></span><br>
+        <span class="error" th:if="${totalIntervalTime < factTotalIntervalTime}">Общее фактическое время в пути (мин.) :
+            <b th:text="${factTotalIntervalTime}"></b><br>
+        </span>
+        <span class="success" th:if="${totalIntervalTime >= factTotalIntervalTime}">Общее фактическое время в пути (мин.) :
+            <b th:text="${factTotalIntervalTime}"></b><br>
+        </span>
 
-<h3 style="text-align:center">Информация о пройденых пунктах</h3>
-<span style="font-size : 130%">Количество пройденных пунктов : <b th:text="${checkPointPassedCount}"></b></span><br>
-<span style="font-size : 130%">Количество непройденных пунктов : <b th:text="${checkPointNotPassedCount}"></b></span><br>
-<table>
-    <tr>
-        <th>Пункт назначения</th>
-        <th>Время прибытия</th>
-        <th>Время отбытия</th>
-        <th>Фактическое время прибытия</th>
-        <th>Фактическое время отбытия</th>
-        <th>Пройден</th>
-    </tr>
-    <th:block th:each="checkPointPassedInfo : ${checkPointPassedInfos}">
-        <tr>
-            <td th:text="${checkPointPassedInfo.name}"></td>
-            <td th:text="${#dates.format(checkPointPassedInfo.arrivalTime, 'dd-MMM-yyyy HH:mm')}"></td>
-            <td th:text="${#dates.format(checkPointPassedInfo.departureTime, 'dd-MMM-yyyy HH:mm')}"></td>
-            <td th:text="${#dates.format(checkPointPassedInfo.factArrivalTime, 'dd-MMM-yyyy HH:mm')}"></td>
-            <td th:text="${#dates.format(checkPointPassedInfo.factDepartureTime, 'dd-MMM-yyyy HH:mm')}"></td>
-            <td>
-                <span class="success" th:if="${checkPointPassedInfo.passed == true}">Пройден</span>
-                <span class="error" th:if="${checkPointPassedInfo.passed == false}">Не пройден</span>
-            </td>
-        </tr>
-    </th:block>
-</table>
+        <b class="error" th:if="${checkPointNotPassedCount != 0}">Маршрут не пройден</b>
+        <b class="success" th:if="${checkPointNotPassedCount == 0}">Маршрут пройден</b>
 
-<h3 style="text-align:center">Общее количество отклонений от маршрута</h3>
-<table>
-    <tr>
-        <th>Начало отклонения от маршрута</th>
-        <th>Возврат на маршрут</th>
-        <th>Отклонение в минутах</th>
-    </tr>
-    <th:block th:each="routeDeviation : ${routeDeviations}">
-        <tr>
-            <td th:text="${#dates.format(routeDeviation.startTime, 'dd-MMM-yyyy HH:mm')}">
-            <td th:if="${routeDeviation.endTime != null}">
-                <span th:text="${#dates.format(routeDeviation.endTime, 'dd-MMM-yyyy HH:mm')}"></span>
-            </td>
-            <td th:if="${routeDeviation.endTime == null}">Пока не на маршруте</td>
-            <td th:text="${routeDeviation.deviationMinutes}"></td>
-        </tr>
-    </th:block>
-</table>
+        <h3>Информация о пунктах назначения</h3>
+        <table>
+            <tr>
+                <th>Пункт назначения</th>
+                <th>Адрес</th>
+                <th>Время прибытия</th>
+                <th>Время отбытия</th>
+                <th>Описание</th>
+            </tr>
+            <th:block th:each="checkpoint : ${checkPointPassedInfos}">
+                <tr>
+                    <td th:text="${checkpoint.name}"></td>
+                    <td th:text="${checkpoint.address}"></td>
+                    <td th:text="${#dates.format(checkpoint.arrivalTime, 'dd-MMM-yyyy HH:mm')}"></td>
+                    <td th:text="${#dates.format(checkpoint.departureTime, 'dd-MMM-yyyy HH:mm')}"></td>
+                    <td th:text="${checkpoint.description}"></td>
+                </tr>
+            </th:block>
+        </table>
 
+        <h3>Информация о пройденых пунктах</h3>
+        <span class="success">Количество пройденных пунктов : <b th:text="${checkPointPassedCount}"></b></span><br>
+        <span class="error" th:if="${checkPointNotPassedCount != 0}">
+            Количество непройденных пунктов : <b th:text="${checkPointNotPassedCount}"></b><br>
+        </span>
+        <span class="success" th:if="${checkPointNotPassedCount == 0}">
+            Количество непройденных пунктов : <b th:text="${checkPointNotPassedCount}"></b><br>
+        </span>
+        <table>
+            <tr>
+                <th>Пункт назначения</th>
+                <th>Планируемое время прибытия</th>
+                <th>Планируемое время отбытия</th>
+                <th>Фактическое время прибытия</th>
+                <th>Фактическое время отбытия</th>
+                <th>Пройден</th>
+            </tr>
+            <th:block th:each="checkPointPassedInfo : ${checkPointPassedInfos}">
+                <tr>
+                    <td th:text="${checkPointPassedInfo.name}"></td>
+                    <td th:text="${#dates.format(checkPointPassedInfo.arrivalTime, 'dd-MMM-yyyy HH:mm')}"></td>
+                    <td th:text="${#dates.format(checkPointPassedInfo.departureTime, 'dd-MMM-yyyy HH:mm')}"></td>
+                    <td th:if="${checkPointPassedInfo.arrivalLate == false}">
+                        <span class="success" th:text="${#dates.format(checkPointPassedInfo.factArrivalTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:if="${checkPointPassedInfo.arrivalLate == true}">
+                        <span class="error" th:text="${#dates.format(checkPointPassedInfo.factArrivalTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
 
+                    <td th:if="${checkPointPassedInfo.departureLate == false}">
+                        <span class="success" th:text="${#dates.format(checkPointPassedInfo.factDepartureTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:if="${checkPointPassedInfo.departureLate == true}">
+                        <span class="error" th:text="${#dates.format(checkPointPassedInfo.factDepartureTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td>
+                        <span class="success" th:if="${checkPointPassedInfo.passed == true}">Пройден</span>
+                        <span class="error" th:if="${checkPointPassedInfo.passed == false}">Не пройден</span>
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+
+        <h3>Информация об участках маршрута</h3>
+        <table>
+            <tr>
+                <th>Название начала участка</th>
+                <th>Название конца участка</th>
+                <th>Планируемое начало (время)</th>
+                <th>Планируемое завершение (время)</th>
+                <th>Фактическое начало (время)</th>
+                <th>Фактическое завершение (время)</th>
+                <th>Плановое время (минуты)</th>
+                <th>Фактическое время (минуты)</th>
+            </tr>
+            <th:block th:each="routeInterval : ${routeIntervals}">
+                <tr>
+                    <td th:text="${routeInterval.startName}"></td>
+                    <td th:text="${routeInterval.endName}"></td>
+                    <td th:text="${#dates.format(routeInterval.startTime, 'dd-MMM-yyyy HH:mm')}"></td>
+                    <td th:text="${#dates.format(routeInterval.endTime, 'dd-MMM-yyyy HH:mm')}"></td>
+                    <td th:if="${routeInterval.arrivalLate == true}">
+                    <span class="error"
+                          th:text="${#dates.format(routeInterval.factStartTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:if="${routeInterval.arrivalLate == false}">
+                        <span class="success" th:text="${#dates.format(routeInterval.factStartTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+
+                    <td th:if="${routeInterval.departureLate == true}">
+                        <span class="error" th:text="${#dates.format(routeInterval.factEndTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:if="${routeInterval.departureLate == false}">
+                    <span class="success"
+                          th:text="${#dates.format(routeInterval.factEndTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:text="${routeInterval.planTimeMinutes}"></td>
+                    <td th:text="${routeInterval.factTimeMinutes}"></td>
+                </tr>
+            </th:block>
+        </table>
+
+        <h3>Общее количество отклонений от маршрута</h3>
+        <table>
+            <tr>
+                <th>Начало отклонения от маршрута</th>
+                <th>Возврат на маршрут</th>
+                <th>Отклонение в минутах</th>
+            </tr>
+            <th:block th:each="routeDeviation : ${routeDeviations}">
+                <tr>
+                    <td th:text="${#dates.format(routeDeviation.startTime, 'dd-MMM-yyyy HH:mm')}">
+                    <td th:if="${routeDeviation.endTime != null}">
+                        <span th:text="${#dates.format(routeDeviation.endTime, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </td>
+                    <td th:if="${routeDeviation.endTime == null}">Пока не на маршруте</td>
+                    <td th:text="${routeDeviation.deviationMinutes}"></td>
+                </tr>
+            </th:block>
+        </table>
+    </div>
+
+</div>
 </body>
