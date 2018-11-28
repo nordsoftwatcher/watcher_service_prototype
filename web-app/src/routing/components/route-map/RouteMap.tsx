@@ -7,7 +7,7 @@ import L from 'leaflet';
 import { Map, Marker, TileLayer, Polyline, Tooltip } from 'react-leaflet';
 import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance } from '../../models/route-instance';
-import { routePointIcon, passedPointIcon, currentPosIcon, sosIcon } from './icons';
+import { routePointIcon, passedPointIcon, currentPosIcon, sosIcon, heartGreenIcon, heartRedIcon } from './icons';
 import { UUID } from '../../models/uuid';
 import { getDeviations } from '../../utils/deviations';
 import { Coordinates } from '../../models/coordinates';
@@ -38,11 +38,16 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
     };
   }
 
-  eventIcons: { [key: string]: L.Icon | L.DivIcon } = {
+  eventIcons: { [key: string]: L.Icon | L.DivIcon | ((event: ITrackEvent) => L.Icon | L.DivIcon) } = {
     SOS: sosIcon,
+    HeartRate: (event) => {
+      if (event.value === 'Resumed') {
+        return heartGreenIcon;
+      } else {
+        return heartRedIcon;
+      }
+    },
   };
-  displayEvents = Object.keys(this.eventIcons);
-
   getPointById(pointId: UUID) {
     return this.props.route.checkpoints.find(x => x.id === pointId);
   }
@@ -55,12 +60,16 @@ export class RouteMap extends React.Component<RouteMapProps, RouteMapState> {
   }
 
   renderEvent = (event: ITrackEvent) => {
-    if (!this.displayEvents.includes(event.type)) {
+
+    const eventIconConfig = this.eventIcons[event.type];
+    if (!eventIconConfig) {
       return null;
     }
 
+    const icon = typeof eventIconConfig === 'function' ? eventIconConfig(event) : eventIconConfig;
+
     return (
-      <Marker key={event.id} position={event.coords} icon={this.eventIcons[event.type]}>
+      <Marker key={event.id} position={event.coords} icon={icon}>
         <Tooltip direction='bottom' className={classes.tooltip} offset={[0, 15]}>
           {event.type} - {event.value}
         </Tooltip>

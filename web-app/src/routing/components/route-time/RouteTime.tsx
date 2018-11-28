@@ -3,7 +3,7 @@ import React from 'react';
 import classes from './RouteTime.module.css';
 import colors from '../../../colors.module.css';
 
-import { DateTime } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 
 import { IRoute, ICheckpoint } from '../../models/route';
 import { IRouteInstance, ICompletedCheckpoint } from '../../models/route-instance';
@@ -20,20 +20,27 @@ export interface RouteTimeProps {
 
 export class RouteTime extends React.Component<RouteTimeProps> {
 
-  getPlanStart() {
+  get planStart() {
     const { route } = this.props;
-    return DateTime.fromJSDate(route.checkpoints[0].planArrival);
+    const firstCheckpoint = route.checkpoints[0];
+    if (!firstCheckpoint) {
+      return undefined;
+    }
+    const { planArrival, planDeparute } = firstCheckpoint;
+    return DateTime.fromJSDate(planArrival || planDeparute);
   }
 
-  getPlanEnd() {
+  get planEnd() {
     const { route } = this.props;
-    return DateTime.fromJSDate(
-      route.checkpoints[route.checkpoints.length - 1].planDeparute ||
-      route.checkpoints[route.checkpoints.length - 1].planArrival,
-    );
+    const lastCheckpoint = route.checkpoints[route.checkpoints.length - 1];
+    if (!lastCheckpoint) {
+      return undefined;
+    }
+    const { planDeparute, planArrival } = lastCheckpoint;
+    return DateTime.fromJSDate(planDeparute || planArrival);
   }
 
-  getFactStart() {
+  get factStart() {
     const { routeInstance } = this.props;
     const firstPos = routeInstance && routeInstance.track && routeInstance.track[0];
     if (firstPos) {
@@ -41,7 +48,7 @@ export class RouteTime extends React.Component<RouteTimeProps> {
     }
   }
 
-  getFactEnd() {
+  get factEnd() {
     const { routeInstance } = this.props;
 
     const lastPos = routeInstance && routeInstance.track && routeInstance.track[routeInstance.track.length - 1];
@@ -50,26 +57,28 @@ export class RouteTime extends React.Component<RouteTimeProps> {
     }
   }
 
-  getStart() {
-    const factStart = this.getFactStart();
-    if (factStart) {
-      return DateTime.min(this.getPlanStart(), factStart);
+  get start() {
+    if (this.planStart && this.factStart) {
+      return DateTime.min(this.planStart, this.factStart);
     } else {
-      return this.getPlanStart();
+      return this.planStart || this.factStart;
     }
   }
 
-  getEnd() {
-    const factEnd = this.getFactEnd();
-    if (factEnd) {
-      return DateTime.max(this.getPlanEnd(), factEnd);
+  get end() {
+    if (this.planEnd && this.factEnd) {
+      return DateTime.max(this.planEnd, this.factEnd);
     } else {
-      return this.getPlanEnd();
+      return this.planEnd || this.factEnd;
     }
   }
 
-  getDuration() {
-    return this.getEnd().diff(this.getStart());
+  get duration() {
+    if (this.end && this.start) {
+      return this.end.diff(this.start);
+    } else {
+      return Duration.fromMillis(0);
+    }
   }
 
   findPointInstance(pointId: UUID) {
@@ -83,20 +92,26 @@ export class RouteTime extends React.Component<RouteTimeProps> {
   }
 
   renderPlannedRoute() {
-    const planStart = this.getPlanStart();
-    const planEnd = this.getPlanEnd();
+
+    if (!this.planStart || !this.start) {
+      return null;
+    }
+
+    if (!this.planEnd || !this.end) {
+      return null;
+    }
 
     const style: React.CSSProperties = {
       left: cssPercent(
         percent(
-          planStart.diff(this.getStart()).as('milliseconds'),
-          this.getDuration().as('milliseconds'),
+          this.planStart.diff(this.start).as('milliseconds'),
+          this.duration.as('milliseconds'),
         ),
       ),
       right: cssPercent(
         percent(
-          this.getEnd().diff(planEnd).as('milliseconds'),
-          this.getDuration().as('milliseconds'),
+          this.end.diff(this.planEnd).as('milliseconds'),
+          this.duration.as('milliseconds'),
         ),
       ),
     };
@@ -107,24 +122,26 @@ export class RouteTime extends React.Component<RouteTimeProps> {
   }
 
   renderTraveledRoute() {
-    const factStart = this.getFactStart();
-    const factEnd = this.getFactEnd();
 
-    if (!factStart || !factEnd) {
+    if (!this.factStart || !this.start) {
+      return null;
+    }
+
+    if (!this.factEnd || !this.end) {
       return null;
     }
 
     const style: React.CSSProperties = {
       left: cssPercent(
         percent(
-          factStart.diff(this.getStart()).as('milliseconds'),
-          this.getDuration().as('milliseconds'),
+          this.factStart.diff(this.start).as('milliseconds'),
+          this.duration.as('milliseconds'),
         ),
       ),
       right: cssPercent(
         percent(
-          this.getEnd().diff(factEnd).as('milliseconds'),
-          this.getDuration().as('milliseconds'),
+          this.end.diff(this.factEnd).as('milliseconds'),
+          this.duration.as('milliseconds'),
         ),
       ),
     };
@@ -141,18 +158,24 @@ export class RouteTime extends React.Component<RouteTimeProps> {
       return null;
     }
 
-    if (!routeInstance.track[routeInstance.track.length - 1]) {
+    const currentPos = routeInstance.track[routeInstance.track.length - 1];
+
+    if (!currentPos) {
       return null;
     }
 
-    const currentPos = DateTime.fromJSDate(routeInstance.track[routeInstance.track.length - 1].attributes.timestamp);
+    const currentPosTime = DateTime.fromJSDate(currentPos.attributes.timestamp);
+
+    if (!this.start) {
+      return null;
+    }
 
     const style: React.CSSProperties = {
       left: `calc(
         ${cssPercent(
           percent(
-            currentPos.diff(this.getStart()).as('milliseconds'),
-            this.getDuration().as('milliseconds'),
+            currentPosTime.diff(this.start).as('milliseconds'),
+            this.duration.as('milliseconds'),
           ),
         )}
         - 12px)`,
@@ -174,12 +197,16 @@ export class RouteTime extends React.Component<RouteTimeProps> {
       return null;
     }
 
+    if (!this.start) {
+      return null;
+    }
+
     const style: React.CSSProperties = {
       left: `calc(
         ${cssPercent(
           percent(
-            DateTime.fromJSDate(timestamp).diff(this.getStart()).as('milliseconds'),
-            this.getDuration().as('milliseconds'),
+            DateTime.fromJSDate(timestamp).diff(this.start).as('milliseconds'),
+            this.duration.as('milliseconds'),
           ),
         )}
         - 12px
@@ -235,20 +262,24 @@ export class RouteTime extends React.Component<RouteTimeProps> {
 
   renderDeviation(deviation: Deviation, key: any) {
 
+    if (!this.start || !this.end) {
+      return null;
+    }
+
     const start = deviation[0];
     const end = deviation[deviation.length - 1];
 
     const style: React.CSSProperties = {
       left: cssPercent(
         percent(
-          DateTime.fromJSDate(start.point.attributes.timestamp).diff(this.getStart()).as('milliseconds'),
-          this.getDuration().as('milliseconds'),
+          DateTime.fromJSDate(start.point.attributes.timestamp).diff(this.start).as('milliseconds'),
+          this.duration.as('milliseconds'),
         ),
       ),
       right: cssPercent(
         percent(
-          this.getEnd().diff(DateTime.fromJSDate(end.point.attributes.timestamp)).as('milliseconds'),
-          this.getDuration().as('milliseconds'),
+          this.end.diff(DateTime.fromJSDate(end.point.attributes.timestamp)).as('milliseconds'),
+          this.duration.as('milliseconds'),
         ),
       ),
     };

@@ -31,11 +31,15 @@ const heartbeat = (className: string) =>
 export const heartRedIcon = L.divIcon({
   html: heartbeat(classes.heartbeatLost).html[0],
   className: 'fa-2x',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
 });
 
 export const heartGreenIcon = L.divIcon({
   html: heartbeat(classes.heartbeatFound).html[0],
   className: 'fa-2x',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
 });
 
 const sos = Fa.layer(push => {
