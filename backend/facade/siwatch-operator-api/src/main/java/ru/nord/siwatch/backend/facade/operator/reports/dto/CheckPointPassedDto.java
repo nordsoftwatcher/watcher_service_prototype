@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import java.util.Date;
 
-@Getter @Setter @AllArgsConstructor
+@Getter @Setter
 public class CheckPointPassedDto {
 
     private String name;

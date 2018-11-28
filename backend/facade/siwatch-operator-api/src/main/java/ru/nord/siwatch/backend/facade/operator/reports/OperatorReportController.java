@@ -149,26 +149,34 @@ public class OperatorReportController extends ApiBase {
         for (CheckPoint checkPoint : checkPoints) {
             CheckPointResultDto checkPointResult = getCheckpointResult(checkPoint, checkPointResults);
             if (checkPointResult != null) {
-                result.add(new CheckPointPassedDto(
-                        checkPointResult.getName(), checkPointResult.getAddress(), checkPoint.getDescription(),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getArrivalTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getDepartureTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactArrivalTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactDepartureTime()),
-                        OperatorLocationUtils.beforeDate(checkPointResult.getArrivalTime(), checkPointResult.getFactArrivalTime()),
-                        OperatorLocationUtils.beforeDate(checkPointResult.getDepartureTime(), checkPointResult.getFactDepartureTime()),
-                        OperatorLocationUtils.isCheckpointPassed(
-                                checkPointResult.getFactArrivalTime(),
-                                checkPointResult.getFactDepartureTime(),
-                                checkPointResult.getDepartureTime())
-                ));
+                CheckPointPassedDto passedDto = new CheckPointPassedDto();
+                passedDto.setName(checkPointResult.getName());
+                passedDto.setAddress(checkPointResult.getAddress());
+                passedDto.setDescription(checkPoint.getDescription());
+                passedDto.setArrivalTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getArrivalTime()));
+                passedDto.setDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getDepartureTime()));
+                passedDto.setFactArrivalTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactArrivalTime()));
+                passedDto.setFactDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactDepartureTime()));
+                passedDto.setArrivalLate(OperatorLocationUtils.beforeDate(checkPointResult.getArrivalTime(), checkPointResult.getFactArrivalTime()));
+                passedDto.setDepartureLate(OperatorLocationUtils.beforeDate(checkPointResult.getDepartureTime(), checkPointResult.getFactDepartureTime()));
+                passedDto.setPassed(OperatorLocationUtils.isCheckpointPassed(
+                        checkPointResult.getFactArrivalTime(),
+                        checkPointResult.getFactDepartureTime(),
+                        checkPointResult.getDepartureTime()));
+                result.add(passedDto);
+
             } else {
-                result.add(new CheckPointPassedDto(
-                        checkPoint.getName(), checkPoint.getAddress(), checkPoint.getDescription(),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getArrivalTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getDepartureTime()),
-                        null, null,  false, false, false
-                ));
+
+                CheckPointPassedDto passedDto = new CheckPointPassedDto();
+                passedDto.setName(checkPoint.getName());
+                passedDto.setAddress(checkPoint.getAddress());
+                passedDto.setDescription(checkPoint.getDescription());
+                passedDto.setArrivalTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getArrivalTime()));
+                passedDto.setDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getDepartureTime()));
+                passedDto.setArrivalLate(false);
+                passedDto.setDepartureLate(false);
+                passedDto.setPassed(false);
+                result.add(passedDto);
             }
         }
         return result;
