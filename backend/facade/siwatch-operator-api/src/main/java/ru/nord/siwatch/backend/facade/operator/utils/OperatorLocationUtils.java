@@ -45,7 +45,7 @@ public class OperatorLocationUtils {
         if (first == null || second == null) {
             return false;
         }
-        return first.before(new Date(second.getTime() + SECOND));
+        return first.before(second);
     }
 
     public static Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
