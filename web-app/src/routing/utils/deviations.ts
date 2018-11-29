@@ -9,9 +9,8 @@ export function getDeviations(routeInstance?: IRouteInstance) {
     return [];
   }
 
-  const deviatePoints = routeInstance.track
-    .map((point, index) => ({ point, index }))
-    .filter(x => x.point.attributes.distanceFromRoute > deviationThreshold);
+  const indexedPoints = routeInstance.track.map((point, index) => ({ point, index }));
+  const deviatePoints = indexedPoints.filter(x => x.point.attributes.distanceFromRoute > deviationThreshold);
 
   const deviateLines = deviatePoints.reduce((acc, currPoint) => {
     const lastLine = acc[acc.length - 1];
@@ -19,8 +18,10 @@ export function getDeviations(routeInstance?: IRouteInstance) {
       acc.push([currPoint]);
     } else {
       const lastPoint = lastLine[lastLine.length - 1];
-      if (Math.abs(lastPoint.index - currPoint.index) === 1) {
-        lastLine.push(currPoint);
+      const indexDiff = currPoint.index - lastPoint.index;
+      if (indexDiff < 3) {
+        const toAdd = indexedPoints.slice(lastPoint.index + 1, currPoint.index + 1);
+        lastLine.push(...toAdd);
       } else {
         acc.push([currPoint]);
       }
@@ -28,7 +29,7 @@ export function getDeviations(routeInstance?: IRouteInstance) {
     return acc;
   }, [] as Deviation[]);
 
-  deviateLines.forEach(line => {
+  /* deviateLines.forEach(line => {
     const first = line[0];
     const beforeFirst = routeInstance.track[first.index - 1];
     if (beforeFirst) {
@@ -39,7 +40,7 @@ export function getDeviations(routeInstance?: IRouteInstance) {
     if (afterLast) {
       line.push({ point: afterLast, index: last.index + 1 });
     }
-  });
+  }); */
 
   return deviateLines;
 }
