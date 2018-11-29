@@ -1,12 +1,11 @@
 package ru.nord.siwatch.backend.facade.operator.reports.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
 
-@Getter @Setter @AllArgsConstructor
+@Getter @Setter
 public class CheckPointPassedDto {
 
     private String name;
@@ -26,6 +25,10 @@ public class CheckPointPassedDto {
     private Boolean arrivalLate;
 
     private Boolean departureLate;
+
+    private Integer planTime;
+
+    private Integer factTime;
 
     private Boolean passed;
 

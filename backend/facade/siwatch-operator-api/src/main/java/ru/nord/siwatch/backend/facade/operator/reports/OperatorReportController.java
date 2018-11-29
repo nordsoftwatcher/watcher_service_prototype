@@ -80,6 +80,8 @@ public class OperatorReportController extends ApiBase {
         model.addAttribute("routeIntervals", routeIntervals);
         model.addAttribute("totalIntervalTime", getTotalIntervalTime(routeIntervals));
         model.addAttribute("factTotalIntervalTime", getFactTotalIntervalTime(routeIntervals));
+        model.addAttribute("totalCheckpointTime", getTotalCheckpointTime(checkPointPassedInfos));
+        model.addAttribute("factTotalCheckpointTime", getFactTotalCheckpointTime(checkPointPassedInfos));
         return "route_report";
     }
 
@@ -95,6 +97,22 @@ public class OperatorReportController extends ApiBase {
         Integer result = 0;
         for (RouteIntervalDto routeInterval : routeIntervals) {
             result += (routeInterval.getFactTimeMinutes());
+        }
+        return result;
+    }
+
+    private Integer getTotalCheckpointTime(List<CheckPointPassedDto> checkPointPassed) {
+        Integer result = 0;
+        for (CheckPointPassedDto checkPointPassedDto : checkPointPassed) {
+            result += checkPointPassedDto.getPlanTime();
+        }
+        return result;
+    }
+
+    private Integer getFactTotalCheckpointTime(List<CheckPointPassedDto> checkPointPassed) {
+        Integer result = 0;
+        for (CheckPointPassedDto checkPointPassedDto : checkPointPassed) {
+            result += checkPointPassedDto.getFactTime();
         }
         return result;
     }
@@ -138,7 +156,7 @@ public class OperatorReportController extends ApiBase {
 
         if (currentStartTime != null) {
             deviations.add(new RouteDeviationDto(
-                    Date.from(currentStartTime.toInstant(ZoneOffset.UTC)), null, null
+                    OperatorLocationUtils.getDateFromLocalDateTime(currentStartTime), null, null
             ));
         }
         return deviations;
@@ -149,26 +167,38 @@ public class OperatorReportController extends ApiBase {
         for (CheckPoint checkPoint : checkPoints) {
             CheckPointResultDto checkPointResult = getCheckpointResult(checkPoint, checkPointResults);
             if (checkPointResult != null) {
-                result.add(new CheckPointPassedDto(
-                        checkPointResult.getName(), checkPointResult.getAddress(), checkPoint.getDescription(),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getArrivalTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getDepartureTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactArrivalTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactDepartureTime()),
-                        OperatorLocationUtils.beforeDate(checkPointResult.getArrivalTime(), checkPointResult.getFactArrivalTime()),
-                        OperatorLocationUtils.beforeDate(checkPointResult.getDepartureTime(), checkPointResult.getFactDepartureTime()),
-                        OperatorLocationUtils.isCheckpointPassed(
-                                checkPointResult.getFactArrivalTime(),
-                                checkPointResult.getFactDepartureTime(),
-                                checkPointResult.getDepartureTime())
-                ));
+                CheckPointPassedDto passedDto = new CheckPointPassedDto();
+                passedDto.setName(checkPointResult.getName());
+                passedDto.setAddress(checkPointResult.getAddress());
+                passedDto.setDescription(checkPoint.getDescription());
+                passedDto.setArrivalTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getArrivalTime()));
+                passedDto.setDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getDepartureTime()));
+                passedDto.setFactArrivalTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactArrivalTime()));
+                passedDto.setFactDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactDepartureTime()));
+                passedDto.setArrivalLate(OperatorLocationUtils.beforeDate(checkPointResult.getArrivalTime(), checkPointResult.getFactArrivalTime()));
+                passedDto.setDepartureLate(OperatorLocationUtils.beforeDate(checkPointResult.getDepartureTime(), checkPointResult.getFactDepartureTime()));
+                passedDto.setPlanTime(OperatorLocationUtils.calcTimeInMinutes(checkPointResult.getArrivalTime(), checkPointResult.getDepartureTime()));
+                passedDto.setFactTime(OperatorLocationUtils.calcTimeInMinutes(checkPointResult.getFactArrivalTime(), checkPointResult.getFactDepartureTime()));
+                passedDto.setPassed(OperatorLocationUtils.isCheckpointPassed(
+                        checkPointResult.getFactArrivalTime(),
+                        checkPointResult.getFactDepartureTime(),
+                        checkPointResult.getDepartureTime()));
+                result.add(passedDto);
+
             } else {
-                result.add(new CheckPointPassedDto(
-                        checkPoint.getName(), checkPoint.getAddress(), checkPoint.getDescription(),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getArrivalTime()),
-                        OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getDepartureTime()),
-                        null, null,  false, false, false
-                ));
+
+                CheckPointPassedDto passedDto = new CheckPointPassedDto();
+                passedDto.setName(checkPoint.getName());
+                passedDto.setAddress(checkPoint.getAddress());
+                passedDto.setDescription(checkPoint.getDescription());
+                passedDto.setArrivalTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getArrivalTime()));
+                passedDto.setDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getDepartureTime()));
+                passedDto.setPlanTime(OperatorLocationUtils.calcTimeInMinutes(checkPoint.getArrivalTime(), checkPoint.getDepartureTime()));
+                passedDto.setFactTime(0);
+                passedDto.setArrivalLate(false);
+                passedDto.setDepartureLate(false);
+                passedDto.setPassed(false);
+                result.add(passedDto);
             }
         }
         return result;
@@ -202,10 +232,10 @@ public class OperatorReportController extends ApiBase {
 
     private Integer getFactIntervalTime(CheckPointResultDto start, CheckPointResultDto end) {
         if (start == null || end == null) {
-            return null;
+            return 0;
         }
         if (start.getFactDepartureTime() == null || end.getFactArrivalTime() == null) {
-            return null;
+            return 0;
         }
         return OperatorLocationUtils.calcTimeInMinutes(start.getFactDepartureTime(), end.getFactArrivalTime());
     }
