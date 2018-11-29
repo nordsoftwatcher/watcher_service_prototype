@@ -122,6 +122,16 @@
             <b th:text="${factTotalIntervalTime}"></b><br>
         </span>
 
+        <span>Общее планируемое время в контрольных точках (мин.) : <b th:text="${totalCheckpointTime}"></b></span><br>
+
+        <span class="error" th:if="${totalCheckpointTime < factTotalCheckpointTime}">Общее фактическое время в контрольных точках (мин.) :
+            <b th:text="${factTotalCheckpointTime}"></b><br>
+        </span>
+        <span class="success" th:if="${totalCheckpointTime >= factTotalCheckpointTime}">Общее планируемое время в контрольных точках (мин.) :
+            <b th:text="${factTotalCheckpointTime}"></b><br>
+        </span>
+
+
         <b class="error" th:if="${checkPointNotPassedCount != 0}">Маршрут не пройден</b>
         <b class="success" th:if="${checkPointNotPassedCount == 0}">Маршрут пройден</b>
 
@@ -160,6 +170,8 @@
                 <th>Планируемое время отбытия</th>
                 <th>Фактическое время прибытия</th>
                 <th>Фактическое время отбытия</th>
+                <th>Планируемое время (мин.)</th>
+                <th>Фактическое время (мин.)</th>
                 <th>Пройден</th>
             </tr>
             <th:block th:each="checkPointPassedInfo : ${checkPointPassedInfos}">
@@ -180,6 +192,8 @@
                     <td th:if="${checkPointPassedInfo.departureLate == true}">
                         <span class="error" th:text="${#dates.format(checkPointPassedInfo.factDepartureTime, 'dd-MMM-yyyy HH:mm')}"></span>
                     </td>
+                    <td th:text="${checkPointPassedInfo.planTime}"></td>
+                    <td th:text="${checkPointPassedInfo.factTime}"></td>
                     <td>
                         <span class="success" th:if="${checkPointPassedInfo.passed == true}">Пройден</span>
                         <span class="error" th:if="${checkPointPassedInfo.passed == false}">Не пройден</span>

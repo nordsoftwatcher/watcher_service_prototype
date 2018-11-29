@@ -80,6 +80,8 @@ public class OperatorReportController extends ApiBase {
         model.addAttribute("routeIntervals", routeIntervals);
         model.addAttribute("totalIntervalTime", getTotalIntervalTime(routeIntervals));
         model.addAttribute("factTotalIntervalTime", getFactTotalIntervalTime(routeIntervals));
+        model.addAttribute("totalCheckpointTime", getTotalCheckpointTime(checkPointPassedInfos));
+        model.addAttribute("factTotalCheckpointTime", getFactTotalCheckpointTime(checkPointPassedInfos));
         return "route_report";
     }
 
@@ -95,6 +97,22 @@ public class OperatorReportController extends ApiBase {
         Integer result = 0;
         for (RouteIntervalDto routeInterval : routeIntervals) {
             result += (routeInterval.getFactTimeMinutes());
+        }
+        return result;
+    }
+
+    private Integer getTotalCheckpointTime(List<CheckPointPassedDto> checkPointPassed) {
+        Integer result = 0;
+        for (CheckPointPassedDto checkPointPassedDto : checkPointPassed) {
+            result += checkPointPassedDto.getPlanTime();
+        }
+        return result;
+    }
+
+    private Integer getFactTotalCheckpointTime(List<CheckPointPassedDto> checkPointPassed) {
+        Integer result = 0;
+        for (CheckPointPassedDto checkPointPassedDto : checkPointPassed) {
+            result += checkPointPassedDto.getFactTime();
         }
         return result;
     }
@@ -159,6 +177,8 @@ public class OperatorReportController extends ApiBase {
                 passedDto.setFactDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPointResult.getFactDepartureTime()));
                 passedDto.setArrivalLate(OperatorLocationUtils.beforeDate(checkPointResult.getArrivalTime(), checkPointResult.getFactArrivalTime()));
                 passedDto.setDepartureLate(OperatorLocationUtils.beforeDate(checkPointResult.getDepartureTime(), checkPointResult.getFactDepartureTime()));
+                passedDto.setPlanTime(OperatorLocationUtils.calcTimeInMinutes(checkPointResult.getArrivalTime(), checkPointResult.getDepartureTime()));
+                passedDto.setFactTime(OperatorLocationUtils.calcTimeInMinutes(checkPointResult.getFactArrivalTime(), checkPointResult.getFactDepartureTime()));
                 passedDto.setPassed(OperatorLocationUtils.isCheckpointPassed(
                         checkPointResult.getFactArrivalTime(),
                         checkPointResult.getFactDepartureTime(),
@@ -173,6 +193,8 @@ public class OperatorReportController extends ApiBase {
                 passedDto.setDescription(checkPoint.getDescription());
                 passedDto.setArrivalTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getArrivalTime()));
                 passedDto.setDepartureTime(OperatorLocationUtils.getDateFromLocalDateTime(checkPoint.getDepartureTime()));
+                passedDto.setPlanTime(OperatorLocationUtils.calcTimeInMinutes(checkPoint.getArrivalTime(), checkPoint.getDepartureTime()));
+                passedDto.setFactTime(0);
                 passedDto.setArrivalLate(false);
                 passedDto.setDepartureLate(false);
                 passedDto.setPassed(false);
