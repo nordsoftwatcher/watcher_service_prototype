@@ -15,6 +15,7 @@ import { mapRouteInstance } from '../../../api-mappers/route-instance';
 import { mapEvent } from '../../../api-mappers/track-event';
 
 import { OperatorRouteApiApi, OperatorDeviceApiApi, OperatorEventApiApi } from '../../../api/operator-api';
+import { withAppConfig, ConfiguredComponentProps } from '../../../core/app-config/AppConfigProvider';
 
 const PARAMS = {
   deviceId: 'TEST_DEVICE',
@@ -25,9 +26,12 @@ interface RouteParams {
   routeId: string;
 }
 
-interface RouteInstanceContainerProps extends RouteComponentProps<RouteParams> {
+// tslint:disable-next-line:no-empty-interface
+interface RouteInstanceContainerProps {
 
 }
+
+type Props = RouteInstanceContainerProps & ConfiguredComponentProps & RouteComponentProps<RouteParams>;
 
 interface RouteInstanceContainerState {
   route?: IRoute;
@@ -36,10 +40,20 @@ interface RouteInstanceContainerState {
   person?: IPerson;
 }
 
-export class RouteInstanceContainer extends React.Component<RouteInstanceContainerProps, RouteInstanceContainerState> {
+export class RouteInstanceContainer extends React.Component<Props, RouteInstanceContainerState> {
 
-  constructor(props: RouteInstanceContainerProps) {
+  private routeApi: OperatorRouteApiApi;
+  private deviceApi: OperatorDeviceApiApi;
+  private eventsApi: OperatorEventApiApi;
+
+  constructor(props: Props) {
     super(props);
+
+    const { config } = this.props;
+
+    this.routeApi = new OperatorRouteApiApi(undefined, config.apiUrl);
+    this.deviceApi = new OperatorDeviceApiApi(undefined, config.apiUrl);
+    this.eventsApi = new OperatorEventApiApi(undefined, config.apiUrl);
 
     this.state = {
       events: [],
@@ -115,13 +129,8 @@ export class RouteInstanceContainer extends React.Component<RouteInstanceContain
 
   static params = {
     deviceId: 'TEST_DEVICE',
-    routeId: 6,
     refreshIntervalMs: 1000,
   };
-
-  private routeApi = new OperatorRouteApiApi();
-  private deviceApi = new OperatorDeviceApiApi();
-  private eventsApi = new OperatorEventApiApi();
 
   render() {
     const { route, routeInstance, person, events } = this.state;
@@ -134,3 +143,5 @@ export class RouteInstanceContainer extends React.Component<RouteInstanceContain
     );
   }
 }
+
+export const ConfiguredRouteInstanceContainer = withAppConfig(RouteInstanceContainer);
