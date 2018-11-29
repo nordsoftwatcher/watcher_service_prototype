@@ -9,18 +9,16 @@ using SiWatchApp.Models;
 
 namespace SiWatchApp.Services
 {
-    public class SyncManager
+    public class DirectSyncProxy : ISyncProxy
     {
-        private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(SyncManager));
+        private static readonly Logger LOGGER = LoggerFactory.GetLogger(nameof(DirectSyncProxy));
 
         private readonly JsonSerializerSettings _jsonSerializerSettings;
         private readonly SyncClient _syncClient;
-        private readonly IJsonStorage _storage;
         private readonly Settings _settings;
 
-        public SyncManager(IJsonStorage storage, Settings settings)
+        public DirectSyncProxy(Settings settings)
         {
-            _storage = storage;
             _settings = settings;
             _jsonSerializerSettings = new JsonSerializerSettings {
                     Formatting = Formatting.None,
@@ -30,25 +28,14 @@ namespace SiWatchApp.Services
             };
             _syncClient = new SyncClient(settings);
         }
-        
-        public async Task<SyncPacket> Send(SyncPacket packet)
+
+        public async Task<SyncPacket> Sync(SyncPacket packet)
         {
             packet.DeviceId = _settings.DeviceId;
-            var packetJson = JsonConvert.SerializeObject(packet, Formatting.None, _jsonSerializerSettings);
+            var jsonOut = "["+JsonConvert.SerializeObject(packet, Formatting.None, _jsonSerializerSettings)+"]";
 
-            await _storage.Append(packetJson);
-
-            string jsonOut = await _storage.Get();
-            string jsonIn;
-            try {
-                jsonIn = await _syncClient.Send(jsonOut);
-                await _storage.Clear();
-            }
-            catch (Exception ex) {
-                LOGGER.Error("Failed sending sync data:", ex);
-                return null;
-            }
-
+            string jsonIn = await _syncClient.Send(jsonOut);
+            
             if (!string.IsNullOrEmpty(jsonIn)) {
                 try {
                     return JsonConvert.DeserializeObject<SyncPacket>(jsonIn, _jsonSerializerSettings);

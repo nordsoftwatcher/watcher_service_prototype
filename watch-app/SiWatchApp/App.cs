@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using SiWatchApp.Buffer;
 using SiWatchApp.Configuration;
@@ -14,8 +11,6 @@ using SiWatchApp.Models;
 using SiWatchApp.Queue;
 using SiWatchApp.Services;
 using SiWatchApp.System;
-using Tizen.Applications;
-using Tizen.System;
 using Xamarin.Forms;
 using Application = Xamarin.Forms.Application;
 using Notification = SiWatchApp.UI.Notification;
@@ -45,6 +40,8 @@ namespace SiWatchApp
         private ActionEventSource _actionEventSource;
         private OutgoingEventHandler _outgoingEventHandler;
         private IncomingEventHandler _incomingEventHandler;
+        private IJsonStorage _storage;
+        private BufferingSyncProxy _syncProxy;
 
         public App()
         {
@@ -149,13 +146,13 @@ namespace SiWatchApp
             _messageQueue = new InMemoryPriorityQueue<TextMessage>();
             _disposables.Add(_messageQueue);
 
-            SetStatus("Loading settings...");
+            SetStatus("Getting settings...");
             _settings = await _settingsService.GetSettings();
             _mainPage.SetPolicyInfo("DeviceID: " + _settings.DeviceId);
             _mainPage.SetApiUrl(_settings.ApiUrl);
 
             // check mandatory privileges
-            SetStatus("Checking permissions...");
+            SetStatus("Demand permissions...");
             try {
                 await _permissionManager.Demand("http://tizen.org/privilege/internet", DevicePower.Privilege, LocationService.Privilege);
             }
@@ -218,9 +215,16 @@ namespace SiWatchApp
 
             _monitoringService = new MonitoringService(_monitoringPolicyService, _buffer);
             _incomingEventHandler = new IncomingEventHandler(_messageQueue);
-            _syncService = new SyncService(_monitoringPolicyService, _buffer, _settings, _incomingEventHandler);
-            _syncService.Synced += OnSynced;
 
+            _storage = new StringJsonStorage();
+            _disposables.Add(_storage);
+
+            _syncProxy = new BufferingSyncProxy(_storage, _settings);
+            _syncProxy.Synced += OnProxySynced;
+            
+            _syncService = new SyncService(_monitoringPolicyService, _buffer, _syncProxy, _settings, _incomingEventHandler);
+            _syncService.Synced += OnSynced;
+            
             _outgoingEventHandler = new OutgoingEventHandler(_buffer, _syncService);
 
             _sosEventSource = new SOSEventSource(LocationService.Instance);
@@ -244,18 +248,23 @@ namespace SiWatchApp
             var sub3 = Observable.Interval(TimeSpan.FromSeconds(2), _uiScheduler)
                                  .Subscribe(_ => {
                                                 _mainPage.SetStatus(_started ? "Monitoring..." : "Waiting...");
-                                                _mainPage.SetBufferInfo(_buffer.Count > 0 ? $"Queued {_buffer.Count} records" : "Queue is empty");
+                                                _mainPage.SetBufferInfo(_buffer.Count > 0 ? $"Queued {_buffer.Count} records" : "Queue is EMPTY");
                                                 _mainPage.SetTime(DateTime.Now.ToString("HH:mm"));
 
                                                 if (_messageQueue != null) _mainPage.ShowMessageButton(_messageQueue.Count > 0);
 
                                                 var location = LocationService.Instance.GetCurrentLocation();
-                                                var info = location == null ? "???" : $"lat={location.Latitude:F4}, lon={location.Longitude:F4}";
-                                                _mainPage.SetLocationInfo($"Loc.: {info}");
-                                 });
+                                                if (location == null) {
+                                                    _mainPage.SetLocationInfo("Location is unavailable", false);
+                                                }
+                                                else {
+                                                    var info = $"Lat={location.Latitude:F5}, Lon={location.Longitude:F5}";
+                                                    _mainPage.SetLocationInfo(info, location.Accuracy < 20);
+                                                }
+                                            });
             _disposables.Add(sub3);
         }
-
+        
         private void UpdateMonitoringPolicy()
         {
             var name = _monitoringPolicyService.CurrentMonitoringPolicyName;
@@ -267,18 +276,29 @@ namespace SiWatchApp
             InvokeOnMainThread(UpdateMonitoringPolicy);
         }
 
+        private void OnProxySynced(object sender, SyncResult result)
+        {
+            if (result == SyncResult.Sent) {
+                if (_settings.FeedbackSync) {
+                    FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(90), 100);
+                }
+                SetStatus("Sync SENT");
+            }
+            else if(result == SyncResult.Delayed) {
+                SetStatus("Sync BUFFERED");
+            }
+        }
+
         private void OnSynced(object sender, bool success)
         {
-            if (_settings.FeedbackSync) {
-                FeedbackService.Instance.Vibrate(TimeSpan.FromMilliseconds(90), 95);
+            if (!success) {
+                SetStatus("Sync FAILED");
             }
-            SetStatus(success ? "Sync OK" : "Sync FAILED");
         }
 
         protected override void OnSleep()
         {
             LOGGER.Info("OnSleep");
-            //Tizen.Applications.AppControl.SendLaunchRequest(new AppControl());
         }
 
         protected override void OnResume()

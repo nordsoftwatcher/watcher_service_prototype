@@ -7,15 +7,15 @@ namespace SiWatchApp
 {
     public class MainPage : AppPage
     {
-        private Label titleLabel = new Label() { FontSize = 7, FontAttributes = FontAttributes.Bold, TextColor = Color.MediumPurple, HorizontalOptions = LayoutOptions.Center, Text = "SiWatch"};
-        private Label policyLabel = new Label() { FontSize = 5, HorizontalOptions = LayoutOptions.Center };
+        private Label titleLabel = new Label() { FontSize = 8, FontAttributes = FontAttributes.Bold, TextColor = Color.MediumPurple, HorizontalOptions = LayoutOptions.Center, Text = "SiWatch"};
+        private Label policyLabel = new Label() { FontSize = 6, HorizontalOptions = LayoutOptions.Center };
         private Label apiUrlLabel = new Label() { FontSize = 4, HorizontalOptions = LayoutOptions.Center };
-        private Label timeLabel = new Label() { FontSize = 8, TextColor = Color.LawnGreen, HorizontalOptions = LayoutOptions.Center };
-        private Button sosButton = new Button() { FontSize = 10, WidthRequest = 180, BackgroundColor = Color.Red, Text = "    SOS    ", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
-        private Button startFinishButton = new Button() { FontSize = 10, WidthRequest = 180, BackgroundColor = Color.Blue, Text = "Action", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
+        private Label timeLabel = new Label() { FontSize = 11, TextColor = Color.LawnGreen, HorizontalOptions = LayoutOptions.Center };
+        private Button sosButton = new Button() { FontSize = 11, WidthRequest = 180, BackgroundColor = Color.Red, Text = "    SOS    ", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
+        private Button startFinishButton = new Button() { FontSize = 11, WidthRequest = 180, BackgroundColor = Color.Blue, Text = "Action", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
         private Label statusLabel = new Label() { FontSize = 8, TextColor = Color.DeepPink, HorizontalOptions = LayoutOptions.Center };
-        private Label locationLabel = new Label() { FontSize = 6, TextColor = Color.LightSeaGreen, HorizontalOptions = LayoutOptions.Center };
-        private Label bufferLabel = new Label() { FontSize = 5, TextColor = Color.SandyBrown, HorizontalOptions = LayoutOptions.Center };
+        private Label locationLabel = new Label() { FontSize = 6, HorizontalOptions = LayoutOptions.Center };
+        private Label bufferLabel = new Label() { FontSize = 5, TextColor = Color.LightGray, HorizontalOptions = LayoutOptions.Center };
         //private Button exitButton = new Button() { FontSize = 9, HorizontalOptions = LayoutOptions.Center, Text = "Exit", IsEnabled = true};
 
         public MainPage()
@@ -23,7 +23,7 @@ namespace SiWatchApp
             var layout = new StackLayout() {
                     Spacing = 3,
                     VerticalOptions = LayoutOptions.Center,
-                    Children = { titleLabel, policyLabel, apiUrlLabel, sosButton, statusLabel, startFinishButton, locationLabel, bufferLabel, timeLabel }
+                    Children = { titleLabel, policyLabel, apiUrlLabel, sosButton, statusLabel, bufferLabel, startFinishButton, locationLabel, timeLabel }
             };
             Content = layout;
             FirstButton = new MenuItem() { Icon = Icons.Exit };
@@ -81,9 +81,10 @@ namespace SiWatchApp
             bufferLabel.Text = info ?? "";
         }
 
-        public void SetLocationInfo(String info)
+        public void SetLocationInfo(String info, bool good)
         {
             locationLabel.Text = info ?? "";
+            locationLabel.TextColor = good ? Color.LightSeaGreen : Color.LightSalmon;
         }
         
         public void EnableSOS(bool enabled)
