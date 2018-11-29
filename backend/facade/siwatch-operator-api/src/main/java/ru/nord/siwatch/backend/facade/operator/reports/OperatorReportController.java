@@ -156,7 +156,7 @@ public class OperatorReportController extends ApiBase {
 
         if (currentStartTime != null) {
             deviations.add(new RouteDeviationDto(
-                    Date.from(currentStartTime.toInstant(ZoneOffset.UTC)), null, null
+                    OperatorLocationUtils.getDateFromLocalDateTime(currentStartTime), null, null
             ));
         }
         return deviations;

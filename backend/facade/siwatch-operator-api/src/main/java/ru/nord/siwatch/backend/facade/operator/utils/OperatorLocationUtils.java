@@ -20,6 +20,7 @@ public class OperatorLocationUtils {
 
     private static final long SECOND = 1000;
     private static final long MINUTE = SECOND * 60;
+    private static final long HOUR = MINUTE * 60;
 
     public static boolean isCheckpointPassed(LocalDateTime factArrivalTime, LocalDateTime factDepartureTime, LocalDateTime departureTime) {
         if (factArrivalTime == null) {
@@ -49,7 +50,12 @@ public class OperatorLocationUtils {
     }
 
     public static Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
-        return localDateTime != null ?  Date.from(localDateTime.toInstant(ZoneOffset.UTC)) : null;
+        Date result = localDateTime != null ?  Date.from(localDateTime.toInstant(ZoneOffset.UTC)) : null;
+        if (result != null) {
+            return new Date(result.getTime() + (3 * HOUR)); //TODO
+        } else {
+            return null;
+        }
     }
 
     public static Integer calcFactTime(ArrivalDepartureInfo arrivalDepartureInfo) {
