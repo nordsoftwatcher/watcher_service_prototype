@@ -54,7 +54,7 @@ public class OperatorLocationUtils {
 
     public static Integer calcFactTime(ArrivalDepartureInfo arrivalDepartureInfo) {
         if (arrivalDepartureInfo.getArrivalTime() == null || arrivalDepartureInfo.getDepartureTime() == null) {
-            return null;
+            return 0;
         }
         Date arrivalTime = Date.from(arrivalDepartureInfo.getArrivalTime().toInstant(ZoneOffset.UTC));
         Date departureTime = Date.from(arrivalDepartureInfo.getDepartureTime().toInstant(ZoneOffset.UTC));

@@ -232,10 +232,10 @@ public class OperatorReportController extends ApiBase {
 
     private Integer getFactIntervalTime(CheckPointResultDto start, CheckPointResultDto end) {
         if (start == null || end == null) {
-            return null;
+            return 0;
         }
         if (start.getFactDepartureTime() == null || end.getFactArrivalTime() == null) {
-            return null;
+            return 0;
         }
         return OperatorLocationUtils.calcTimeInMinutes(start.getFactDepartureTime(), end.getFactArrivalTime());
     }
