@@ -10,7 +10,7 @@ namespace SiWatchApp
         private Label titleLabel = new Label() { FontSize = 8, FontAttributes = FontAttributes.Bold, TextColor = Color.MediumPurple, HorizontalOptions = LayoutOptions.Center, Text = "SiWatch"};
         private Label policyLabel = new Label() { FontSize = 6, HorizontalOptions = LayoutOptions.Center };
         private Label apiUrlLabel = new Label() { FontSize = 4, HorizontalOptions = LayoutOptions.Center };
-        private Label timeLabel = new Label() { FontSize = 11, TextColor = Color.LawnGreen, HorizontalOptions = LayoutOptions.Center };
+        private Label timeLabel = new Label() { FontSize = 11, TextColor = Color.LightSkyBlue, HorizontalOptions = LayoutOptions.Center };
         private Button sosButton = new Button() { FontSize = 11, WidthRequest = 180, BackgroundColor = Color.Red, Text = "    SOS    ", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
         private Button startFinishButton = new Button() { FontSize = 11, WidthRequest = 180, BackgroundColor = Color.Blue, Text = "Action", HorizontalOptions = LayoutOptions.Center, IsVisible = false };
         private Label statusLabel = new Label() { FontSize = 8, TextColor = Color.DeepPink, HorizontalOptions = LayoutOptions.Center };
@@ -84,7 +84,7 @@ namespace SiWatchApp
         public void SetLocationInfo(String info, bool good)
         {
             locationLabel.Text = info ?? "";
-            locationLabel.TextColor = good ? Color.LightSeaGreen : Color.LightSalmon;
+            locationLabel.TextColor = good ? Color.LawnGreen : Color.Gray;
         }
         
         public void EnableSOS(bool enabled)
