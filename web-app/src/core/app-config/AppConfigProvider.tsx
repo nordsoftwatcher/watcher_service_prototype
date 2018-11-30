@@ -1,9 +1,16 @@
 import React from 'react';
-import { IAppConfig, AppConfigService } from './app-config.service';
+import { AppConfigService } from './app-config.service';
+import { IAppConfig } from './app-config';
 
-export const AppConfigContext = React.createContext<IAppConfig | undefined>(undefined);
+export type IAppConfigContext = IAppConfig | undefined;
 
-export class AppConfigProvider extends React.Component<{}, { config: IAppConfig | undefined }> {
+export const AppConfigContext = React.createContext<IAppConfigContext>(undefined);
+
+interface AppConfigProviderState {
+  config: IAppConfigContext;
+}
+
+export class AppConfigProvider extends React.Component<{}, AppConfigProviderState> {
 
   appConfigService: AppConfigService = new AppConfigService();
 
@@ -15,9 +22,9 @@ export class AppConfigProvider extends React.Component<{}, { config: IAppConfig 
   }
 
   async componentDidMount() {
-    const config = await this.appConfigService.init();
+    await this.appConfigService.init();
     this.setState({
-      config,
+      config: this.appConfigService.config,
     });
   }
 
@@ -39,13 +46,7 @@ export interface ConfiguredComponentProps {
 export function withAppConfig<TProps>(Component: React.ComponentType<TProps & ConfiguredComponentProps>) {
   return (props: TProps) => (
     <AppConfigContext.Consumer>
-      {config => {
-        if (!config) {
-          return null;
-        } else {
-          return <Component config={config} {...props} />;
-        }
-      }}
+      {config => config ? <Component {...props} config={config} /> : null}
     </AppConfigContext.Consumer>
   );
 }

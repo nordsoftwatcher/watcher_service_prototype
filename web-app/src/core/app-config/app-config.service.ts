@@ -1,21 +1,23 @@
-export interface IAppConfig {
-  apiUrl: string;
-}
+import { IAppConfig } from './app-config';
 
 export class AppConfigService {
 
   // tslint:disable-next-line:variable-name
-  private _config!: IAppConfig;
+  private _config: IAppConfig | undefined;
 
   get config() {
     return this._config;
   }
 
   async init() {
-    const x = await fetch('config.json');
-    const config = await x.json();
-    this._config = config;
-    return config;
+    const x = await fetch('/config.json');
+    const data = await x.json();
+    this._config = this.parseConfig(data);
+    return this._config;
+  }
+
+  private parseConfig(data: any) {
+    return data as IAppConfig;
   }
 
 }

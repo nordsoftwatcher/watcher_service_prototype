@@ -17,21 +17,11 @@ import { mapEvent } from '../../../api-mappers/track-event';
 import { OperatorRouteApiApi, OperatorDeviceApiApi, OperatorEventApiApi } from '../../../api/operator-api';
 import { withAppConfig, ConfiguredComponentProps } from '../../../core/app-config/AppConfigProvider';
 
-const PARAMS = {
-  deviceId: 'TEST_DEVICE',
-  refreshIntervalMs: 1000,
-};
-
 interface RouteParams {
   routeId: string;
 }
 
-// tslint:disable-next-line:no-empty-interface
-interface RouteInstanceContainerProps {
-
-}
-
-type Props = RouteInstanceContainerProps & ConfiguredComponentProps & RouteComponentProps<RouteParams>;
+type Props = ConfiguredComponentProps & RouteComponentProps<RouteParams>;
 
 interface RouteInstanceContainerState {
   route?: IRoute;
@@ -45,6 +35,9 @@ export class RouteInstanceContainer extends React.Component<Props, RouteInstance
   private routeApi: OperatorRouteApiApi;
   private deviceApi: OperatorDeviceApiApi;
   private eventsApi: OperatorEventApiApi;
+
+  private locationIntervalId: any;
+  private eventIntervalId: any;
 
   constructor(props: Props) {
     super(props);
@@ -60,10 +53,25 @@ export class RouteInstanceContainer extends React.Component<Props, RouteInstance
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { match } = this.props;
     const routeId = parseInt(match.params.routeId, 10);
-    this.fetchRouteAndPerson(routeId);
+
+    await this.fetchRouteAndPerson(routeId);
+    this.watchLocation();
+    this.watchEvents();
+  }
+
+  componentWillUnmount() {
+    if (this.locationIntervalId) {
+      clearInterval(this.locationIntervalId);
+      this.locationIntervalId = undefined;
+    }
+
+    if (this.eventIntervalId) {
+      clearInterval(this.eventIntervalId);
+      this.eventIntervalId = undefined;
+    }
   }
 
   private async fetchRouteAndPerson(routeId: number) {
@@ -79,13 +87,13 @@ export class RouteInstanceContainer extends React.Component<Props, RouteInstance
       });
     }
 
-    this.watchRouteInstance();
-    this.watchEvents();
   }
 
-  private async fetchRouteInstance(routeId: UUID) {
+  private async fetchLocation(routeId: UUID) {
+    const { config } = this.props;
+
     const deviceLocationInfo = await this.deviceApi.getDeviceLocationUsingGET(
-      PARAMS.deviceId,
+      config.deviceId,
       undefined,
       routeId,
     );
@@ -95,12 +103,14 @@ export class RouteInstanceContainer extends React.Component<Props, RouteInstance
     });
   }
 
-  private watchRouteInstance() {
-    setInterval(async () => {
+  private watchLocation() {
+    const { config } = this.props;
+
+    this.locationIntervalId = setInterval(async () => {
       const { route } = this.state;
 
-      this.fetchRouteInstance(route!.id);
-    }, PARAMS.refreshIntervalMs);
+      this.fetchLocation(route!.id);
+    }, config.refreshInterval);
   }
 
   private async fetchEvents() {
@@ -122,18 +132,15 @@ export class RouteInstanceContainer extends React.Component<Props, RouteInstance
   }
 
   private watchEvents() {
-    setInterval(async () => {
+    const { config } = this.props;
+
+    this.eventIntervalId = setInterval(async () => {
       this.fetchEvents();
-    }, PARAMS.refreshIntervalMs);
+    }, config.refreshInterval);
   }
 
-  static params = {
-    deviceId: 'TEST_DEVICE',
-    refreshIntervalMs: 1000,
-  };
-
   render() {
-    const { route, routeInstance, person, events } = this.state;
+    const { route, person, routeInstance, events } = this.state;
     if (!route || !person) {
       return null;
     }

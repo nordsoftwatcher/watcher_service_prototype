@@ -4,6 +4,6 @@ import { ConfiguredRouteInstanceContainer } from './routing/components/route-ins
 
 export const AppRouter = () => (
   <Router>
-    <Route path='/:routeId' component={ConfiguredRouteInstanceContainer} />
+    <Route path='/routes/:routeId' component={ConfiguredRouteInstanceContainer} />
   </Router>
 );
