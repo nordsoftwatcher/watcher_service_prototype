@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SiWatchApp.Buffer;
 using SiWatchApp.Configuration;
@@ -23,7 +24,7 @@ namespace SiWatchApp.Services
         private readonly Settings _settings;
         private readonly IObserver<EventRecord> _incomingEventsObserver;
         private readonly ISyncProxy _syncProxy;
-        private IDisposable _subscription;
+        private CancellationTokenSource _cts;
 
         public SyncService(MonitoringPolicyService policyService,
                 IBuffer<Record> buffer,
@@ -43,11 +44,11 @@ namespace SiWatchApp.Services
             Reconfigure(mp);
         }
         
-        private void Unsubscribe()
+        private void Cancel()
         {
-            if (_subscription != null) {
-                _subscription.Dispose();
-                _subscription = null;
+            if (_cts != null) {
+                _cts.Cancel();
+                _cts = null;
             }
         }
         
@@ -127,23 +128,36 @@ namespace SiWatchApp.Services
         }
 
         public event EventHandler<bool> Synced;
-
+        
         private void Reconfigure(MonitoringPolicy policy)
         {
             lock (_sync) {
-                Unsubscribe();
-                if (policy != null) {
-                    _subscription = Observable
-                                    .Interval(TimeSpan.FromSeconds(policy.SyncInterval), TaskPoolScheduler.Default)
-                                    .Subscribe(_ => Sync(policy.PacketSize).Wait());
+                Cancel();
+                if (policy == null) {
+                    return;
                 }
+
+                _cts = new CancellationTokenSource();
+
+                var cancellationToken = _cts.Token;
+                Task.Run(async () => {
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(policy.SyncInterval), cancellationToken);
+                            await Sync(policy.PacketSize);
+                        }
+                    }, cancellationToken);
+
+                //_subscription = Observable
+                //                .Interval(TimeSpan.FromSeconds(policy.SyncInterval), TaskPoolScheduler.Default)
+                //                .Subscribe(_ => Sync(policy.PacketSize).Wait());
             }
         }
 
         public void Start()
         {
             lock (_sync) {
-                if (_subscription == null) {
+                if (_cts == null) {
                     _policyService.MonitoringPolicyChanged += OnMonitoringPolicyChanged;
                     Reconfigure(_policyService.CurrentMonitoringPolicy);
                     LOGGER.Debug("Started");
@@ -159,8 +173,8 @@ namespace SiWatchApp.Services
         public void Stop()
         {
             lock (_sync) {
-                if (_subscription != null) {
-                    Unsubscribe();
+                if (_cts != null) {
+                    Cancel();
                     _policyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
                     LOGGER.Debug("Stopped");
                 }
@@ -170,8 +184,8 @@ namespace SiWatchApp.Services
         public void Dispose()
         {
             lock (_sync) {
-                if (_subscription != null) {
-                    Unsubscribe();
+                if (_cts != null) {
+                    Cancel();
                     _policyService.MonitoringPolicyChanged -= OnMonitoringPolicyChanged;
                 }
                 LOGGER.Debug("Disposed");

@@ -71,7 +71,7 @@ namespace SiWatchApp
 
             TextMessage message = await _messageQueue.Get();
             if (message != null) {
-                Notification.ShowInfo("Incoming message", message.Text);
+                await Notification.ShowInfo("Incoming message", message.Text);
             }
         }
 
