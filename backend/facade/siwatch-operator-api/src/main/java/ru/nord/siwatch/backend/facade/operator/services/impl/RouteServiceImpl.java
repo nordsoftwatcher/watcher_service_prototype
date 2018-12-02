@@ -62,10 +62,18 @@ public class RouteServiceImpl implements RouteService {
             return Collections.emptyList();
         }
         List<CheckPointResultDto> checkPoints = new ArrayList<>(route.getCheckPoints().size());
-        for (CheckPoint checkPoint : route.getCheckPoints()) {
+        for (int i = 0; i < route.getCheckPoints().size(); i++) {
+            CheckPoint checkPoint = route.getCheckPoints().get(i);
             CheckPointResultDto checkPointResultDto = operatorMapper.toCheckPointResultDto(checkPoint);
-            ArrivalDepartureInfo arrivalDepartureInfo = OperatorLocationUtils.getArrivalAndDepartureTime(
-                    checkPoint, locations);
+            ArrivalDepartureInfo arrivalDepartureInfo = null;
+            if (i == (route.getCheckPoints().size() - 1)) {
+                arrivalDepartureInfo = OperatorLocationUtils.getArrivalAndDepartureTimeForLast(
+                        checkPoint, locations);
+            } else {
+                arrivalDepartureInfo = OperatorLocationUtils.getArrivalAndDepartureTime(
+                        checkPoint, locations);
+            }
+            /** Arrival departure info */
             if (arrivalDepartureInfo != null) {
                 checkPoints.add(checkPointResultDto);
                 checkPointResultDto.setFactArrivalTime(arrivalDepartureInfo.getArrivalTime());

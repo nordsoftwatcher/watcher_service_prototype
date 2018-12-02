@@ -102,6 +102,33 @@ public class OperatorLocationUtils {
         return null;
     }
 
+    public static ArrivalDepartureInfo getArrivalAndDepartureTimeForLast(CheckPoint checkPoint, List<Location> locations) {
+        if (CollectionUtils.isEmpty(locations)) {
+            return null;
+        }
+        LocalDateTime arrivalTime = null;
+        LocalDateTime departureTime = null;
+        for (Location location : locations) {
+            double distance = distanceBetweenLocationAndCheckpoint(checkPoint, location);
+            if (distance <= checkPoint.getRadius()) {
+                departureTime = location.getDeviceTime();
+                if (arrivalTime == null) {
+                    arrivalTime = location.getDeviceTime();
+                }
+            } else {
+                if (arrivalTime != null) {
+                    departureTime = location.getDeviceTime();
+                    break;
+                }
+            }
+        }
+        if (arrivalTime != null) {
+            return new ArrivalDepartureInfo(arrivalTime, departureTime);
+        }
+
+        return null;
+    }
+
     public static double distanceBetweenLocationAndCheckpoint(CheckPoint checkPoint, Location location) {
         return sqrt(
                 pow(checkPoint.getLatitude() - location.getLatitude(), 2) +
