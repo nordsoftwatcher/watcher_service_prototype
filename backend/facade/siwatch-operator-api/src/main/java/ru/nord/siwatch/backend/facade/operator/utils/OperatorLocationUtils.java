@@ -51,11 +51,7 @@ public class OperatorLocationUtils {
 
     public static Date getDateFromLocalDateTime(LocalDateTime localDateTime) {
         Date result = localDateTime != null ?  Date.from(localDateTime.toInstant(ZoneOffset.UTC)) : null;
-        if (result != null) {
-            return new Date(result.getTime() + (3 * HOUR)); //TODO
-        } else {
-            return null;
-        }
+        return result;
     }
 
     public static Integer calcFactTime(ArrivalDepartureInfo arrivalDepartureInfo) {
