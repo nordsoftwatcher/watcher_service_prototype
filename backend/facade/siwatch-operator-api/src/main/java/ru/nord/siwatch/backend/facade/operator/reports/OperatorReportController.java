@@ -144,11 +144,14 @@ public class OperatorReportController extends ApiBase {
                 }
             } else {
                 if (currentStartTime != null) {
-                    deviations.add(new RouteDeviationDto(
-                            OperatorLocationUtils.getDateFromLocalDateTime(currentStartTime),
-                            OperatorLocationUtils.getDateFromLocalDateTime(location.getDeviceTime()),
-                            OperatorLocationUtils.calcTimeInMinutes(currentStartTime, location.getDeviceTime())
-                    ));
+                    Integer deviationTime = OperatorLocationUtils.calcTimeInMinutes(currentStartTime, location.getDeviceTime());
+                    if (deviationTime > 0) {
+                        deviations.add(new RouteDeviationDto(
+                                OperatorLocationUtils.getDateFromLocalDateTime(currentStartTime),
+                                OperatorLocationUtils.getDateFromLocalDateTime(location.getDeviceTime()),
+                                deviationTime
+                        ));
+                    }
                     currentStartTime = null;
                 }
             }
